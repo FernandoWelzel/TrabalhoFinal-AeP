@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "raylib.h"
-
+#define MAX_FONTS   1
 
 // Estruturas
 
@@ -37,9 +37,23 @@ int main(void)
 
     InitWindow(screen_width, screen_height, "Adventures of Lolo");
 
+    //Iniciar audio device
+    InitAudioDevice();
+    
+    // Creditos (return menu)
+    const char message[128] = "PRESS ENTER TO RETURN MENU";
+    int framesCounter = 0;
+    
+    
     SetTargetFPS(60);
     
-    Sound music = LoadSound("./resources/MainTheme.mp3");
+    //Musica
+    Music music = LoadMusicStream("./resources/musiquinha.mp3");
+    music.looping = false;
+    PlayMusicStream(music);
+
+
+    
     
     Texture2D menu_texture = LoadTexture("./resources/Menu.png");
     Texture2D lolo_texture = LoadTexture("./resources/Lolo-cortado.png"); 
@@ -49,7 +63,7 @@ int main(void)
     int ponto_y_inic_lolo_menu = (screen_height - menu_texture.height)/2 + 85;
     int desloc_y_lolo_menu = 60;
     
-    int cred_timer = 0;
+    
     
     
     PONTO lolo_sel_ponto = {ponto_x_lolo_menu, ponto_y_inic_lolo_menu};
@@ -57,7 +71,8 @@ int main(void)
     // Main game loop
     while (!WindowShouldClose() && strcmp(status_jogo.parte, "SAIR") != 0)    // Detect window close button or ESC key
     {
-        PlaySound(music);
+        UpdateMusicStream(music); //Tocar a musica quando abre o menu
+        
         if (strcmp(status_jogo.parte, "INIC") == 0) {
             BeginDrawing();
         
@@ -105,13 +120,13 @@ int main(void)
             BeginDrawing();
         
                 ClearBackground(BLACK);
-
+                   
             EndDrawing();
         }
         
         if (strcmp(status_jogo.parte, "LOAD") == 0) {
             BeginDrawing();
-        
+            
                 ClearBackground(BLACK);
 
             EndDrawing();
@@ -122,16 +137,22 @@ int main(void)
         
                 ClearBackground(BLACK);
                 DrawTexture(cred_texture, (screen_width - cred_texture.width)/2, (screen_height - cred_texture.height)/2, WHITE);
-                cred_timer += GetFrameTime();
                 
-                if (cred_timer >= 0.0001) {
-                    strcpy(status_jogo.parte, "SAIR");
-                    cred_timer = 0;
+            
+                framesCounter++;
+                DrawText(TextSubtext(message, 0, framesCounter/5), 230, 445, 20, BLACK);
+                             
+                
+                if(IsKeyPressed(KEY_ENTER)){
+                    framesCounter = 0;
+                    strcpy(status_jogo.parte,"MENU");
                 }
+
 
             EndDrawing();
         }
     }
+    CloseAudioDevice();
 
     return 0;
 }
