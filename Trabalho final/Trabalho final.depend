@@ -1,8 +1,0 @@
-# depslib dependency file v1.0
-1617638576 source:c:\users\fernando\desktop\ufrgs\algoritmos e programação\trabalho final\main.c
-	<stdio.h>
-	<stdlib.h>
-	<raylib.h>
-	<raylib.h>
-	<stdio.h>
-
