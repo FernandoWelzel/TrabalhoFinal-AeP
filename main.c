@@ -55,7 +55,7 @@ int main(void)
     SetTargetFPS(60);
     
     //Musica
-    Music music = LoadMusicStream("./resources/musiquinha.mp3");
+    Music music = LoadMusicStream("./resources/Songs/Main-theme.mp3");
     music.looping = false;
     PlayMusicStream(music);
     
@@ -65,11 +65,11 @@ int main(void)
 
     
     
-    Texture2D menu_texture = LoadTexture("./resources/Menu.png");
-    Texture2D lolo_texture = LoadTexture("./resources/Lolo-cortado.png"); 
-    Texture2D cred_texture = LoadTexture("./resources/Creditos.png"); 
-    Texture2D arvore_texture = LoadTexture("./resources/arvore.png");
-    Texture2D fundo_texture = LoadTexture("./resources/Fundo sem nada.png");
+    Texture2D menu_texture = LoadTexture("./resources/Menus/Menu.png");
+    Texture2D lolo_texture = LoadTexture("./resources/Menus/Menu_lolo.png"); 
+    Texture2D cred_texture = LoadTexture("./resources/Menus/Creditos.png"); 
+    Texture2D arvore_texture = LoadTexture("./resources/Blocos/Tree.png");
+    Texture2D fundo_texture = LoadTexture("./resources/Menus/Fundo sem nada.png");
 
     
     int ponto_x_lolo_menu = (screen_width - menu_texture.width)/2 + 45;
