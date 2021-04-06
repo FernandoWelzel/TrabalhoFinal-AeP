@@ -5,7 +5,6 @@
 #define MAX_FONTS   1
 
 // Estruturas
-
 typedef struct gravacao {
     char identificador;
     char totalpts;
@@ -27,6 +26,14 @@ typedef struct ponto {
 typedef struct status {
     char parte[5];
 }STATUS;
+
+typedef struct lolo{
+    char vidas;
+    PONTO ponto;
+    int poder[3];
+    
+} Lolo;
+
 
 int main(void)
 {
