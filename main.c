@@ -58,6 +58,9 @@ int main(void)
     Music music = LoadMusicStream("./resources/musiquinha.mp3");
     music.looping = false;
     PlayMusicStream(music);
+    
+    //Fonte
+     Font Fonte_principal = LoadFont("./resources/fonte.ttf");
 
 
     
@@ -65,11 +68,14 @@ int main(void)
     Texture2D menu_texture = LoadTexture("./resources/Menu.png");
     Texture2D lolo_texture = LoadTexture("./resources/Lolo-cortado.png"); 
     Texture2D cred_texture = LoadTexture("./resources/Creditos.png"); 
+    Texture2D arvore_texture = LoadTexture("./resources/arvore.png");
+    Texture2D fundo_texture = LoadTexture("./resources/Fundo sem nada.png");
+
     
     int ponto_x_lolo_menu = (screen_width - menu_texture.width)/2 + 45;
     int ponto_y_inic_lolo_menu = (screen_height - menu_texture.height)/2 + 85;
     int desloc_y_lolo_menu = 60;
-    
+    Vector2 position={235,200};
     
     
     
@@ -119,13 +125,17 @@ int main(void)
             
                 DrawTexture(menu_texture, (screen_width - menu_texture.width)/2, (screen_height - menu_texture.height)/2, WHITE);
                 DrawTexture(lolo_texture, lolo_sel_ponto.x, lolo_sel_ponto.y, WHITE);
+           
 
             EndDrawing();
         }
         
         if (strcmp(status_jogo.parte, "GAME") == 0) {
             BeginDrawing();
-        
+                
+                DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
+                DrawTextEx(Fonte_principal, "Nome do jogador...", position, 25, 1, BLACK);
+                
                 ClearBackground(BLACK);
                    
             EndDrawing();
@@ -135,7 +145,8 @@ int main(void)
             BeginDrawing();
             
                 ClearBackground(BLACK);
-
+                DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
+                
             EndDrawing();
         }
         
