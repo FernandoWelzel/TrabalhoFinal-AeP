@@ -1,11 +1,15 @@
+// Bibliotecas padrão
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+// Nossas bibliotecas
 #include "Headers.h"
 
+// Bibliotecas adicionais
 #include "raylib.h"
 
+// Declaração de constantes
 #define MAX_INPUT_CHARS 8
 
 int main(void)
@@ -14,11 +18,8 @@ int main(void)
     int screen_width = 800;
     int screen_height = 800;
     InitWindow(screen_width, screen_height, "Adventures of Lolo");
-
-    //Iniciar audio device
-    InitAudioDevice();
     
-    // Creditos (return menu)
+    // Créditos (return menu)
     const char message[128] = "PRESS ENTER TO RETURN MENU";
     int framesCounter = 0;
     
@@ -26,12 +27,13 @@ int main(void)
     SetTargetFPS(60);
     STATUS status_jogo = {"MENU"};
     
-    //Musica
+    // Música
+    InitAudioDevice();
     Music music = LoadMusicStream("./resources/Songs/Main-theme.mp3");
     music.looping = false;
     PlayMusicStream(music);
     
-    //Fonte
+    // Fonte
     Font Fonte_principal = LoadFont("./resources/fonte.ttf");
 
     //Texturas
