@@ -1,53 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "Headers.h"
+
 #include "raylib.h"
-#define MAX_FONTS   1
-#define MAX_INPUT_CHARS     8
 
-// Estruturas
-typedef struct gravacao {
-    char identificador;
-    char totalpts;
-    char ultimafase;
-    char vidas;
-    char nomejogador[9];
-} GRAVACAO;
-
-typedef struct fase {
-    char estrutura[11][11];
-    int pos_porta;
-} FASE;
-
-typedef struct ponto {
-    int x;
-    int y;
-} PONTO;
-
-typedef struct status {
-    char parte[5];
-} STATUS;
-
-typedef struct lolo {
-    char vidas;
-    PONTO ponto;
-    char poder[3];
-} LOLO;
-
-typedef struct inimigo {
-    char vidas;
-    PONTO ponto;
-} INIMIGO;
-
-bool IsAnyKeyPressed()
-{
-    bool keyPressed = false;
-    int key = GetKeyPressed();
-
-    if ((key >= 32) && (key <= 126)) keyPressed = true;
-
-    return keyPressed;
-}
+#define MAX_INPUT_CHARS 8
 
 int main(void)
 {    
@@ -87,11 +46,13 @@ int main(void)
     int ponto_y_inic_lolo_menu = (screen_height - menu_texture.height)/2 + 85;
     int desloc_y_lolo_menu = 60;
     PONTO lolo_sel_ponto = {ponto_x_lolo_menu, ponto_y_inic_lolo_menu};
+    
+    Rectangle textBox = { 255, 385, 300, 50 };
+    
     Vector2 position11 = {275, 265};
     Vector2 position12 = {260, 320};
     Vector2 position2 = {250, 450};
     Vector2 position3 = {210, 500};
-    Rectangle textBox = { 255, 385, 300, 50 };
     Vector2 position4 = {textBox.x + 5, textBox.y + 8};
     
     // Declaração das variáveis da caixa de texto com o nome do jogador
@@ -102,14 +63,6 @@ int main(void)
     while (!WindowShouldClose() && strcmp(status_jogo.parte, "SAIR") != 0)    // Detect window close button or ESC key
     {
         UpdateMusicStream(music); //Tocar a musica quando abre o menu
-        
-        if (strcmp(status_jogo.parte, "INIC") == 0) {
-            BeginDrawing();
-        
-                ClearBackground(BLACK);
-
-            EndDrawing();
-        }
         
         if (strcmp(status_jogo.parte, "MENU") == 0) {
             
@@ -236,7 +189,6 @@ int main(void)
                     framesCounter = 0;
                     strcpy(status_jogo.parte,"MENU");
                 }
-
 
             EndDrawing();
         }
