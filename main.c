@@ -2,17 +2,55 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "raylib.h"
-#define MAX_INPUT_CHARS 8
-
-// Nossas bibliotecas
-#include "Headers.h"
+#include <ctype.h>
 
 // Bibliotecas adicionais
 #include "raylib.h"
 
+// Nossas bibliotecas
+#include "Headers.h"
+
 // Declaração de constantes
 #define MAX_INPUT_CHARS 8
+#define ARQ_GRAVACAO "gravacao.bin"
+
+void escreve_gravacao(char * nome_arquivo, pGRAVACAO gravacao) {
+    FILE * arquivo;
+    if (!(arquivo = fopen(nome_arquivo, "a+b"))) {
+        printf("Erro ao abrir o arquivo de gravações");
+    }
+    else {
+        fwrite(gravacao, sizeof(GRAVACAO), 1, arquivo);
+        fclose(arquivo);
+    }
+}
+
+int nome_unico(char * nome_arquivo, char * nome) {
+    FILE * arquivo;
+    GRAVACAO gravacao_corrente;
+    if (!(arquivo = fopen(nome_arquivo, "rb"))) {
+        printf("Erro ao abrir o arquivo de gravações");
+    }
+    else {
+        while (!feof(arquivo)) {
+            fread(&gravacao_corrente, sizeof(GRAVACAO), 1, arquivo);
+            printf("Comparando %s com %s\n", gravacao_corrente.nomejogador, nome);
+            if (strcmp(nome, gravacao_corrente.nomejogador) == 0) {
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
+
+char * string_to_lower (char * string, char * nova_string) {
+    int i, tam_string = strlen(string);
+    for (i = 0; i < tam_string; i++) {
+        nova_string[i] = tolower(string[i]);
+    }
+    nova_string[i] = '\n';
+    return nova_string;
+}
 
 int main(void)
 {    
@@ -38,7 +76,7 @@ int main(void)
     // Fonte
     Font Fonte_principal = LoadFont("./resources/fonte.ttf");
 
-    //Texturas
+    // Texturas
     Texture2D menu_texture = LoadTexture("./resources/Menus/Menu.png");
     Texture2D lolo_texture = LoadTexture("./resources/Menus/Menu_lolo.png"); 
     Texture2D cred_texture = LoadTexture("./resources/Menus/Creditos.png"); 
@@ -60,6 +98,7 @@ int main(void)
     // Declaração das variáveis da caixa de texto com o nome do jogador
     char name[MAX_INPUT_CHARS + 1] = "\0";
     int letterCount = 0;
+    int nome_n_unico = 0;
     
     // Main game loop
     while (!WindowShouldClose() && strcmp(status_jogo.parte, "SAIR") != 0)    // Detect window close button or ESC key
@@ -112,7 +151,7 @@ int main(void)
         
         if (strcmp(status_jogo.parte, "NAME") == 0) {
             
-            //Implementação da caixa de texto com o nome do jogador
+            // Implementação da caixa de texto com o nome do jogador
             // Pega a tecla apertada
             int key = GetCharPressed();
 
@@ -139,16 +178,28 @@ int main(void)
             if (IsKeyPressed(KEY_ENTER)) {
                 if (letterCount > 0) {
                     GRAVACAO jogo_atual;
-                    strcpy(jogo_atual.nomejogador, name);
-                    strcpy(status_jogo.parte, "GAME");
-                };
+                    strcpy(jogo_atual.ident, "00");
+                    strcpy(jogo_atual.totalpts, "00");
+                    strcpy(jogo_atual.num_ult_fase, "00");
+                    strcpy(jogo_atual.vidas, "05");
+                    char string_interm[9];
+                    strcpy(jogo_atual.nomejogador, string_to_lower(name, string_interm));
+                    
+                    if (nome_unico(ARQ_GRAVACAO, jogo_atual.nomejogador)) {
+                        strcpy(status_jogo.parte, "GAME");
+                        escreve_gravacao(ARQ_GRAVACAO, &jogo_atual);
+                    }
+                    else {
+                        nome_n_unico = 1;
+                    }
+                }
             }
             
             BeginDrawing();
             
                 ClearBackground(BLACK);
 
-                //Imagem de fundo
+                // Imagem de fundo
                 DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
                 
                 // Texto a cima
@@ -161,14 +212,19 @@ int main(void)
 
                 // Texto a baixo
                 DrawTextEx(Fonte_principal, TextFormat("Caracteres %i de %i", letterCount, MAX_INPUT_CHARS), position2, 25, 1, BLACK);
-                DrawTextEx(Fonte_principal, "Precione Enter para salvar", position3, 20, 1, BLACK);
-                   
+                if (nome_n_unico) {
+                    DrawTextEx(Fonte_principal, "  Insira outro nome", position3, 30, 1, MAROON);
+                }
+                else {
+                    DrawTextEx(Fonte_principal, "Precione Enter para salvar", position3, 20, 1, BLACK);
+                }
+                
             EndDrawing();
         }
         
         if (strcmp(status_jogo.parte, "LOAD") == 0) {
             BeginDrawing();
-            
+                
                 ClearBackground(BLACK);
                 DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
                 
