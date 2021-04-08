@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "raylib.h"
-#define MAX_FONTS   1
 #define MAX_INPUT_CHARS     8
 
 // Estruturas
@@ -229,7 +228,7 @@ int main(void)
                 
             
                 framesCounter++;
-                DrawText(TextSubtext(message, 0, framesCounter/5), 230, 445, 20, BLACK);
+                DrawText(TextSubtext(message, 0, framesCounter/5), 230, 550, 20, BLACK);
                              
                 
                 if(IsKeyPressed(KEY_ENTER)){
