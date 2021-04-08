@@ -1,52 +1,18 @@
+// Bibliotecas padrão
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "raylib.h"
-#define MAX_INPUT_CHARS     8
+#define MAX_INPUT_CHARS 8
 
-// Estruturas
-typedef struct gravacao {
-    char identificador;
-    char totalpts;
-    char ultimafase;
-    char vidas;
-    char nomejogador[9];
-} GRAVACAO;
+// Nossas bibliotecas
+#include "Headers.h"
 
-typedef struct fase {
-    char estrutura[11][11];
-    int pos_porta;
-} FASE;
+// Bibliotecas adicionais
+#include "raylib.h"
 
-typedef struct ponto {
-    int x;
-    int y;
-} PONTO;
-
-typedef struct status {
-    char parte[5];
-} STATUS;
-
-typedef struct lolo {
-    char vidas;
-    PONTO ponto;
-    char poder[3];
-} LOLO;
-
-typedef struct inimigo {
-    char vidas;
-    PONTO ponto;
-} INIMIGO;
-
-bool IsAnyKeyPressed()
-{
-    bool keyPressed = false;
-    int key = GetKeyPressed();
-
-    if ((key >= 32) && (key <= 126)) keyPressed = true;
-
-    return keyPressed;
-}
+// Declaração de constantes
+#define MAX_INPUT_CHARS 8
 
 int main(void)
 {    
@@ -54,11 +20,8 @@ int main(void)
     int screen_width = 800;
     int screen_height = 800;
     InitWindow(screen_width, screen_height, "Adventures of Lolo");
-
-    //Iniciar audio device
-    InitAudioDevice();
     
-    // Creditos (return menu)
+    // Créditos (return menu)
     const char message[128] = "PRESS ENTER TO RETURN MENU";
     int framesCounter = 0;
     
@@ -66,12 +29,13 @@ int main(void)
     SetTargetFPS(60);
     STATUS status_jogo = {"MENU"};
     
-    //Musica
+    // Música
+    InitAudioDevice();
     Music music = LoadMusicStream("./resources/Songs/Main-theme.mp3");
     music.looping = false;
     PlayMusicStream(music);
     
-    //Fonte
+    // Fonte
     Font Fonte_principal = LoadFont("./resources/fonte.ttf");
 
     //Texturas
