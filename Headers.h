@@ -8,13 +8,13 @@ typedef struct ponto {
 } PONTO;
 
 typedef struct fase {
-    int num;
-    char nome;
-    char elementos[11][11];
-    int pos_porta;
+    char num[3];
+    char nome[20];
+    char elementos[132];
+    char pos_porta[3];
     PONTO pos_i_jog;
     char texto_inic[200];
-} FASE;
+} FASE, * pFASE;
 
 typedef struct lolo {
     char vidas;
@@ -35,4 +35,8 @@ typedef struct gravacao {
     char nomejogador[9];
 } GRAVACAO, * pGRAVACAO;
 
-bool IsAnyKeyPressed();
+void escreve_gravacao(char * nome_arquivo, pGRAVACAO gravacao);
+int nome_unico(char * nome_arquivo, char * nome);
+
+int IsAnyKeyPressed();
+char * string_to_lower (char * string, char * nova_string);

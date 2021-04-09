@@ -17,7 +17,7 @@
 
 void escreve_gravacao(char * nome_arquivo, pGRAVACAO gravacao) {
     FILE * arquivo;
-    if (!(arquivo = fopen(nome_arquivo, "wb"))) {
+    if (!(arquivo = fopen(nome_arquivo, "a+b"))) {
         printf("Erro ao abrir o arquivo de gravações");
     }
     else {
@@ -35,7 +35,7 @@ void imprime_gravacao(char * nome_arquivo) {
     else {
         while(!feof(arquivo)) {
             fread(&intermediario, sizeof(char), 1, arquivo);
-            printf("%c/n", intermediario);
+            printf("%c", intermediario);
         }
         fclose(arquivo);
     }
