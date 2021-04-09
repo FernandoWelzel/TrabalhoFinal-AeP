@@ -13,6 +13,7 @@
 // Declaração de constantes
 #define MAX_INPUT_CHARS 8
 #define ARQ_GRAVACAO "gravacao.bin"
+#define ARQ_FASE "fase.bin"
 
 // Funções relacionadas a manipulação de texto e entrada do usuário
 int IsAnyKeyPressed() {
@@ -62,6 +63,22 @@ int nome_unico(char * nome_arquivo, char * nome) {
     return 1;
 }
 
+int numero_gravacoes(char * nome_arquivo) {
+    FILE * arquivo;
+    int tamanho = 0;
+    GRAVACAO gravacao_corrente;
+    if (!(arquivo = fopen(nome_arquivo, "rb"))) {
+        printf("Erro ao abrir o arquivo de gravações");
+    }
+    else {
+        while (!feof(arquivo)) {
+            fread(&gravacao_corrente, sizeof(GRAVACAO), 1, arquivo);
+            tamanho++;
+        }
+    }
+    return tamanho;
+}
+
 //Função principal MAIN
 int main(void) {    
     // Inicia a janela com as dimensões indicadas
@@ -109,6 +126,10 @@ int main(void) {
     char name[MAX_INPUT_CHARS + 1] = "\0";
     int letterCount = 0;
     int nome_n_unico = 0;
+    
+    //Declaração de Gravação e fase atuais
+    GRAVACAO jogo_atual;
+    FASE fase_atual;
     
     // Main game loop
     while (!WindowShouldClose() && strcmp(status_jogo.parte, "SAIR") != 0)    // Detect window close button or ESC key
@@ -187,7 +208,6 @@ int main(void) {
             // Checa se foi apertado enter, nesse caso salva o nome do jogador se ele tiver colocado um e começa o jogo
             if (IsKeyPressed(KEY_ENTER)) {
                 if (letterCount > 0) {
-                    GRAVACAO jogo_atual;
                     strcpy(jogo_atual.ident, "00");
                     strcpy(jogo_atual.totalpts, "00");
                     strcpy(jogo_atual.num_ult_fase, "00");
@@ -197,6 +217,7 @@ int main(void) {
                     
                     if (nome_unico(ARQ_GRAVACAO, jogo_atual.nomejogador)) {
                         strcpy(status_jogo.parte, "TEXT");
+                        carregar_fase(jogo_atual.num_ult_fase, &fase_atual);
                         escreve_gravacao(ARQ_GRAVACAO, &jogo_atual);
                     }
                     else {
@@ -241,7 +262,8 @@ int main(void) {
             EndDrawing();
         }
         
-        if (strcmp(status_jogo.parte, "TEXT") == 0) {
+        if (strcmp(status_jogo.parte, "TEXT") == 0) {         
+            
             BeginDrawing();
             
                 ClearBackground(BLACK);

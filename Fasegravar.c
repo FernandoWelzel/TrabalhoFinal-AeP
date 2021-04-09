@@ -25,14 +25,14 @@ void escreve_fase(char * nome_arquivo, pFASE fase) {
 
 void imprime_fase(char * nome_arquivo) {
     FILE * arquivo;
-    char intermediario;
+    FASE intermediario;
     if (!(arquivo = fopen(nome_arquivo, "rb"))) {
         printf("Erro ao abrir o arquivo de fases");
     }
     else {
         while(!feof(arquivo)) {
-            fread(&intermediario, sizeof(char), 1, arquivo);
-            printf("%c", intermediario);
+            fread(&intermediario, sizeof(FASE), 1, arquivo);
+            printf("%s %s %s %s %s\n", intermediario.num, intermediario.nome, intermediario.elementos, intermediario.pos_porta, intermediario.texto_inic);
         }
         fclose(arquivo);
     }
@@ -40,10 +40,10 @@ void imprime_fase(char * nome_arquivo) {
 
 int main(void)
 {    
-    //char elementos[132] = "LLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\0";
-    //char texto_inicial[200] = "Ao longo da primeira fase, mate os inimigos e passe pela porta";
+    char elementos[132] = "LLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\0";
+    char texto_inicial[200] = "Ao longo da primeira fase, mate os inimigos e passe pela porta";
     
-    FASE nivel1 = {"01", "Fase inicial", "LLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\0", "01", {3, 5}, "Ao longo da primeira fase, mate os inimigos e passe pela porta\0"};
+    FASE nivel1 = {"01", "Fase inicial", elementos, "01", {3, 5}, texto_inicial};
     
     escreve_fase(ARQ_GRAVACAO, &nivel1);
     imprime_fase(ARQ_GRAVACAO);
