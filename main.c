@@ -14,6 +14,21 @@
 #define MAX_INPUT_CHARS 8
 #define ARQ_GRAVACAO "gravacao.bin"
 
+int numero_gravacoes(char * nome_arquivo) {
+    FILE * arquivo;
+    int tamanho;
+    if (!(arquivo = fopen(nome_arquivo, "rb"))) {
+        printf("Erro ao abrir o arquivo de gravações");
+    }
+    else {
+        while (!feof(arquivo)) {
+            fseek(arquivo, sizeof(GRAVACAO), SEEK_CUR);
+            tamanho++;
+        }
+    }
+    return tamanho;
+}
+
 void escreve_gravacao(char * nome_arquivo, pGRAVACAO gravacao) {
     FILE * arquivo;
     if (!(arquivo = fopen(nome_arquivo, "a+b"))) {
@@ -60,7 +75,7 @@ int main(void)
     InitWindow(screen_width, screen_height, "Adventures of Lolo");
     
     // Créditos (return menu)
-    const char message[128] = "PRESS ENTER TO RETURN MENU";
+    const char message[28] = "PRESS ENTER TO RETURN MENU";
     int framesCounter = 0;
     
     // Configurações
@@ -85,13 +100,17 @@ int main(void)
 
     // Variáveis de posicionamento
     int ponto_x_lolo_menu = (screen_width - menu_texture.width)/2 + 45;
+    int ponto_x_lolo_load = (screen_width - menu_texture.width)/2 + 40;
     int ponto_y_inic_lolo_menu = (screen_height - menu_texture.height)/2 + 85;
+    int ponto_y_inic_lolo_load = (screen_height - menu_texture.height)/2 + 75;
     int desloc_y_lolo_menu = 60;
+    int desloc_y_lolo_load = 50;
     PONTO lolo_sel_ponto = {ponto_x_lolo_menu, ponto_y_inic_lolo_menu};
     Vector2 position11 = {275, 265};
     Vector2 position12 = {260, 320};
     Vector2 position2 = {250, 450};
     Vector2 position3 = {210, 500};
+    Vector2 position5 = {210, 250};
     Rectangle textBox = { 255, 385, 300, 50 };
     Vector2 position4 = {textBox.x + 5, textBox.y + 8};
     
@@ -99,6 +118,7 @@ int main(void)
     char name[MAX_INPUT_CHARS + 1] = "\0";
     int letterCount = 0;
     int nome_n_unico = 0;
+
     
     // Main game loop
     while (!WindowShouldClose() && strcmp(status_jogo.parte, "SAIR") != 0)    // Detect window close button or ESC key
@@ -129,6 +149,7 @@ int main(void)
                 }
                 else if (lolo_sel_ponto.y == ponto_y_inic_lolo_menu + 1*desloc_y_lolo_menu) {
                     strcpy(status_jogo.parte, "LOAD");
+                    lolo_sel_ponto.y = ponto_y_inic_lolo_load;
                 }
                 else if (lolo_sel_ponto.y == ponto_y_inic_lolo_menu + 2*desloc_y_lolo_menu) {
                     strcpy(status_jogo.parte, "CRED");
@@ -223,11 +244,47 @@ int main(void)
         }
         
         if (strcmp(status_jogo.parte, "LOAD") == 0) {
-            BeginDrawing();
+         BeginDrawing();
+         int i;
+            ClearBackground(BLACK);
+            DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
+            DrawTextEx(Fonte_principal, "Escolha um jogo salvo", position5, 24, 2, BLACK);                
+            DrawTexture(lolo_texture, ponto_x_lolo_load, lolo_sel_ponto.y, WHITE);
+            
+             
+                for(i=0; i < numero_gravacoes; i++){
+                    DrawText(nome_arquivo, ponto_x_inic_lolo_load, i*50 + ponto_y_inic_lolo_load, 10, BLACK);
+                }
                 
-                ClearBackground(BLACK);
-                DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
+                if (IsKeyPressed(KEY_UP) && lolo_sel_ponto.y != ponto_y_inic_lolo_load) {
+                    lolo_sel_ponto.y -= 55;
+                }
+            
+                if ((IsKeyPressed(KEY_DOWN)) && (lolo_sel_ponto.y != ponto_y_inic_lolo_load + (4 * 55))) {
+                    lolo_sel_ponto.y += 55;
+                }
+            
+                if (IsKeyPressed(KEY_ENTER)) {
+                    if (lolo_sel_ponto.y == ponto_y_inic_lolo_load) {
+                        strcpy(status_jogo.parte, "SLOT 1");
+                    }
+                    else if (lolo_sel_ponto.y == ponto_y_inic_lolo_load + 1*55) {
+                        strcpy(status_jogo.parte, "SLOT 2");
+                    }
+                    else if (lolo_sel_ponto.y == ponto_y_inic_lolo_load + 2*55) {
+                        strcpy(status_jogo.parte, "SLOT 3");
+                    }
+                    else if (lolo_sel_ponto.y == ponto_y_inic_lolo_load + 3*55) {
+                        strcpy(status_jogo.parte, "SLOT 4");
+                    }
+                    else if (lolo_sel_ponto.y == ponto_y_inic_lolo_load + 4*55) {
+                        strcpy(status_jogo.parte, "SLOT 5");
+                    }
+                }
+            
                 
+                
+               
             EndDrawing();
         }
         
