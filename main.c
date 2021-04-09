@@ -14,20 +14,7 @@
 #define MAX_INPUT_CHARS 8
 #define ARQ_GRAVACAO "gravacao.bin"
 
-int numero_gravacoes(char * nome_arquivo) {
-    FILE * arquivo;
-    int tamanho;
-    if (!(arquivo = fopen(nome_arquivo, "rb"))) {
-        printf("Erro ao abrir o arquivo de gravações");
-    }
-    else {
-        while (!feof(arquivo)) {
-            fseek(arquivo, sizeof(GRAVACAO), SEEK_CUR);
-            tamanho++;
-        }
-    }
-    return tamanho;
-}
+
 
 void escreve_gravacao(char * nome_arquivo, pGRAVACAO gravacao) {
     FILE * arquivo;
@@ -252,10 +239,10 @@ int main(void)
             DrawTexture(lolo_texture, ponto_x_lolo_load, lolo_sel_ponto.y, WHITE);
             
              
-                for(i=0; i < numero_gravacoes; i++){
-                    DrawText(nome_arquivo, ponto_x_inic_lolo_load, i*50 + ponto_y_inic_lolo_load, 10, BLACK);
-                }
-                
+              //  for(i=0; i < numero_gravacoes; i++){
+                //    DrawText(nome_arquivo, ponto_x_lolo_load + 30, ponto_y_inic_lolo_load + i*55, 10, BLACK);
+                //}
+              
                 if (IsKeyPressed(KEY_UP) && lolo_sel_ponto.y != ponto_y_inic_lolo_load) {
                     lolo_sel_ponto.y -= 55;
                 }
@@ -263,22 +250,22 @@ int main(void)
                 if ((IsKeyPressed(KEY_DOWN)) && (lolo_sel_ponto.y != ponto_y_inic_lolo_load + (4 * 55))) {
                     lolo_sel_ponto.y += 55;
                 }
-            
+               
                 if (IsKeyPressed(KEY_ENTER)) {
                     if (lolo_sel_ponto.y == ponto_y_inic_lolo_load) {
-                        strcpy(status_jogo.parte, "SLOT 1");
+                            strcpy(status_jogo.parte, "GAME");
                     }
                     else if (lolo_sel_ponto.y == ponto_y_inic_lolo_load + 1*55) {
-                        strcpy(status_jogo.parte, "SLOT 2");
+                        strcpy(status_jogo.parte, "GAME");
                     }
                     else if (lolo_sel_ponto.y == ponto_y_inic_lolo_load + 2*55) {
-                        strcpy(status_jogo.parte, "SLOT 3");
+                        strcpy(status_jogo.parte, "GAME");
                     }
                     else if (lolo_sel_ponto.y == ponto_y_inic_lolo_load + 3*55) {
-                        strcpy(status_jogo.parte, "SLOT 4");
+                        strcpy(status_jogo.parte, "GAME");
                     }
                     else if (lolo_sel_ponto.y == ponto_y_inic_lolo_load + 4*55) {
-                        strcpy(status_jogo.parte, "SLOT 5");
+                        strcpy(status_jogo.parte, "GAME");
                     }
                 }
             
