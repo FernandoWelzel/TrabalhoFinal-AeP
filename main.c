@@ -111,6 +111,19 @@ int pos_por_nomejogador(char * nome_arquivo, char * nomejogador) {
     return -1;
 }
 
+FASE le_fase_por_pos(char * nome_arquivo, int pos) {
+    FILE * arquivo;
+    FASE fase_lida;
+    if (!(arquivo = fopen(nome_arquivo, "rb"))) {
+        printf("Erro ao abrir o arquivo de fases");
+    }
+    else {
+        fseek(arquivo, sizeof(FASE)*pos, SEEK_SET);
+        fread(&fase_lida, sizeof(FASE), 1, arquivo);
+    }
+    return fase_lida;
+}
+
 //Função principal MAIN
 int main(void) {    
     // Inicia a janela com as dimensões indicadas
@@ -121,6 +134,7 @@ int main(void) {
     // Créditos (return menu)
     const char message[28] = "PRESS ENTER TO RETURN MENU";
     int framesCounter = 0;
+    int framesCounter2 = 0;
     
     // Configurações
     SetTargetFPS(60);
@@ -141,6 +155,11 @@ int main(void) {
     Texture2D cred_texture = LoadTexture("./resources/Menus/Creditos.png"); 
     Texture2D fundo_texture = LoadTexture("./resources/Menus/Fundo sem nada.png");
     Texture2D mapa_vazio_texture = LoadTexture("./resources/Mapa/Mapa_vazio.png");
+    Texture2D espaco_livre_texture = LoadTexture("./resources/Blocos/Livre.png");
+    Texture2D agua_texture = LoadTexture("./resources/Blocos/Agua.png");
+    Texture2D pedra_texture = LoadTexture("./resources/Blocos/Pedra.png");
+    Texture2D arvore_texture = LoadTexture("./resources/Blocos/Tree.png");
+    Texture2D bloco_esquerda_texture = LoadTexture("./resources/Blocos/Lateral-esquerda.png");
 
     // Variáveis de posicionamento
     int ponto_x_lolo_menu = (screen_width - menu_texture.width)/2 + 45;
@@ -155,8 +174,11 @@ int main(void) {
     Vector2 position2 = {250, 450};
     Vector2 position3 = {210, 500};
     Vector2 position5 = {210, 250};
-    Rectangle textBox = { 255, 385, 300, 50 };
+    Rectangle textBox = {255, 385, 300, 50};
     Vector2 position4 = {textBox.x + 5, textBox.y + 8};
+    Vector2 position6 = {215, 300};
+    int BordaMapax = ((screen_width - mapa_vazio_texture.width)/2) + 45;
+    int BordaMapay = ((screen_height - mapa_vazio_texture.height)/2) + 96;
     
     // Declaração das variáveis da caixa de texto com o nome do jogador
     char name[MAX_INPUT_CHARS + 1] = "\0";
@@ -164,9 +186,13 @@ int main(void) {
     int nome_n_unico = 0;
 
     
-    //Declaração de Gravação e fase atuais
+    // Declaração de Gravação e fase atuais
     GRAVACAO jogo_atual;
     FASE fase_atual;
+    
+    // Variáveis para iteração
+    int i;
+    int j;
 
     // Main game loop
     while (!WindowShouldClose() && strcmp(status_jogo.parte, "SAIR") != 0)    // Detect window close button or ESC key
@@ -247,7 +273,7 @@ int main(void) {
                     
                     if (nome_unico(ARQ_GRAVACAO, jogo_atual.nomejogador)) {
                         strcpy(status_jogo.parte, "TEXT");
-                        //carregar_fase(jogo_atual.num_ult_fase, &fase_atual);
+                        fase_atual = le_fase_por_pos(ARQ_FASE , atoi(jogo_atual.num_ult_fase));
                         escreve_gravacao(ARQ_GRAVACAO, &jogo_atual);
                     }
                     else {
@@ -333,14 +359,20 @@ int main(void) {
             EndDrawing();
         }
         
-        if (strcmp(status_jogo.parte, "TEXT") == 0) {         
+        if (strcmp(status_jogo.parte, "TEXT") == 0) {
+
+            framesCounter2++;
+            
+            if (framesCounter2/60 > 3) {
+                strcpy(status_jogo.parte, "GAME");
+            }
             
             BeginDrawing();
             
                 ClearBackground(BLACK);
                 DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
                 
-                
+                DrawTextEx(Fonte_principal, fase_atual.texto_inic, position6, 30, 1, BLACK);
                 
             EndDrawing();
         }
@@ -351,6 +383,30 @@ int main(void) {
                 ClearBackground(BLACK);
                 DrawTexture(mapa_vazio_texture, (screen_width - mapa_vazio_texture.width)/2, (screen_height - mapa_vazio_texture.height)/2, WHITE);
                 
+                for (i = 0; i < 11; i++) {
+                    for (j = 0; j < 11; j++) {
+                        /*
+                        // Não funciona por que está gravando por baixo do outro (teria que arrumar a textura da maioria dos blocos também)
+                        if (i == 0 && fase_atual.elementos[j][i] != 'A') {
+                            DrawTexture(bloco_esquerda_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
+                        }*/
+                        switch (fase_atual.elementos[j][i]) {
+                            case 'L':
+                                DrawTexture(espaco_livre_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
+                                break;
+                            case 'A':
+                                DrawTexture(agua_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
+                                break;
+                            case 'P':
+                                DrawTexture(pedra_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
+                                break;
+                            case 'T':
+                                DrawTexture(arvore_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
+                                break;
+                        }
+                        
+                    }
+                }
             EndDrawing();
         }
         
