@@ -10,9 +10,9 @@ typedef struct ponto {
 typedef struct fase {
     char num[3];
     char nome[20];
-    char elementos[132];
+    char elementos[11][12];
     char pos_porta[3];
-    PONTO pos_i_jog;
+    PONTO pos_i_jogador;
     char texto_inic[200];
 } FASE, * pFASE;
 
