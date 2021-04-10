@@ -173,6 +173,15 @@ int main(void) {
     {
         UpdateMusicStream(music); //Tocar a musica quando abre o menu
         
+        GRAVACAO gravacao_1 = le_gravacao_por_pos(ARQ_GRAVACAO,1);
+        GRAVACAO gravacao_2 = le_gravacao_por_pos(ARQ_GRAVACAO,2);
+        GRAVACAO gravacao_3 = le_gravacao_por_pos(ARQ_GRAVACAO,3);
+        GRAVACAO gravacao_4 = le_gravacao_por_pos(ARQ_GRAVACAO,4);
+        GRAVACAO gravacao_5 = le_gravacao_por_pos(ARQ_GRAVACAO,5);
+        
+        
+        
+        
         if (strcmp(status_jogo.parte, "MENU") == 0) {
             
             if (IsKeyPressed(KEY_UP) && lolo_sel_ponto.y != ponto_y_inic_lolo_menu) {
@@ -190,6 +199,7 @@ int main(void) {
                 else if (lolo_sel_ponto.y == ponto_y_inic_lolo_menu + 1*desloc_y_lolo_menu) {
                     strcpy(status_jogo.parte, "LOAD");
                     lolo_sel_ponto.y = ponto_y_inic_lolo_load;
+                    
                 }
                 else if (lolo_sel_ponto.y == ponto_y_inic_lolo_menu + 2*desloc_y_lolo_menu) {
                     strcpy(status_jogo.parte, "CRED");
@@ -283,54 +293,73 @@ int main(void) {
             EndDrawing();
         }
         
-        if (strcmp(status_jogo.parte, "LOAD") == 0) {
-         BeginDrawing();
-         int i;
-            ClearBackground(BLACK);
-            DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
-            DrawTextEx(Fonte_principal, "Escolha um jogo salvo", position5, 24, 2, BLACK);                
-            DrawTexture(lolo_texture, ponto_x_lolo_load, lolo_sel_ponto.y, WHITE);
             
+        if (strcmp(status_jogo.parte, "LOAD") == 0) {
+            BeginDrawing();
+            int i;
+                ClearBackground(BLACK);
+                DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
+                DrawTextEx(Fonte_principal, "Escolha um jogo salvo", position5, 24, 2, BLACK);                
+                DrawTexture(lolo_texture, ponto_x_lolo_load, lolo_sel_ponto.y, WHITE);
+                GRAVACAO gravacao_i;
 
-                for(i=1; i <= 4/*numero de arquivos*/; i++){ 
-                   DrawText("CAVALOLO"/*nome do jogador*/, ponto_x_lolo_load + 60, ponto_y_inic_lolo_load + 5 + ((i-1)*58), 35, BLACK);
-                   DrawText("-Fase 3"/*fase do save*/, ponto_x_lolo_load + 250, ponto_y_inic_lolo_load + 5 + ((i-1)*58), 28, BLACK);
+                for(i=1; i <= 4/*numero_gravacoes/*numero de saves*/; i++){
+                    
+                    
+                    if(numero_gravacoes>=1){
+                        DrawText(gravacao_1.nomejogador/*nome do jogador*/, ponto_x_lolo_load + 60, ponto_y_inic_lolo_load + 5 + ((1-1)*58), 35, BLACK);
+                        DrawText(gravacao_1.num_ult_fase/*fase do save*/, ponto_x_lolo_load + 250, ponto_y_inic_lolo_load + 5 + ((1-1)*58), 28, BLACK);
+                    }
+                    if(numero_gravacoes>=2){
+                        DrawText(gravacao_2.nomejogador/*nome do jogador*/, ponto_x_lolo_load + 60, ponto_y_inic_lolo_load + 5 + ((2-1)*58), 35, BLACK);
+                        DrawText(gravacao_2.num_ult_fase/*fase do save*/, ponto_x_lolo_load + 250, ponto_y_inic_lolo_load + 5 + ((2-1)*58), 28, BLACK);
+                    }
+                    if(numero_gravacoes>=3){
+                        DrawText(gravacao_3.nomejogador/*nome do jogador*/, ponto_x_lolo_load + 60, ponto_y_inic_lolo_load + 5 + ((3-1)*58), 35, BLACK);
+                        DrawText(gravacao_3.num_ult_fase/*fase do save*/, ponto_x_lolo_load + 250, ponto_y_inic_lolo_load + 5 + ((3-1)*58), 28, BLACK);
+                    }
+                    if(numero_gravacoes>=4){
+                        DrawText(gravacao_4.nomejogador/*nome do jogador*/, ponto_x_lolo_load + 60, ponto_y_inic_lolo_load + 5 + ((4-1)*58), 35, BLACK);
+                        DrawText(gravacao_4.num_ult_fase/*fase do save*/, ponto_x_lolo_load + 250, ponto_y_inic_lolo_load + 5 + ((4-1)*58), 28, BLACK);
+                    }
+                    if(numero_gravacoes==5){
+                        DrawText(gravacao_5.nomejogador/*nome do jogador*/, ponto_x_lolo_load + 60, ponto_y_inic_lolo_load + 5 + ((5-1)*58), 35, BLACK);
+                        DrawText(gravacao_5.num_ult_fase/*fase do save*/, ponto_x_lolo_load + 250, ponto_y_inic_lolo_load + 5 + ((5-1)*58), 28, BLACK);
+                    }
 
-               }
-                for (i=4/*numero de arquivos*/; i<5; i++ ){
-                      DrawText("Memoria vazia", ponto_x_lolo_load + 60, ponto_y_inic_lolo_load + (i*58), 35, LIGHTGRAY);     
+                }
+                for (i=numero_gravacoes; i<5; i++ ){
+                    DrawText("Memoria vazia", ponto_x_lolo_load + 60, ponto_y_inic_lolo_load + (i*58), 35, LIGHTGRAY);     
                 }
               
-                if (IsKeyPressed(KEY_UP) && lolo_sel_ponto.y != ponto_y_inic_lolo_load) {
-                    lolo_sel_ponto.y -= 58;
-                }
+                    if (IsKeyPressed(KEY_UP) && lolo_sel_ponto.y != ponto_y_inic_lolo_load) {
+                        lolo_sel_ponto.y -= 58;
+                    }
             
-                if ((IsKeyPressed(KEY_DOWN)) && (lolo_sel_ponto.y != ponto_y_inic_lolo_load + (4 * 58))) {
+                    if ((IsKeyPressed(KEY_DOWN)) && (lolo_sel_ponto.y != ponto_y_inic_lolo_load + (4 * 58))) {
                     lolo_sel_ponto.y += 58;
-                }
+                    }
                
-                if (IsKeyPressed(KEY_ENTER)) {
-                    if ((lolo_sel_ponto.y == ponto_y_inic_lolo_load) && (4/*numero_arquivos*/>=1)) {
+                    if (IsKeyPressed(KEY_ENTER)) {
+                        if ((lolo_sel_ponto.y == ponto_y_inic_lolo_load) && (4/*numero_arquivos*/>=1)) {
                             strcpy(status_jogo.parte, "GAME");
+                        }
+                        else if ((lolo_sel_ponto.y == ponto_y_inic_lolo_load + 1*58) && (4/*numero_arquivos*/>=2)) {
+                            strcpy(status_jogo.parte, "GAME");
+                        }
+                        else if ((lolo_sel_ponto.y == ponto_y_inic_lolo_load + 2*58) && (4/*numero_arquivos*/>=3)) {
+                            strcpy(status_jogo.parte, "GAME");
+                        }
+                        else if ((lolo_sel_ponto.y == ponto_y_inic_lolo_load + 3*58) && (4/*numero_arquivos*/>=4)) {
+                            strcpy(status_jogo.parte, "GAME");
+                        }
+                        else if ((lolo_sel_ponto.y == ponto_y_inic_lolo_load + 4*58) && (4/*numero_arquivos*/>=5)) {
+                            strcpy(status_jogo.parte, "GAME");
+                        }
                     }
-                    else if ((lolo_sel_ponto.y == ponto_y_inic_lolo_load + 1*58) && (4/*numero_arquivos*/>=2)) {
-                        strcpy(status_jogo.parte, "GAME");
-                    }
-                    else if ((lolo_sel_ponto.y == ponto_y_inic_lolo_load + 2*58) && (4/*numero_arquivos*/>=3)) {
-                        strcpy(status_jogo.parte, "GAME");
-                    }
-                    else if ((lolo_sel_ponto.y == ponto_y_inic_lolo_load + 3*58) && (4/*numero_arquivos*/>=4)) {
-                        strcpy(status_jogo.parte, "GAME");
-                    }
-                    else if ((lolo_sel_ponto.y == ponto_y_inic_lolo_load + 4*58) && (4/*numero_arquivos*/>=5)) {
-                        strcpy(status_jogo.parte, "GAME");
-                    }
-                }
-            
-                
-                
+        
                
-            EndDrawing();
+                EndDrawing();
         }
         
         if (strcmp(status_jogo.parte, "TEXT") == 0) {         
