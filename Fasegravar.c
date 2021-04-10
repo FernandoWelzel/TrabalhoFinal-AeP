@@ -10,7 +10,7 @@
 #include "Headers.h"
 
 // Declaração de constantes
-#define ARQ_GRAVACAO "fase.bin"
+#define ARQ_FASE "fase.bin"
 
 void escreve_fase(char * nome_arquivo, pFASE fase) {
     FILE * arquivo;
@@ -45,7 +45,7 @@ int main(void)
     
     FASE nivel1 = {"01", "Fase inicial", elementos, "01", {3, 5}, texto_inicial};
     
-    escreve_fase(ARQ_GRAVACAO, &nivel1);
-    imprime_fase(ARQ_GRAVACAO);
+    escreve_fase(ARQ_FASE, &nivel1);
+    imprime_fase(ARQ_FASE);
     return 0;
 }

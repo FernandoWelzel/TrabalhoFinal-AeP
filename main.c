@@ -79,6 +79,38 @@ int numero_gravacoes(char * nome_arquivo) {
     return tamanho;
 }
 
+GRAVACAO le_gravacao_por_pos(char * nome_arquivo, int pos) {
+    FILE * arquivo;
+    GRAVACAO gravacao_lida;
+    if (!(arquivo = fopen(nome_arquivo, "rb"))) {
+        printf("Erro ao abrir o arquivo de gravações");
+    }
+    else {
+        fseek(arquivo, sizeof(GRAVACAO)*pos, SEEK_SET);
+        fread(&gravacao_lida, sizeof(GRAVACAO), 1, arquivo);
+    }
+    return gravacao_lida;
+}
+
+int pos_por_nomejogador(char * nome_arquivo, char * nomejogador) {
+    FILE * arquivo;
+    GRAVACAO gravacao_lida;
+    int pos = 0;
+    if (!(arquivo = fopen(nome_arquivo, "rb"))) {
+        printf("Erro ao abrir o arquivo de gravações");
+    }
+    else {
+        while(!feof(arquivo)) {
+            fread(&gravacao_lida, sizeof(GRAVACAO), 1, arquivo);
+            if (strcmp(gravacao_lida.nomejogador, nomejogador) == 0) {
+                return pos;
+            }
+            pos++;
+        }
+    }
+    return -1;
+}
+
 //Função principal MAIN
 int main(void) {    
     // Inicia a janela com as dimensões indicadas
@@ -131,18 +163,11 @@ int main(void) {
     GRAVACAO jogo_atual;
     FASE fase_atual;
     
+    
     // Main game loop
     while (!WindowShouldClose() && strcmp(status_jogo.parte, "SAIR") != 0)    // Detect window close button or ESC key
     {
         UpdateMusicStream(music); //Tocar a musica quando abre o menu
-        
-        if (strcmp(status_jogo.parte, "INIC") == 0) {
-            BeginDrawing();
-        
-                ClearBackground(BLACK);
-
-            EndDrawing();
-        }
         
         if (strcmp(status_jogo.parte, "MENU") == 0) {
             
@@ -217,7 +242,7 @@ int main(void) {
                     
                     if (nome_unico(ARQ_GRAVACAO, jogo_atual.nomejogador)) {
                         strcpy(status_jogo.parte, "TEXT");
-                        carregar_fase(jogo_atual.num_ult_fase, &fase_atual);
+                        //carregar_fase(jogo_atual.num_ult_fase, &fase_atual);
                         escreve_gravacao(ARQ_GRAVACAO, &jogo_atual);
                     }
                     else {
