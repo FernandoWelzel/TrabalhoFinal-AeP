@@ -13,9 +13,28 @@
 // Declaração de constantes
 #define MAX_INPUT_CHARS 8
 #define ARQ_GRAVACAO "gravacao.bin"
+#define ARQ_FASE "fase.bin"
 
+// Funções relacionadas a manipulação de texto e entrada do usuário
+int IsAnyKeyPressed() {
+    int keyPressed = 0;
+    int key = GetKeyPressed();
 
+    if ((key >= 32) && (key <= 126)) keyPressed = 1;
 
+    return keyPressed;
+}
+
+char * string_to_lower (char * string, char * nova_string) {
+    int i, tam_string = strlen(string);
+    for (i = 0; i < tam_string; i++) {
+        nova_string[i] = tolower(string[i]);
+    }
+    nova_string[i] = '\0';
+    return nova_string;
+}
+
+// Funções relacionadas a a leitura e gravação em arquivos binários
 void escreve_gravacao(char * nome_arquivo, pGRAVACAO gravacao) {
     FILE * arquivo;
     if (!(arquivo = fopen(nome_arquivo, "a+b"))) {
@@ -36,7 +55,6 @@ int nome_unico(char * nome_arquivo, char * nome) {
     else {
         while (!feof(arquivo)) {
             fread(&gravacao_corrente, sizeof(GRAVACAO), 1, arquivo);
-            printf("Comparando %s com %s\n", gravacao_corrente.nomejogador, nome);
             if (strcmp(nome, gravacao_corrente.nomejogador) == 0) {
                 return 0;
             }
@@ -45,17 +63,56 @@ int nome_unico(char * nome_arquivo, char * nome) {
     return 1;
 }
 
-char * string_to_lower (char * string, char * nova_string) {
-    int i, tam_string = strlen(string);
-    for (i = 0; i < tam_string; i++) {
-        nova_string[i] = tolower(string[i]);
+int numero_gravacoes(char * nome_arquivo) {
+    FILE * arquivo;
+    int tamanho = 0;
+    GRAVACAO gravacao_corrente;
+    if (!(arquivo = fopen(nome_arquivo, "rb"))) {
+        printf("Erro ao abrir o arquivo de gravações");
     }
-    nova_string[i] = '\n';
-    return nova_string;
+    else {
+        while (!feof(arquivo)) {
+            fread(&gravacao_corrente, sizeof(GRAVACAO), 1, arquivo);
+            tamanho++;
+        }
+    }
+    return tamanho;
 }
 
-int main(void)
-{    
+GRAVACAO le_gravacao_por_pos(char * nome_arquivo, int pos) {
+    FILE * arquivo;
+    GRAVACAO gravacao_lida;
+    if (!(arquivo = fopen(nome_arquivo, "rb"))) {
+        printf("Erro ao abrir o arquivo de gravações");
+    }
+    else {
+        fseek(arquivo, sizeof(GRAVACAO)*pos, SEEK_SET);
+        fread(&gravacao_lida, sizeof(GRAVACAO), 1, arquivo);
+    }
+    return gravacao_lida;
+}
+
+int pos_por_nomejogador(char * nome_arquivo, char * nomejogador) {
+    FILE * arquivo;
+    GRAVACAO gravacao_lida;
+    int pos = 0;
+    if (!(arquivo = fopen(nome_arquivo, "rb"))) {
+        printf("Erro ao abrir o arquivo de gravações");
+    }
+    else {
+        while(!feof(arquivo)) {
+            fread(&gravacao_lida, sizeof(GRAVACAO), 1, arquivo);
+            if (strcmp(gravacao_lida.nomejogador, nomejogador) == 0) {
+                return pos;
+            }
+            pos++;
+        }
+    }
+    return -1;
+}
+
+//Função principal MAIN
+int main(void) {    
     // Inicia a janela com as dimensões indicadas
     int screen_width = 800;
     int screen_height = 800;
@@ -107,18 +164,14 @@ int main(void)
     int nome_n_unico = 0;
 
     
+    //Declaração de Gravação e fase atuais
+    GRAVACAO jogo_atual;
+    FASE fase_atual;
+
     // Main game loop
     while (!WindowShouldClose() && strcmp(status_jogo.parte, "SAIR") != 0)    // Detect window close button or ESC key
     {
         UpdateMusicStream(music); //Tocar a musica quando abre o menu
-        
-        if (strcmp(status_jogo.parte, "INIC") == 0) {
-            BeginDrawing();
-        
-                ClearBackground(BLACK);
-
-            EndDrawing();
-        }
         
         if (strcmp(status_jogo.parte, "MENU") == 0) {
             
@@ -185,7 +238,6 @@ int main(void)
             // Checa se foi apertado enter, nesse caso salva o nome do jogador se ele tiver colocado um e começa o jogo
             if (IsKeyPressed(KEY_ENTER)) {
                 if (letterCount > 0) {
-                    GRAVACAO jogo_atual;
                     strcpy(jogo_atual.ident, "00");
                     strcpy(jogo_atual.totalpts, "00");
                     strcpy(jogo_atual.num_ult_fase, "00");
@@ -194,7 +246,8 @@ int main(void)
                     strcpy(jogo_atual.nomejogador, string_to_lower(name, string_interm));
                     
                     if (nome_unico(ARQ_GRAVACAO, jogo_atual.nomejogador)) {
-                        strcpy(status_jogo.parte, "GAME");
+                        strcpy(status_jogo.parte, "TEXT");
+                        //carregar_fase(jogo_atual.num_ult_fase, &fase_atual);
                         escreve_gravacao(ARQ_GRAVACAO, &jogo_atual);
                     }
                     else {
@@ -277,6 +330,18 @@ int main(void)
                 
                 
                
+            EndDrawing();
+        }
+        
+        if (strcmp(status_jogo.parte, "TEXT") == 0) {         
+            
+            BeginDrawing();
+            
+                ClearBackground(BLACK);
+                DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
+                
+                
+                
             EndDrawing();
         }
         

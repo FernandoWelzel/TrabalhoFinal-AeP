@@ -17,7 +17,7 @@
 
 void escreve_gravacao(char * nome_arquivo, pGRAVACAO gravacao) {
     FILE * arquivo;
-    if (!(arquivo = fopen(nome_arquivo, "wb"))) {
+    if (!(arquivo = fopen(nome_arquivo, "a+b"))) {
         printf("Erro ao abrir o arquivo de gravações");
     }
     else {
@@ -35,14 +35,54 @@ void imprime_gravacao(char * nome_arquivo) {
     else {
         while(!feof(arquivo)) {
             fread(&intermediario, sizeof(char), 1, arquivo);
-            printf("%c/n", intermediario);
+            printf("%c", intermediario);
         }
         fclose(arquivo);
     }
 }
 
+GRAVACAO le_gravacao_por_pos(char * nome_arquivo, int pos) {
+    FILE * arquivo;
+    GRAVACAO gravacao_lida;
+    if (!(arquivo = fopen(nome_arquivo, "rb"))) {
+        printf("Erro ao abrir o arquivo de gravações");
+    }
+    else {
+        fseek(arquivo, sizeof(GRAVACAO)*pos, SEEK_SET);
+        fread(&gravacao_lida, sizeof(GRAVACAO), 1, arquivo);
+    }
+    return gravacao_lida;
+}
+
+int pos_por_nomejogador(char * nome_arquivo, char * nomejogador) {
+    FILE * arquivo;
+    GRAVACAO gravacao_lida;
+    int pos = 0;
+    if (!(arquivo = fopen(nome_arquivo, "rb"))) {
+        printf("Erro ao abrir o arquivo de gravações");
+    }
+    else {
+        while(!feof(arquivo)) {
+            fread(&gravacao_lida, sizeof(GRAVACAO), 1, arquivo);
+            if (strcmp(gravacao_lida.nomejogador, nomejogador) == 0) {
+                return pos;
+            }
+            pos++;
+        }
+    }
+    return -1;
+}
+
 int main(void)
 {    
-    imprime_gravacao(ARQ_GRAVACAO);
+    GRAVACAO gravacao_de_numero_5 = le_gravacao_por_pos(ARQ_GRAVACAO, 5);
+    int pos_do_jogador_com_nome_claudine = pos_por_nomejogador(ARQ_GRAVACAO, "claudine");
+    
+    GRAVACAO gravacao_do_jogador_com_nome_claudine = le_gravacao_por_pos(ARQ_GRAVACAO, pos_do_jogador_com_nome_claudine);
+    
+    printf("%s\n", gravacao_de_numero_5.nomejogador);
+    printf("%d\n", pos_do_jogador_com_nome_claudine);
+    printf("%s\n", gravacao_do_jogador_com_nome_claudine.vidas);
+    
     return 0;
 }
