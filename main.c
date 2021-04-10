@@ -78,6 +78,7 @@ int numero_gravacoes(char * nome_arquivo) {
     }
     return tamanho;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 }
 
 GRAVACAO le_gravacao_por_pos(char * nome_arquivo, int pos) {
@@ -110,6 +111,8 @@ int pos_por_nomejogador(char * nome_arquivo, char * nomejogador) {
         }
     }
     return -1;
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 }
@@ -166,7 +169,10 @@ int main(void) {
     GRAVACAO jogo_atual;
     FASE fase_atual;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
     
@@ -249,7 +255,11 @@ int main(void) {
                     if (nome_unico(ARQ_GRAVACAO, jogo_atual.nomejogador)) {
                         strcpy(status_jogo.parte, "TEXT");
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                         //carregar_fase(jogo_atual.num_ult_fase, &fase_atual);
+=======
+                        carregar_fase(jogo_atual.num_ult_fase, &fase_atual);
+>>>>>>> Stashed changes
 =======
                         carregar_fase(jogo_atual.num_ult_fase, &fase_atual);
 >>>>>>> Stashed changes
