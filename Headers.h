@@ -5,7 +5,7 @@ typedef struct status {
 typedef struct ponto {
     int x;
     int y;
-} PONTO;
+} PONTO, * pPONTO;
 
 typedef struct fase {
     char num[3];

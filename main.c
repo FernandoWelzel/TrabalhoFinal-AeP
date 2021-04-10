@@ -124,6 +124,25 @@ FASE le_fase_por_pos(char * nome_arquivo, int pos) {
     return fase_lida;
 }
 
+// Funções de movimentação
+void atualiza_pos_lolo(pPONTO Ponto_lolo) {
+    if (IsKeyDown(KEY_UP)) {
+        Ponto_lolo->y -= 2;
+    }
+            
+    if (IsKeyDown(KEY_DOWN)) {
+        Ponto_lolo->y += 2;
+    }
+    
+    if (IsKeyDown(KEY_RIGHT)) {
+        Ponto_lolo->x += 2;
+    }
+            
+    if (IsKeyDown(KEY_LEFT)) {
+        Ponto_lolo->x -= 2;
+    }
+}
+
 //Função principal MAIN
 int main(void) {    
     // Inicia a janela com as dimensões indicadas
@@ -160,6 +179,7 @@ int main(void) {
     Texture2D pedra_texture = LoadTexture("./resources/Blocos/Pedra.png");
     Texture2D arvore_texture = LoadTexture("./resources/Blocos/Tree.png");
     Texture2D bloco_esquerda_texture = LoadTexture("./resources/Blocos/Lateral-esquerda.png");
+    Texture2D lolo_F_texture = LoadTexture("./resources/Lolo/Lolo-F.png");
 
     // Variáveis de posicionamento
     int ponto_x_lolo_menu = (screen_width - menu_texture.width)/2 + 45;
@@ -179,6 +199,7 @@ int main(void) {
     Vector2 position6 = {215, 300};
     int BordaMapax = ((screen_width - mapa_vazio_texture.width)/2) + 45;
     int BordaMapay = ((screen_height - mapa_vazio_texture.height)/2) + 96;
+    PONTO pos_lolo_game;
     
     // Declaração das variáveis da caixa de texto com o nome do jogador
     char name[MAX_INPUT_CHARS + 1] = "\0";
@@ -275,6 +296,8 @@ int main(void) {
                         strcpy(status_jogo.parte, "TEXT");
                         fase_atual = le_fase_por_pos(ARQ_FASE , atoi(jogo_atual.num_ult_fase));
                         escreve_gravacao(ARQ_GRAVACAO, &jogo_atual);
+                        pos_lolo_game.x = BordaMapax + fase_atual.pos_i_jogador.x*48;
+                        pos_lolo_game.y = BordaMapay + fase_atual.pos_i_jogador.y*48 ;
                     }
                     else {
                         nome_n_unico = 1;
@@ -378,6 +401,9 @@ int main(void) {
         }
         
         if (strcmp(status_jogo.parte, "GAME") == 0) {
+            
+            atualiza_pos_lolo(&pos_lolo_game);
+            
             BeginDrawing();
             
                 ClearBackground(BLACK);
@@ -407,6 +433,9 @@ int main(void) {
                         
                     }
                 }
+                
+                DrawTexture(lolo_F_texture, pos_lolo_game.x, pos_lolo_game.y, WHITE);
+                
             EndDrawing();
         }
         
