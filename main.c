@@ -250,6 +250,9 @@ int main(void) {
     // Variáveis para iteração
     int i;
     int j;
+    
+    // Variáveis estilo booleanas
+    char bau_cheio = 'S';
 
     // Main game loop
     while (!WindowShouldClose() && strcmp(status_jogo.parte, "SAIR") != 0)    // Detect window close button or ESC key
@@ -460,13 +463,27 @@ int main(void) {
             // Atualiza a posição do lolo baseado na sua posição atual, na tecla que o usuário preciona e nos blocos a sua volta
             atualiza_pos_lolo(&pos_lolo_game, fase_atual);
             
+            // Compara se a posição do lolo é a mesma de um coração, para ele poder pegar o coração
             if (fase_atual.elementos[pos_lolo_game.y/48][pos_lolo_game.x/48] == 'C' ||
                 fase_atual.elementos[(pos_lolo_game.y + 47)/48][pos_lolo_game.x/48] == 'C' ||
                 fase_atual.elementos[pos_lolo_game.y/48][(pos_lolo_game.x + 47)/48] == 'C' ||
                 fase_atual.elementos[(pos_lolo_game.y + 47)/48][(pos_lolo_game.x + 47)/48] == 'C') {
                     
                 fase_atual.elementos[pos_lolo_game.y/48][pos_lolo_game.x/48] = 'L';
+                fase_atual.num_coracoes--;
+            }
             
+            if (fase_atual.num_coracoes == 0) {
+                if (fase_atual.elementos[pos_lolo_game.y/48][pos_lolo_game.x/48] == 'B' ||
+                    fase_atual.elementos[(pos_lolo_game.y + 47)/48][pos_lolo_game.x/48] == 'B' ||
+                    fase_atual.elementos[pos_lolo_game.y/48][(pos_lolo_game.x + 47)/48] == 'B' ||
+                    fase_atual.elementos[(pos_lolo_game.y + 47)/48][(pos_lolo_game.x + 47)/48] == 'B') {
+
+                    if (bau_cheio == 'S') {
+                        bau_cheio = 'N';
+                        fase_atual.porta_estado = 'A';
+                    }
+                }
             }
             
             // Mostra a tela do jogo baseado nos blocos contidos em fase_atual.elementos e na posição do lolo
@@ -498,7 +515,16 @@ int main(void) {
                                 DrawTexture(arvore_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
                                 break;
                             case 'B':
-                                DrawTexture(bau_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
+                                if (fase_atual.num_coracoes != 0) {
+                                    DrawTexture(bau_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
+                                }
+                                else {
+                                    if (bau_cheio == 'S') {
+                                        DrawTexture(bau_aberto_cheio_texture, BordaMapax + 48*i, BordaMapay + 48*j - (bau_aberto_cheio_texture.height - 48), WHITE);
+                                    } else {
+                                        DrawTexture(bau_aberto_vazio_texture, BordaMapax + 48*i, BordaMapay + 48*j - (bau_aberto_vazio_texture.height - 48), WHITE);
+                                    }
+                                }
                                 break;
                             case 'C':
                                 DrawTexture(coracao_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
