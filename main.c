@@ -126,6 +126,8 @@ FASE le_fase_por_pos(char * nome_arquivo, int pos) {
 }
 
 // Funções de movimentação
+
+// Função que recebe uma posição em uma fase e retorna se o bloco nessa posição é imóvel
 int bloco_eh_imovel(FASE fase, int x, int y) {
     switch (fase.elementos[x][y]) {
         case 'T':
@@ -136,27 +138,36 @@ int bloco_eh_imovel(FASE fase, int x, int y) {
     }
 }
 
-void atualiza_pos_lolo(pPONTO Ponto_lolo, FASE fase) {    
+// Função que atuliza a posição do lolo no jogo baseado na sua posição atual, nos blocos a sua volta e na entrada do usuário
+void atualiza_pos_lolo(pPONTO Ponto_lolo, FASE fase) {
     if (IsKeyDown(KEY_UP)) {
-        if (!bloco_eh_imovel(fase, ((Ponto_lolo->y - 1)/48), ((Ponto_lolo->x)/48)) && !bloco_eh_imovel(fase, ((Ponto_lolo->y - 1)/48), ((Ponto_lolo->x + 47)/48))) {
+        if (!bloco_eh_imovel(fase, ((Ponto_lolo->y - 1)/48), ((Ponto_lolo->x)/48)) &&
+            !bloco_eh_imovel(fase, ((Ponto_lolo->y - 1)/48), ((Ponto_lolo->x + 47)/48)) &&
+            (Ponto_lolo->y - 1) > 0) {
             Ponto_lolo->y -= 2;
         }
     }
 
     if (IsKeyDown(KEY_DOWN)) {
-        if (!bloco_eh_imovel(fase, ((Ponto_lolo->y + 49)/48), ((Ponto_lolo->x)/48)) && !bloco_eh_imovel(fase, ((Ponto_lolo->y + 49)/48), ((Ponto_lolo->x + 47)/48))) {
+        if (!bloco_eh_imovel(fase, ((Ponto_lolo->y + 49)/48), ((Ponto_lolo->x)/48)) &&
+        !bloco_eh_imovel(fase, ((Ponto_lolo->y + 49)/48), ((Ponto_lolo->x + 47)/48)) &&
+        (Ponto_lolo->y + 49) < 528) {
             Ponto_lolo->y += 2;
         }
     }
 
     if (IsKeyDown(KEY_RIGHT)) {
-        if (!bloco_eh_imovel(fase, ((Ponto_lolo->y)/48), ((Ponto_lolo->x + 49)/48)) && !bloco_eh_imovel(fase, ((Ponto_lolo->y + 47)/48), ((Ponto_lolo->x + 49)/48))) {
+        if (!bloco_eh_imovel(fase, ((Ponto_lolo->y)/48), ((Ponto_lolo->x + 49)/48)) &&
+        !bloco_eh_imovel(fase, ((Ponto_lolo->y + 47)/48), ((Ponto_lolo->x + 49)/48)) &&
+        (Ponto_lolo->x + 49) < 528) {
             Ponto_lolo->x += 2;
         }
     }
 
     if (IsKeyDown(KEY_LEFT)) {
-        if (!bloco_eh_imovel(fase, ((Ponto_lolo->y)/48), ((Ponto_lolo->x - 1)/48)) && !bloco_eh_imovel(fase, ((Ponto_lolo->y + 47)/48), ((Ponto_lolo->x - 1)/48))) {
+        if (!bloco_eh_imovel(fase, ((Ponto_lolo->y)/48), ((Ponto_lolo->x - 1)/48)) &&
+        !bloco_eh_imovel(fase, ((Ponto_lolo->y + 47)/48), ((Ponto_lolo->x - 1)/48)) &&
+        (Ponto_lolo->x - 1) > 0) {
             Ponto_lolo->x -= 2;
         }
     }
@@ -238,9 +249,16 @@ int main(void) {
     while (!WindowShouldClose() && strcmp(status_jogo.parte, "SAIR") != 0)    // Detect window close button or ESC key
     {
         UpdateMusicStream(music); //Tocar a musica quando abre o menu
-
+        /*
+        Nessa parte do código é definido a parte do jogo que deve ser
+        exibida na tela. Para isso fazemos comparações com a string que
+        quarda a parte do jogo que estamos.
+        */
+        
+        // MENU
         if (strcmp(status_jogo.parte, "MENU") == 0) {
-
+            
+           // Detecta se o usuário apertou uma das setas para se mover no menu e muda a posição do lolo 
             if (IsKeyPressed(KEY_UP) && lolo_sel_ponto.y != ponto_y_inic_lolo_menu) {
                 lolo_sel_ponto.y -= desloc_y_lolo_menu;
             }
@@ -248,7 +266,8 @@ int main(void) {
             if (IsKeyPressed(KEY_DOWN) && lolo_sel_ponto.y != ponto_y_inic_lolo_menu + 3*desloc_y_lolo_menu) {
                 lolo_sel_ponto.y += desloc_y_lolo_menu;
             }
-
+            
+            // Detectas se o usuário apertou enter, indicando que ele quer entrar em outra área. Dessa maneira o direciona baseado na posição do lolo do menu
             if (IsKeyPressed(KEY_ENTER)) {
                 if (lolo_sel_ponto.y == ponto_y_inic_lolo_menu) {
                     strcpy(status_jogo.parte, "NAME");
@@ -264,7 +283,8 @@ int main(void) {
                     strcpy(status_jogo.parte, "SAIR");
                 }
             }
-
+            
+            // Mostra na tela a imagem do menu e o lolo que indica para que área o usuário quer ir
             BeginDrawing();
 
                 ClearBackground(BLACK);
@@ -276,9 +296,11 @@ int main(void) {
             EndDrawing();
         }
 
+        // NAME (Início de um novo jogo pegando o nome do usuário)
         if (strcmp(status_jogo.parte, "NAME") == 0) {
 
-            // Implementação da caixa de texto com o nome do jogador
+            // Implementação da caixa de texto para o jogador inserir o nome
+            
             // Pega a tecla apertada
             int key = GetCharPressed();
 
@@ -301,7 +323,11 @@ int main(void) {
                 name[letterCount] = '\0';
             }
 
-            // Checa se foi apertado enter, nesse caso salva o nome do jogador se ele tiver colocado um e começa o jogo
+            /* 
+            Checa se foi apertado enter, nesse caso salva o nome do jogador se ele tiver
+            colocado um nome válido e começa o jogo com parâmetros iniciais, mudando para
+            uma tela com o texto inicial da fase.
+            */
             if (IsKeyPressed(KEY_ENTER)) {
                 if (letterCount > 0) {
                     strcpy(jogo_atual.ident, "00");
@@ -323,7 +349,8 @@ int main(void) {
                     }
                 }
             }
-
+            
+            // Mostra a tela para escrever o nome do jogador
             BeginDrawing();
 
                 ClearBackground(BLACK);
@@ -400,15 +427,17 @@ int main(void) {
 
             EndDrawing();
         }
-
+        
+        // TEXT (Tela que exibe o texto inicial do jogo)
         if (strcmp(status_jogo.parte, "TEXT") == 0) {
-
+            
+            // Faz a contagem do número de frames, para depois de 3 segundo sair da tela de texto
             framesCounter2++;
-
             if (framesCounter2/60 > 3) {
                 strcpy(status_jogo.parte, "GAME");
             }
-
+            
+            // Mostra a tela com o fundo padrão e a mensagem de texto que está em fase_atual.texto_inic
             BeginDrawing();
 
                 ClearBackground(BLACK);
@@ -419,16 +448,20 @@ int main(void) {
             EndDrawing();
         }
 
+        // GAME (Jogo em si)
         if (strcmp(status_jogo.parte, "GAME") == 0) {
-
+            
+            // Atualiza a posição do lolo baseado na sua posição atual, na tecla que o usuário preciona e nos blocos a sua volta
             atualiza_pos_lolo(&pos_lolo_game, fase_atual);
-
+            
+            // Mostra a tela do jogo baseado nos blocos contidos em fase_atual.elementos e na posição do lolo
             BeginDrawing();
-
+                
+                // Mostra um mapa vazio
                 ClearBackground(BLACK);
                 DrawTexture(mapa_vazio_texture, (screen_width - mapa_vazio_texture.width)/2, (screen_height - mapa_vazio_texture.height)/2, WHITE);
 
-
+                // Imprime cada um dos quadrados do mapa, no qual o lolo andará por cima, que estão em fase_atual.elementos
                 for (i = 0; i < 11; i++) {
                     for (j = 0; j < 11; j++) {
                         /*
@@ -450,10 +483,10 @@ int main(void) {
                                 DrawTexture(arvore_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
                                 break;
                         }
-
                     }
                 }
 
+                // Imprime o lolo baseado em sua posição atualizada
                 DrawTexture(lolo_F_texture, BordaMapax + pos_lolo_game.x, BordaMapay + pos_lolo_game.y, WHITE);
 
             EndDrawing();
