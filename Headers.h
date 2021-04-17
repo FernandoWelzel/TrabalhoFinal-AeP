@@ -14,6 +14,7 @@ typedef struct fase {
     char pos_porta[3];
     PONTO pos_i_jogador;
     char texto_inic[200];
+    char porta_estado;
 } FASE, * pFASE;
 
 typedef struct lolo {

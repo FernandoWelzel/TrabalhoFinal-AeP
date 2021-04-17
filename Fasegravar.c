@@ -39,42 +39,38 @@ FASE le_fase_por_pos(char * nome_arquivo, int pos) {
 int main(void)
 {    
     int i;
-    /*
+    
     // Elementos da primeira fase do jogo original.
     char elementos[11][12] = {"PPPPPPLPPTT",
-                              "PTTPLLLPPTT",
+                              "PTTPCLLPPTT",
                               "LTTPPPLPPPT",
                               "LLTTPPLPPPT",
-                              "LLLLPPLPPTL",
-                              "LLLLLLLLPLL",
+                              "LLLLPPLPPTC",
+                              "LLLLLLILPLL",
                               "LTTLLLLLLLL",
                               "TTTTLLLTTLL",
                               "TTTTLLLTTTL",
-                              "PTTPLLLLTTL",
+                              "PTTPBLLLTTL",
                               "PPPPPPLLLLL"};
-    */
+    
                               
     char texto_inicial[200] = "Ao longo\nda primeira fase,\nmate os inimigos\ne passe pela\nporta.";
-    PONTO pos_jogador = {3, 5};
+    PONTO pos_jogador = {1, 5};
     
     FASE nivel1;
     strcpy(nivel1.num, "01");
     strcpy(nivel1.nome, "Fase inicial");
+    nivel1.porta_estado = 'F';
     
     for (i = 0; i < 11; i++) {
         strcpy(nivel1.elementos[i], elementos[i]);
     }
     
-    strcpy(nivel1.pos_porta, "01");
+    strcpy(nivel1.pos_porta, "06");
     nivel1.pos_i_jogador = pos_jogador;
     strcpy(nivel1.texto_inic, texto_inicial);
     
     escreve_fase(ARQ_FASE, &nivel1);
-    
-    FASE fase0 = le_fase_por_pos(ARQ_FASE, 0);
-    printf("%s\n", fase0.elementos[9]);
-    
-    
     
     return 0;
 }

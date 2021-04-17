@@ -208,6 +208,12 @@ int main(void) {
     Texture2D agua_texture = LoadTexture("./resources/Blocos/Agua.png");
     Texture2D pedra_texture = LoadTexture("./resources/Blocos/Pedra.png");
     Texture2D arvore_texture = LoadTexture("./resources/Blocos/Tree.png");
+    Texture2D bau_texture = LoadTexture("./resources/Blocos/Bau.png");
+    Texture2D bau_aberto_cheio_texture = LoadTexture("./resources/Blocos/Bau_aberto_cheio.png");
+    Texture2D bau_aberto_vazio_texture = LoadTexture("./resources/Blocos/Bau_aberto_vazio.png");
+    Texture2D porta_fechada_texture = LoadTexture("./resources/Blocos/Porta_fechada.png");
+    Texture2D porta_aberta_texture = LoadTexture("./resources/Blocos/Porta_aberta.png");
+    Texture2D coracao_texture = LoadTexture("./resources/Blocos/Coracao.png");
     Texture2D bloco_esquerda_texture = LoadTexture("./resources/Blocos/Lateral-esquerda.png");
     Texture2D lolo_F_texture = LoadTexture("./resources/Lolo/Lolo-F.png");
 
@@ -482,9 +488,23 @@ int main(void) {
                             case 'T':
                                 DrawTexture(arvore_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
                                 break;
+                            case 'B':
+                                DrawTexture(bau_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
+                                break;
+                            case 'C':
+                                DrawTexture(coracao_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
+                                break;
                         }
                     }
                 }
+                
+                if (fase_atual.porta_estado == 'F') {
+                    DrawTexture(porta_fechada_texture, BordaMapax + 48*atoi(fase_atual.pos_porta) - 4, BordaMapay - 36, WHITE);
+                }
+                else if (fase_atual.porta_estado == 'A') {
+                    DrawTexture(porta_aberta_texture, BordaMapax + 48*atoi(fase_atual.pos_porta) - 4, BordaMapay - 36, WHITE);
+                }
+                
 
                 // Imprime o lolo baseado em sua posição atualizada
                 DrawTexture(lolo_F_texture, BordaMapax + pos_lolo_game.x, BordaMapay + pos_lolo_game.y, WHITE);
