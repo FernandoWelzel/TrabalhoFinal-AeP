@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <math.h>
 
 // Bibliotecas adicionais
 #include "raylib.h"
@@ -125,53 +126,71 @@ FASE le_fase_por_pos(char * nome_arquivo, int pos) {
 }
 
 // Funções de movimentação
-void atualiza_pos_lolo(pPONTO Ponto_lolo) {
+int bloco_eh_imovel(FASE fase, int x, int y) {
+    switch (fase.elementos[x][y]) {
+        case 'T':
+        case 'P':
+            return 1;
+        default:
+            return 0;
+    }
+}
+
+void atualiza_pos_lolo(pPONTO Ponto_lolo, FASE fase) {    
     if (IsKeyDown(KEY_UP)) {
-        Ponto_lolo->y -= 2;
+        if (!bloco_eh_imovel(fase, ((Ponto_lolo->y - 1)/48), ((Ponto_lolo->x)/48)) && !bloco_eh_imovel(fase, ((Ponto_lolo->y - 1)/48), ((Ponto_lolo->x + 47)/48))) {
+            Ponto_lolo->y -= 2;
+        }
     }
-            
+
     if (IsKeyDown(KEY_DOWN)) {
-        Ponto_lolo->y += 2;
+        if (!bloco_eh_imovel(fase, ((Ponto_lolo->y + 49)/48), ((Ponto_lolo->x)/48)) && !bloco_eh_imovel(fase, ((Ponto_lolo->y + 49)/48), ((Ponto_lolo->x + 47)/48))) {
+            Ponto_lolo->y += 2;
+        }
     }
-    
+
     if (IsKeyDown(KEY_RIGHT)) {
-        Ponto_lolo->x += 2;
+        if (!bloco_eh_imovel(fase, ((Ponto_lolo->y)/48), ((Ponto_lolo->x + 49)/48)) && !bloco_eh_imovel(fase, ((Ponto_lolo->y + 47)/48), ((Ponto_lolo->x + 49)/48))) {
+            Ponto_lolo->x += 2;
+        }
     }
-            
+
     if (IsKeyDown(KEY_LEFT)) {
-        Ponto_lolo->x -= 2;
+        if (!bloco_eh_imovel(fase, ((Ponto_lolo->y)/48), ((Ponto_lolo->x - 1)/48)) && !bloco_eh_imovel(fase, ((Ponto_lolo->y + 47)/48), ((Ponto_lolo->x - 1)/48))) {
+            Ponto_lolo->x -= 2;
+        }
     }
 }
 
 //Função principal MAIN
-int main(void) {    
+int main(void) {
     // Inicia a janela com as dimensões indicadas
     int screen_width = 800;
     int screen_height = 800;
     InitWindow(screen_width, screen_height, "Adventures of Lolo");
-    
+
     // Créditos (return menu)
     const char message[28] = "PRESS ENTER TO RETURN MENU";
     int framesCounter = 0;
     int framesCounter2 = 0;
-    
+
     // Configurações
     SetTargetFPS(60);
     STATUS status_jogo = {"MENU"};
-    
+
     // Música
     InitAudioDevice();
     Music music = LoadMusicStream("./resources/Songs/Main-theme.mp3");
-    music.looping = false;
+    music.looping = true;
     PlayMusicStream(music);
-    
+
     // Fonte
     Font Fonte_principal = LoadFont("./resources/fonte.ttf");
 
     // Texturas
     Texture2D menu_texture = LoadTexture("./resources/Menus/Menu.png");
-    Texture2D lolo_texture = LoadTexture("./resources/Menus/Menu_lolo.png"); 
-    Texture2D cred_texture = LoadTexture("./resources/Menus/Creditos.png"); 
+    Texture2D lolo_texture = LoadTexture("./resources/Menus/Menu_lolo.png");
+    Texture2D cred_texture = LoadTexture("./resources/Menus/Creditos.png");
     Texture2D fundo_texture = LoadTexture("./resources/Menus/Fundo sem nada.png");
     Texture2D mapa_vazio_texture = LoadTexture("./resources/Mapa/Mapa_vazio.png");
     Texture2D espaco_livre_texture = LoadTexture("./resources/Blocos/Livre.png");
@@ -200,17 +219,17 @@ int main(void) {
     int BordaMapax = ((screen_width - mapa_vazio_texture.width)/2) + 45;
     int BordaMapay = ((screen_height - mapa_vazio_texture.height)/2) + 96;
     PONTO pos_lolo_game;
-    
+
     // Declaração das variáveis da caixa de texto com o nome do jogador
     char name[MAX_INPUT_CHARS + 1] = "\0";
     int letterCount = 0;
     int nome_n_unico = 0;
 
-    
+
     // Declaração de Gravação e fase atuais
     GRAVACAO jogo_atual;
     FASE fase_atual;
-    
+
     // Variáveis para iteração
     int i;
     int j;
@@ -219,17 +238,17 @@ int main(void) {
     while (!WindowShouldClose() && strcmp(status_jogo.parte, "SAIR") != 0)    // Detect window close button or ESC key
     {
         UpdateMusicStream(music); //Tocar a musica quando abre o menu
-        
+
         if (strcmp(status_jogo.parte, "MENU") == 0) {
-            
+
             if (IsKeyPressed(KEY_UP) && lolo_sel_ponto.y != ponto_y_inic_lolo_menu) {
                 lolo_sel_ponto.y -= desloc_y_lolo_menu;
             }
-            
+
             if (IsKeyPressed(KEY_DOWN) && lolo_sel_ponto.y != ponto_y_inic_lolo_menu + 3*desloc_y_lolo_menu) {
                 lolo_sel_ponto.y += desloc_y_lolo_menu;
             }
-            
+
             if (IsKeyPressed(KEY_ENTER)) {
                 if (lolo_sel_ponto.y == ponto_y_inic_lolo_menu) {
                     strcpy(status_jogo.parte, "NAME");
@@ -245,20 +264,20 @@ int main(void) {
                     strcpy(status_jogo.parte, "SAIR");
                 }
             }
-            
+
             BeginDrawing();
-        
+
                 ClearBackground(BLACK);
-            
+
                 DrawTexture(menu_texture, (screen_width - menu_texture.width)/2, (screen_height - menu_texture.height)/2, WHITE);
                 DrawTexture(lolo_texture, lolo_sel_ponto.x, lolo_sel_ponto.y, WHITE);
-           
+
 
             EndDrawing();
         }
-        
+
         if (strcmp(status_jogo.parte, "NAME") == 0) {
-            
+
             // Implementação da caixa de texto com o nome do jogador
             // Pega a tecla apertada
             int key = GetCharPressed();
@@ -269,19 +288,19 @@ int main(void) {
                     name[letterCount] = (char)key;
                     letterCount++;
                 }
-                
+
                 key = GetCharPressed();  // Pega o próximo caracter se houver
             }
-            
+
             // Checa se foi apertado o delete e nesse caso diminui o tamanho da string
             if (IsKeyPressed(KEY_BACKSPACE)) {
                 if (letterCount > 0) {
                     letterCount--;
                 };
-                    
+
                 name[letterCount] = '\0';
             }
-            
+
             // Checa se foi apertado enter, nesse caso salva o nome do jogador se ele tiver colocado um e começa o jogo
             if (IsKeyPressed(KEY_ENTER)) {
                 if (letterCount > 0) {
@@ -291,27 +310,27 @@ int main(void) {
                     strcpy(jogo_atual.vidas, "05");
                     char string_interm[9];
                     strcpy(jogo_atual.nomejogador, string_to_lower(name, string_interm));
-                    
+
                     if (nome_unico(ARQ_GRAVACAO, jogo_atual.nomejogador)) {
                         strcpy(status_jogo.parte, "TEXT");
                         fase_atual = le_fase_por_pos(ARQ_FASE , atoi(jogo_atual.num_ult_fase));
                         escreve_gravacao(ARQ_GRAVACAO, &jogo_atual);
-                        pos_lolo_game.x = BordaMapax + fase_atual.pos_i_jogador.x*48;
-                        pos_lolo_game.y = BordaMapay + fase_atual.pos_i_jogador.y*48 ;
+                        pos_lolo_game.x = fase_atual.pos_i_jogador.x*48;
+                        pos_lolo_game.y = fase_atual.pos_i_jogador.y*48 ;
                     }
                     else {
                         nome_n_unico = 1;
                     }
                 }
             }
-            
+
             BeginDrawing();
-            
+
                 ClearBackground(BLACK);
 
                 // Imagem de fundo
                 DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
-                
+
                 // Texto a cima
                 DrawTextEx(Fonte_principal, "Nome do", position11, 50, 1, BLACK);
                 DrawTextEx(Fonte_principal, "jogador:", position12, 50, 1, BLACK);
@@ -328,36 +347,36 @@ int main(void) {
                 else {
                     DrawTextEx(Fonte_principal, "Precione Enter para salvar", position3, 20, 1, BLACK);
                 }
-                
+
             EndDrawing();
         }
-        
+
         if (strcmp(status_jogo.parte, "LOAD") == 0) {
          BeginDrawing();
          int i;
             ClearBackground(BLACK);
             DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
-            DrawTextEx(Fonte_principal, "Escolha um jogo salvo", position5, 24, 2, BLACK);                
+            DrawTextEx(Fonte_principal, "Escolha um jogo salvo", position5, 24, 2, BLACK);
             DrawTexture(lolo_texture, ponto_x_lolo_load, lolo_sel_ponto.y, WHITE);
-            
 
-                for(i=1; i <= 4/*numero de arquivos*/; i++){ 
+
+                for(i=1; i <= 4/*numero de arquivos*/; i++){
                    DrawText("CAVALOLO"/*nome do jogador*/, ponto_x_lolo_load + 60, ponto_y_inic_lolo_load + 5 + ((i-1)*58), 35, BLACK);
                    DrawText("-Fase 3"/*fase do save*/, ponto_x_lolo_load + 250, ponto_y_inic_lolo_load + 5 + ((i-1)*58), 28, BLACK);
 
                }
                 for (i=4/*numero de arquivos*/; i<5; i++ ){
-                      DrawText("Memoria vazia", ponto_x_lolo_load + 60, ponto_y_inic_lolo_load + (i*58), 35, LIGHTGRAY);     
+                      DrawText("Memoria vazia", ponto_x_lolo_load + 60, ponto_y_inic_lolo_load + (i*58), 35, LIGHTGRAY);
                 }
-              
+
                 if (IsKeyPressed(KEY_UP) && lolo_sel_ponto.y != ponto_y_inic_lolo_load) {
                     lolo_sel_ponto.y -= 58;
                 }
-            
+
                 if ((IsKeyPressed(KEY_DOWN)) && (lolo_sel_ponto.y != ponto_y_inic_lolo_load + (4 * 58))) {
                     lolo_sel_ponto.y += 58;
                 }
-               
+
                 if (IsKeyPressed(KEY_ENTER)) {
                     if ((lolo_sel_ponto.y == ponto_y_inic_lolo_load) && (4/*numero_arquivos*/>=1)) {
                             strcpy(status_jogo.parte, "GAME");
@@ -375,40 +394,41 @@ int main(void) {
                         strcpy(status_jogo.parte, "GAME");
                     }
                 }
-            
-                
-                
-               
+
+
+
+
             EndDrawing();
         }
-        
+
         if (strcmp(status_jogo.parte, "TEXT") == 0) {
 
             framesCounter2++;
-            
+
             if (framesCounter2/60 > 3) {
                 strcpy(status_jogo.parte, "GAME");
             }
-            
+
             BeginDrawing();
-            
+
                 ClearBackground(BLACK);
                 DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
-                
+
                 DrawTextEx(Fonte_principal, fase_atual.texto_inic, position6, 30, 1, BLACK);
-                
+
             EndDrawing();
         }
-        
+
         if (strcmp(status_jogo.parte, "GAME") == 0) {
-            
-            atualiza_pos_lolo(&pos_lolo_game);
-            
+
+            atualiza_pos_lolo(&pos_lolo_game, fase_atual);
+
             BeginDrawing();
-            
+
                 ClearBackground(BLACK);
                 DrawTexture(mapa_vazio_texture, (screen_width - mapa_vazio_texture.width)/2, (screen_height - mapa_vazio_texture.height)/2, WHITE);
-                
+
+
                 for (i = 0; i < 11; i++) {
                     for (j = 0; j < 11; j++) {
                         /*
@@ -430,26 +450,26 @@ int main(void) {
                                 DrawTexture(arvore_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
                                 break;
                         }
-                        
+
                     }
                 }
-                
-                DrawTexture(lolo_F_texture, pos_lolo_game.x, pos_lolo_game.y, WHITE);
-                
+
+                DrawTexture(lolo_F_texture, BordaMapax + pos_lolo_game.x, BordaMapay + pos_lolo_game.y, WHITE);
+
             EndDrawing();
         }
-        
+
         if (strcmp(status_jogo.parte, "CRED") == 0) {
             BeginDrawing();
-        
+
                 ClearBackground(BLACK);
                 DrawTexture(cred_texture, (screen_width - cred_texture.width)/2, (screen_height - cred_texture.height)/2, WHITE);
-                
-            
+
+
                 framesCounter++;
                 DrawText(TextSubtext(message, 0, framesCounter/5), 230, 550, 20, BLACK);
-                             
-                
+
+
                 if(IsKeyPressed(KEY_ENTER)){
                     framesCounter = 0;
                     strcpy(status_jogo.parte,"MENU");
