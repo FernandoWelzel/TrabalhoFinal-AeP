@@ -460,6 +460,15 @@ int main(void) {
             // Atualiza a posição do lolo baseado na sua posição atual, na tecla que o usuário preciona e nos blocos a sua volta
             atualiza_pos_lolo(&pos_lolo_game, fase_atual);
             
+            if (fase_atual.elementos[pos_lolo_game.y/48][pos_lolo_game.x/48] == 'C' ||
+                fase_atual.elementos[(pos_lolo_game.y + 47)/48][pos_lolo_game.x/48] == 'C' ||
+                fase_atual.elementos[pos_lolo_game.y/48][(pos_lolo_game.x + 47)/48] == 'C' ||
+                fase_atual.elementos[(pos_lolo_game.y + 47)/48][(pos_lolo_game.x + 47)/48] == 'C') {
+                    
+                fase_atual.elementos[pos_lolo_game.y/48][pos_lolo_game.x/48] = 'L';
+            
+            }
+            
             // Mostra a tela do jogo baseado nos blocos contidos em fase_atual.elementos e na posição do lolo
             BeginDrawing();
                 
