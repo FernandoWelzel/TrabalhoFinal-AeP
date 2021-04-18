@@ -128,8 +128,8 @@ FASE le_fase_por_pos(char * nome_arquivo, int pos) {
 // Funções de movimentação
 
 // Função que recebe uma posição em uma fase e retorna se o bloco nessa posição é imóvel
-int bloco_eh_imovel(FASE fase, int x, int y) {
-    switch (fase.elementos[x][y]) {
+int bloco_eh_imovel(FASE fase, int y, int x) {
+    switch (fase.elementos[y][x]) {
         case 'T':
         case 'P':
         case 'I':
@@ -174,12 +174,38 @@ void atualiza_pos_lolo(pPONTO Ponto_lolo, FASE fase) {
     }
 }
 
-void atualiza_pos_tiro(pTIRO Ptiro, FASE fase) {
+char atualiza_pos_tiro(pTIRO Ptiro, FASE fase) {
     if (Ptiro->direcao == 'R') {
         if (!bloco_eh_imovel(fase, ((Ptiro->posicao.y)/48), ((Ptiro->posicao.x + 43)/48)) &&
             !bloco_eh_imovel(fase, ((Ptiro->posicao.y + 30)/48), ((Ptiro->posicao.x + 43)/48)) &&
             (Ptiro->posicao.x + 43) < 528) {
-            Ptiro->posicao.x += 4;
+            Ptiro->posicao.x += 8;
+            return 'L';
+        }
+        else {
+            return 'B';
+        }
+    }
+}
+
+PONTO pos_tiro_bateu(pTIRO Ptiro, FASE fase) {
+    PONTO retorno;
+    
+    if (Ptiro->direcao == 'R') {
+        if (bloco_eh_imovel(fase, ((Ptiro->posicao.y)/48), ((Ptiro->posicao.x + 43)/48))) {
+            retorno.x = ((Ptiro->posicao.x + 43)/48);
+            retorno.y = ((Ptiro->posicao.y)/48);
+            return retorno;
+        }
+        else if (bloco_eh_imovel(fase, ((Ptiro->posicao.y + 30)/48), ((Ptiro->posicao.x + 43)/48))) {
+            retorno.x = ((Ptiro->posicao.x + 43)/48);
+            retorno.y = ((Ptiro->posicao.y + 30)/48);
+            return retorno;
+        }
+        else if ((Ptiro->posicao.x + 43) > 528) {
+            retorno.x = -1;
+            retorno.y = -1;
+            return retorno;
         }
     }
 }
@@ -229,6 +255,7 @@ int main(void) {
     Texture2D lolo_F_texture = LoadTexture("./resources/Lolo/Lolo-F.png");
     Texture2D inimigo_texture = LoadTexture("./resources/Inimigos/Larva.png");
     Texture2D tiro_texture = LoadTexture("./resources/Poderes/tiro.png");
+    Texture2D ovo_texture = LoadTexture("./resources/Inimigos/ovo.png");
 
     // Variáveis de posicionamento
     int ponto_x_lolo_menu = (screen_width - menu_texture.width)/2 + 45;
@@ -273,6 +300,7 @@ int main(void) {
     tiro_atual.posicao.x = 0;
     tiro_atual.posicao.y = 0;
     tiro_atual.mostrar = 'N';
+    PONTO bloco_tiro_bateu;
     
     // Main game loop
     while (!WindowShouldClose() && strcmp(status_jogo.parte, "SAIR") != 0)    // Detect window close button or ESC key
@@ -512,8 +540,19 @@ int main(void) {
             atualiza_pos_lolo(&pos_lolo_game, fase_atual);
             
             if (tiro_atual.mostrar == 'S') {
-                atualiza_pos_tiro(&tiro_atual, fase_atual);
-            }
+                if (atualiza_pos_tiro(&tiro_atual, fase_atual) == 'B') {
+                    tiro_atual.mostrar = 'N';
+                    bloco_tiro_bateu = pos_tiro_bateu(&tiro_atual, fase_atual);
+                    printf("%d %d\n", bloco_tiro_bateu.x, bloco_tiro_bateu.y);
+                    if (bloco_tiro_bateu.x != -1) {
+                        switch (fase_atual.elementos[bloco_tiro_bateu.y][bloco_tiro_bateu.x]) {
+                            case 'I':
+                                fase_atual.elementos[bloco_tiro_bateu.y][bloco_tiro_bateu.x] = 'O';
+                                break;
+                        }
+                    }
+                }
+            }        
             
             // Compara se a posição do lolo é a mesma de um coração, para ele poder pegar o coração
             if (fase_atual.elementos[pos_lolo_game.y/48][pos_lolo_game.x/48] == 'C' ||
@@ -540,10 +579,11 @@ int main(void) {
             }
             
             if (IsKeyPressed(KEY_F) && atoi(fase_atual.num_especiais) > 0 && tiro_atual.mostrar == 'N') {
-                tiro_atual.posicao.x = BordaMapax + pos_lolo_game.x + 48;
-                tiro_atual.posicao.y = BordaMapay + pos_lolo_game.y + ((48 - tiro_texture.height)/2);
+                tiro_atual.posicao.x = pos_lolo_game.x + 48;
+                tiro_atual.posicao.y = pos_lolo_game.y + ((48 - tiro_texture.height)/2);
                 tiro_atual.mostrar = 'S';
                 tiro_atual.direcao = 'R';
+                itoa(atoi(fase_atual.num_especiais) - 1, fase_atual.num_especiais, 10);
             }
             
             // Mostra a tela do jogo baseado nos blocos contidos em fase_atual.elementos e na posição do lolo
@@ -592,6 +632,10 @@ int main(void) {
                             case 'I':
                                 DrawTexture(inimigo_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
                                 break;
+                            case 'O':
+                                DrawTexture(espaco_livre_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
+                                DrawTexture(ovo_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
+                                break;
                         }
                     }
                 }
@@ -604,7 +648,7 @@ int main(void) {
                 }
                 
                 if (tiro_atual.mostrar == 'S') {
-                    DrawTexture(tiro_texture, tiro_atual.posicao.x, tiro_atual.posicao.y, WHITE);
+                    DrawTexture(tiro_texture, BordaMapax + tiro_atual.posicao.x, BordaMapay + tiro_atual.posicao.y, WHITE);
                 }
                 
                 DrawTextEx(Fonte_principal, fase_atual.num_especiais, position_num_especiais, 40, 1, WHITE);
