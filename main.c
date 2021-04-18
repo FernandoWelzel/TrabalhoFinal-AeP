@@ -190,6 +190,39 @@ char atualiza_pos_tiro(pTIRO Ptiro, FASE fase) {
             return 'B';
         }
     }
+    if (Ptiro->direcao == 'L') {
+        if (!bloco_eh_imovel(fase, ((Ptiro->posicao.y)/48), ((Ptiro->posicao.x)/48)) &&
+            !bloco_eh_imovel(fase, ((Ptiro->posicao.y + 30)/48), ((Ptiro->posicao.x)/48)) &&
+            (Ptiro->posicao.x) > 0) {
+            Ptiro->posicao.x -= 8;
+            return 'L';
+        }
+        else {
+            return 'B';
+        }
+    }
+    if (Ptiro->direcao == 'R') {
+        if (!bloco_eh_imovel(fase, ((Ptiro->posicao.y)/48), ((Ptiro->posicao.x + 43)/48)) &&
+            !bloco_eh_imovel(fase, ((Ptiro->posicao.y + 30)/48), ((Ptiro->posicao.x + 43)/48)) &&
+            (Ptiro->posicao.x + 43) < 528) {
+            Ptiro->posicao.x += 8;
+            return 'L';
+        }
+        else {
+            return 'B';
+        }
+    }
+    if (Ptiro->direcao == 'R') {
+        if (!bloco_eh_imovel(fase, ((Ptiro->posicao.y)/48), ((Ptiro->posicao.x + 43)/48)) &&
+            !bloco_eh_imovel(fase, ((Ptiro->posicao.y + 30)/48), ((Ptiro->posicao.x + 43)/48)) &&
+            (Ptiro->posicao.x + 43) < 528) {
+            Ptiro->posicao.x += 8;
+            return 'L';
+        }
+        else {
+            return 'B';
+        }
+    }
 }
 
 PONTO pos_tiro_bateu(pTIRO Ptiro, FASE fase) {
@@ -207,6 +240,24 @@ PONTO pos_tiro_bateu(pTIRO Ptiro, FASE fase) {
             return retorno;
         }
         else if ((Ptiro->posicao.x + 43) > 528) {
+            retorno.x = -1;
+            retorno.y = -1;
+            return retorno;
+        }
+    }
+    
+    if (Ptiro->direcao == 'L') {
+        if (bloco_eh_imovel(fase, ((Ptiro->posicao.y)/48), ((Ptiro->posicao.x)/48))) {
+            retorno.x = ((Ptiro->posicao.x)/48);
+            retorno.y = ((Ptiro->posicao.y)/48);
+            return retorno;
+        }
+        else if (bloco_eh_imovel(fase, ((Ptiro->posicao.y + 30)/48), ((Ptiro->posicao.x)/48))) {
+            retorno.x = ((Ptiro->posicao.x)/48);
+            retorno.y = ((Ptiro->posicao.y + 30)/48);
+            return retorno;
+        }
+        else if (Ptiro->posicao.x < 0) {
             retorno.x = -1;
             retorno.y = -1;
             return retorno;
@@ -261,6 +312,8 @@ int main(void) {
     Texture2D lolo_L_texture = LoadTexture("./resources/Lolo/Lolo-L.png");
     Texture2D lolo_U_texture = LoadTexture("./resources/Lolo/Lolo-U.png");
     Texture2D inimigo_texture = LoadTexture("./resources/Inimigos/Larva.png");
+    Texture2D tiro_L_R_texture = LoadTexture("./resources/Poderes/tiro_L_R.png");
+    Texture2D tiro_U_D_texture = LoadTexture("./resources/Poderes/tiro_U_D.png");
     Texture2D tiro_texture = LoadTexture("./resources/Poderes/tiro.png");
     Texture2D ovo_texture = LoadTexture("./resources/Inimigos/ovo.png");
 
@@ -551,7 +604,6 @@ int main(void) {
                 if (atualiza_pos_tiro(&tiro_atual, fase_atual) == 'B') {
                     tiro_atual.mostrar = 'N';
                     bloco_tiro_bateu = pos_tiro_bateu(&tiro_atual, fase_atual);
-                    printf("%d %d\n", bloco_tiro_bateu.x, bloco_tiro_bateu.y);
                     if (bloco_tiro_bateu.x != -1) {
                         switch (fase_atual.elementos[bloco_tiro_bateu.y][bloco_tiro_bateu.x]) {
                             case 'I':
@@ -587,10 +639,27 @@ int main(void) {
             }
             
             if (IsKeyPressed(KEY_F) && atoi(fase_atual.num_especiais) > 0 && tiro_atual.mostrar == 'N') {
-                tiro_atual.posicao.x = lolo_atual.posicao.x + 48;
-                tiro_atual.posicao.y = lolo_atual.posicao.y + ((48 - tiro_texture.height)/2);
+                tiro_atual.direcao = lolo_atual.direcao;
+                
+                switch (tiro_atual.direcao) {
+                    case 'U':
+                        tiro_atual.posicao.x = lolo_atual.posicao.x + (48 - tiro_U_D_texture.width)/2;
+                        tiro_atual.posicao.y = lolo_atual.posicao.y - tiro_U_D_texture.height - 1;
+                        break;
+                    case 'D':
+                        tiro_atual.posicao.x = lolo_atual.posicao.x + (48 - tiro_U_D_texture.width)/2;
+                        tiro_atual.posicao.y = lolo_atual.posicao.y + 48;
+                        break;
+                    case 'R':
+                        tiro_atual.posicao.x = lolo_atual.posicao.x + 48;
+                        tiro_atual.posicao.y = lolo_atual.posicao.y + ((48 - tiro_L_R_texture.height)/2);
+                        break;
+                    case 'L':
+                        tiro_atual.posicao.x = lolo_atual.posicao.x - tiro_L_R_texture.width;
+                        tiro_atual.posicao.y = lolo_atual.posicao.y + ((48 - tiro_L_R_texture.height)/2);
+                        break;
+                }
                 tiro_atual.mostrar = 'S';
-                tiro_atual.direcao = 'R';
                 itoa(atoi(fase_atual.num_especiais) - 1, fase_atual.num_especiais, 10);
             }
             
@@ -657,11 +726,22 @@ int main(void) {
                 
                 if (tiro_atual.mostrar == 'S') {
                     DrawTexture(tiro_texture, BordaMapax + tiro_atual.posicao.x, BordaMapay + tiro_atual.posicao.y, WHITE);
+                    switch (tiro_atual.direcao) {
+                        case 'D':
+                        case 'U':
+                            DrawTexture(tiro_U_D_texture, BordaMapax + tiro_atual.posicao.x, BordaMapay + tiro_atual.posicao.y, WHITE);
+                            break;
+                        case 'R':
+                        case 'L':
+                            DrawTexture(tiro_L_R_texture, BordaMapax + tiro_atual.posicao.x, BordaMapay + tiro_atual.posicao.y, WHITE);
+                            break;
+                    }
                 }
                 
+               
                 DrawTextEx(Fonte_principal, fase_atual.num_especiais, position_num_especiais, 40, 1, WHITE);
 
-                // Imprime o lolo baseado em sua posição atualizada
+                // Imprime o lolo baseado em sua posição atualizada e a direção que ele está olhando
                 switch (lolo_atual.direcao) {
                     case 'D':
                         DrawTexture(lolo_D_texture, BordaMapax + lolo_atual.posicao.x, BordaMapay + lolo_atual.posicao.y, WHITE);
