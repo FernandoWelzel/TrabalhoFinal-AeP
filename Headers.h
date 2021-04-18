@@ -21,9 +21,10 @@ typedef struct fase {
 
 typedef struct lolo {
     char vidas;
-    PONTO ponto;
+    PONTO posicao;
     char poder[3];
-} LOLO;
+    char direcao;
+} LOLO, * pLOLO;
 
 typedef struct inimigo {
     char vidas;

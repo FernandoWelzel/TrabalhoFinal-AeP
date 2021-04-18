@@ -140,36 +140,40 @@ int bloco_eh_imovel(FASE fase, int y, int x) {
 }
 
 // Função que atuliza a posição do lolo no jogo baseado na sua posição atual, nos blocos a sua volta e na entrada do usuário
-void atualiza_pos_lolo(pPONTO Ponto_lolo, FASE fase) {
+void atualiza_pos_lolo(pLOLO lolo, FASE fase) {
     if (IsKeyDown(KEY_UP)) {
-        if (!bloco_eh_imovel(fase, ((Ponto_lolo->y - 1)/48), ((Ponto_lolo->x)/48)) &&
-            !bloco_eh_imovel(fase, ((Ponto_lolo->y - 1)/48), ((Ponto_lolo->x + 47)/48)) &&
-            (Ponto_lolo->y - 1) > 0) {
-            Ponto_lolo->y -= 2;
+        lolo->direcao = 'U';
+        if (!bloco_eh_imovel(fase, ((lolo->posicao.y - 1)/48), ((lolo->posicao.x)/48)) &&
+            !bloco_eh_imovel(fase, ((lolo->posicao.y - 1)/48), ((lolo->posicao.x + 47)/48)) &&
+            (lolo->posicao.y - 1) > 0) {
+            lolo->posicao.y -= 2;
         }
     }
 
     if (IsKeyDown(KEY_DOWN)) {
-        if (!bloco_eh_imovel(fase, ((Ponto_lolo->y + 49)/48), ((Ponto_lolo->x)/48)) &&
-        !bloco_eh_imovel(fase, ((Ponto_lolo->y + 49)/48), ((Ponto_lolo->x + 47)/48)) &&
-        (Ponto_lolo->y + 49) < 528) {
-            Ponto_lolo->y += 2;
+        lolo->direcao = 'D';
+        if (!bloco_eh_imovel(fase, ((lolo->posicao.y + 49)/48), ((lolo->posicao.x)/48)) &&
+        !bloco_eh_imovel(fase, ((lolo->posicao.y + 49)/48), ((lolo->posicao.x + 47)/48)) &&
+        (lolo->posicao.y + 49) < 528) {
+            lolo->posicao.y += 2;
         }
     }
 
     if (IsKeyDown(KEY_RIGHT)) {
-        if (!bloco_eh_imovel(fase, ((Ponto_lolo->y)/48), ((Ponto_lolo->x + 49)/48)) &&
-        !bloco_eh_imovel(fase, ((Ponto_lolo->y + 47)/48), ((Ponto_lolo->x + 49)/48)) &&
-        (Ponto_lolo->x + 49) < 528) {
-            Ponto_lolo->x += 2;
+        lolo->direcao = 'R';
+        if (!bloco_eh_imovel(fase, ((lolo->posicao.y)/48), ((lolo->posicao.x + 49)/48)) &&
+        !bloco_eh_imovel(fase, ((lolo->posicao.y + 47)/48), ((lolo->posicao.x + 49)/48)) &&
+        (lolo->posicao.x + 49) < 528) {
+            lolo->posicao.x += 2;
         }
     }
 
     if (IsKeyDown(KEY_LEFT)) {
-        if (!bloco_eh_imovel(fase, ((Ponto_lolo->y)/48), ((Ponto_lolo->x - 1)/48)) &&
-        !bloco_eh_imovel(fase, ((Ponto_lolo->y + 47)/48), ((Ponto_lolo->x - 1)/48)) &&
-        (Ponto_lolo->x - 1) > 0) {
-            Ponto_lolo->x -= 2;
+        lolo->direcao = 'L';
+        if (!bloco_eh_imovel(fase, ((lolo->posicao.y)/48), ((lolo->posicao.x - 1)/48)) &&
+        !bloco_eh_imovel(fase, ((lolo->posicao.y + 47)/48), ((lolo->posicao.x - 1)/48)) &&
+        (lolo->posicao.x - 1) > 0) {
+            lolo->posicao.x -= 2;
         }
     }
 }
@@ -252,7 +256,10 @@ int main(void) {
     Texture2D porta_aberta_texture = LoadTexture("./resources/Blocos/Porta_aberta.png");
     Texture2D coracao_texture = LoadTexture("./resources/Blocos/Coracao.png");
     Texture2D bloco_esquerda_texture = LoadTexture("./resources/Blocos/Lateral-esquerda.png");
-    Texture2D lolo_F_texture = LoadTexture("./resources/Lolo/Lolo-F.png");
+    Texture2D lolo_D_texture = LoadTexture("./resources/Lolo/Lolo-D.png");
+    Texture2D lolo_R_texture = LoadTexture("./resources/Lolo/Lolo-R.png");
+    Texture2D lolo_L_texture = LoadTexture("./resources/Lolo/Lolo-L.png");
+    Texture2D lolo_U_texture = LoadTexture("./resources/Lolo/Lolo-U.png");
     Texture2D inimigo_texture = LoadTexture("./resources/Inimigos/Larva.png");
     Texture2D tiro_texture = LoadTexture("./resources/Poderes/tiro.png");
     Texture2D ovo_texture = LoadTexture("./resources/Inimigos/ovo.png");
@@ -276,7 +283,6 @@ int main(void) {
     int BordaMapax = ((screen_width - mapa_vazio_texture.width)/2) + 45;
     int BordaMapay = ((screen_height - mapa_vazio_texture.height)/2) + 96;
     Vector2 position_num_especiais = {BordaMapax + 585, 300};
-    PONTO pos_lolo_game;
 
     // Declaração das variáveis da caixa de texto com o nome do jogador
     char name[MAX_INPUT_CHARS + 1] = "\0";
@@ -287,7 +293,8 @@ int main(void) {
     // Declaração de Gravação e fase atuais
     GRAVACAO jogo_atual;
     FASE fase_atual;
-
+    LOLO lolo_atual;
+    
     // Variáveis para iteração
     int i;
     int j;
@@ -407,8 +414,9 @@ int main(void) {
                         strcpy(status_jogo.parte, "TEXT");
                         fase_atual = le_fase_por_pos(ARQ_FASE , atoi(jogo_atual.num_ult_fase));
                         escreve_gravacao(ARQ_GRAVACAO, &jogo_atual);
-                        pos_lolo_game.x = fase_atual.pos_i_jogador.x*48;
-                        pos_lolo_game.y = fase_atual.pos_i_jogador.y*48 ;
+                        lolo_atual.posicao.x = fase_atual.pos_i_jogador.x*48;
+                        lolo_atual.posicao.y = fase_atual.pos_i_jogador.y*48;
+                        lolo_atual.direcao = 'D';
                     }
                     else {
                         nome_n_unico = 1;
@@ -537,7 +545,7 @@ int main(void) {
         if (strcmp(status_jogo.parte, "GAME") == 0) {
             
             // Atualiza a posição do lolo baseado na sua posição atual, na tecla que o usuário preciona e nos blocos a sua volta
-            atualiza_pos_lolo(&pos_lolo_game, fase_atual);
+            atualiza_pos_lolo(&lolo_atual, fase_atual);
             
             if (tiro_atual.mostrar == 'S') {
                 if (atualiza_pos_tiro(&tiro_atual, fase_atual) == 'B') {
@@ -555,21 +563,21 @@ int main(void) {
             }        
             
             // Compara se a posição do lolo é a mesma de um coração, para ele poder pegar o coração
-            if (fase_atual.elementos[pos_lolo_game.y/48][pos_lolo_game.x/48] == 'C' ||
-                fase_atual.elementos[(pos_lolo_game.y + 47)/48][pos_lolo_game.x/48] == 'C' ||
-                fase_atual.elementos[pos_lolo_game.y/48][(pos_lolo_game.x + 47)/48] == 'C' ||
-                fase_atual.elementos[(pos_lolo_game.y + 47)/48][(pos_lolo_game.x + 47)/48] == 'C') {
+            if (fase_atual.elementos[lolo_atual.posicao.y/48][lolo_atual.posicao.x/48] == 'C' ||
+                fase_atual.elementos[(lolo_atual.posicao.y + 47)/48][lolo_atual.posicao.x/48] == 'C' ||
+                fase_atual.elementos[lolo_atual.posicao.y/48][(lolo_atual.posicao.x + 47)/48] == 'C' ||
+                fase_atual.elementos[(lolo_atual.posicao.y + 47)/48][(lolo_atual.posicao.x + 47)/48] == 'C') {
                     
-                fase_atual.elementos[pos_lolo_game.y/48][pos_lolo_game.x/48] = 'L';
+                fase_atual.elementos[lolo_atual.posicao.y/48][lolo_atual.posicao.x/48] = 'L';
                 fase_atual.num_coracoes--;
                 itoa(atoi(fase_atual.num_especiais) + 1, fase_atual.num_especiais, 10);
             }
             
             if (fase_atual.num_coracoes == 0) {
-                if (fase_atual.elementos[pos_lolo_game.y/48][pos_lolo_game.x/48] == 'B' ||
-                    fase_atual.elementos[(pos_lolo_game.y + 47)/48][pos_lolo_game.x/48] == 'B' ||
-                    fase_atual.elementos[pos_lolo_game.y/48][(pos_lolo_game.x + 47)/48] == 'B' ||
-                    fase_atual.elementos[(pos_lolo_game.y + 47)/48][(pos_lolo_game.x + 47)/48] == 'B') {
+                if (fase_atual.elementos[lolo_atual.posicao.y/48][lolo_atual.posicao.x/48] == 'B' ||
+                    fase_atual.elementos[(lolo_atual.posicao.y + 47)/48][lolo_atual.posicao.x/48] == 'B' ||
+                    fase_atual.elementos[lolo_atual.posicao.y/48][(lolo_atual.posicao.x + 47)/48] == 'B' ||
+                    fase_atual.elementos[(lolo_atual.posicao.y + 47)/48][(lolo_atual.posicao.x + 47)/48] == 'B') {
 
                     if (bau_cheio == 'S') {
                         bau_cheio = 'N';
@@ -579,8 +587,8 @@ int main(void) {
             }
             
             if (IsKeyPressed(KEY_F) && atoi(fase_atual.num_especiais) > 0 && tiro_atual.mostrar == 'N') {
-                tiro_atual.posicao.x = pos_lolo_game.x + 48;
-                tiro_atual.posicao.y = pos_lolo_game.y + ((48 - tiro_texture.height)/2);
+                tiro_atual.posicao.x = lolo_atual.posicao.x + 48;
+                tiro_atual.posicao.y = lolo_atual.posicao.y + ((48 - tiro_texture.height)/2);
                 tiro_atual.mostrar = 'S';
                 tiro_atual.direcao = 'R';
                 itoa(atoi(fase_atual.num_especiais) - 1, fase_atual.num_especiais, 10);
@@ -654,7 +662,20 @@ int main(void) {
                 DrawTextEx(Fonte_principal, fase_atual.num_especiais, position_num_especiais, 40, 1, WHITE);
 
                 // Imprime o lolo baseado em sua posição atualizada
-                DrawTexture(lolo_F_texture, BordaMapax + pos_lolo_game.x, BordaMapay + pos_lolo_game.y, WHITE);
+                switch (lolo_atual.direcao) {
+                    case 'D':
+                        DrawTexture(lolo_D_texture, BordaMapax + lolo_atual.posicao.x, BordaMapay + lolo_atual.posicao.y, WHITE);
+                        break;
+                    case 'U':
+                        DrawTexture(lolo_U_texture, BordaMapax + lolo_atual.posicao.x, BordaMapay + lolo_atual.posicao.y, WHITE);
+                        break;
+                    case 'R':
+                        DrawTexture(lolo_R_texture, BordaMapax + lolo_atual.posicao.x, BordaMapay + lolo_atual.posicao.y, WHITE);
+                        break;
+                    case 'L':
+                        DrawTexture(lolo_L_texture, BordaMapax + lolo_atual.posicao.x, BordaMapay + lolo_atual.posicao.y, WHITE);
+                        break;
+                }
 
             EndDrawing();
         }
