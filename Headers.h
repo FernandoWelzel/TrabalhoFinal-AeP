@@ -16,6 +16,7 @@ typedef struct fase {
     char texto_inic[200];
     char porta_estado;
     int num_coracoes;
+    char num_especiais[2];
 } FASE, * pFASE;
 
 typedef struct lolo {
@@ -36,6 +37,12 @@ typedef struct gravacao {
     char vidas[3];
     char nomejogador[9];
 } GRAVACAO, * pGRAVACAO;
+
+typedef struct tiro {
+    PONTO posicao;
+    char mostrar;
+    char direcao;
+} TIRO, * pTIRO;
 
 void escreve_gravacao(char * nome_arquivo, pGRAVACAO gravacao);
 int nome_unico(char * nome_arquivo, char * nome);

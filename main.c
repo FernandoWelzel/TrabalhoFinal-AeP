@@ -132,6 +132,7 @@ int bloco_eh_imovel(FASE fase, int x, int y) {
     switch (fase.elementos[x][y]) {
         case 'T':
         case 'P':
+        case 'I':
             return 1;
         default:
             return 0;
@@ -173,6 +174,16 @@ void atualiza_pos_lolo(pPONTO Ponto_lolo, FASE fase) {
     }
 }
 
+void atualiza_pos_tiro(pTIRO Ptiro, FASE fase) {
+    if (Ptiro->direcao == 'R') {
+        if (!bloco_eh_imovel(fase, ((Ptiro->posicao.y)/48), ((Ptiro->posicao.x + 43)/48)) &&
+            !bloco_eh_imovel(fase, ((Ptiro->posicao.y + 30)/48), ((Ptiro->posicao.x + 43)/48)) &&
+            (Ptiro->posicao.x + 43) < 528) {
+            Ptiro->posicao.x += 4;
+        }
+    }
+}
+
 //Função principal MAIN
 int main(void) {
     // Inicia a janela com as dimensões indicadas
@@ -181,7 +192,7 @@ int main(void) {
     InitWindow(screen_width, screen_height, "Adventures of Lolo");
 
     // Créditos (return menu)
-    const char message[28] = "PRESS ENTER TO RETURN MENU";
+    char message[28] = "PRESS ENTER TO RETURN MENU";
     int framesCounter = 0;
     int framesCounter2 = 0;
 
@@ -216,6 +227,8 @@ int main(void) {
     Texture2D coracao_texture = LoadTexture("./resources/Blocos/Coracao.png");
     Texture2D bloco_esquerda_texture = LoadTexture("./resources/Blocos/Lateral-esquerda.png");
     Texture2D lolo_F_texture = LoadTexture("./resources/Lolo/Lolo-F.png");
+    Texture2D inimigo_texture = LoadTexture("./resources/Inimigos/Larva.png");
+    Texture2D tiro_texture = LoadTexture("./resources/Poderes/tiro.png");
 
     // Variáveis de posicionamento
     int ponto_x_lolo_menu = (screen_width - menu_texture.width)/2 + 45;
@@ -235,6 +248,7 @@ int main(void) {
     Vector2 position6 = {215, 300};
     int BordaMapax = ((screen_width - mapa_vazio_texture.width)/2) + 45;
     int BordaMapay = ((screen_height - mapa_vazio_texture.height)/2) + 96;
+    Vector2 position_num_especiais = {BordaMapax + 585, 300};
     PONTO pos_lolo_game;
 
     // Declaração das variáveis da caixa de texto com o nome do jogador
@@ -253,7 +267,13 @@ int main(void) {
     
     // Variáveis estilo booleanas
     char bau_cheio = 'S';
-
+    
+    // Tiro
+    TIRO tiro_atual;
+    tiro_atual.posicao.x = 0;
+    tiro_atual.posicao.y = 0;
+    tiro_atual.mostrar = 'N';
+    
     // Main game loop
     while (!WindowShouldClose() && strcmp(status_jogo.parte, "SAIR") != 0)    // Detect window close button or ESC key
     {
@@ -387,6 +407,7 @@ int main(void) {
             EndDrawing();
         }
 
+        // LOAD (Tela para carregar o jogo do usuário)
         if (strcmp(status_jogo.parte, "LOAD") == 0) {
          BeginDrawing();
          int i;
@@ -463,6 +484,10 @@ int main(void) {
             // Atualiza a posição do lolo baseado na sua posição atual, na tecla que o usuário preciona e nos blocos a sua volta
             atualiza_pos_lolo(&pos_lolo_game, fase_atual);
             
+            if (tiro_atual.mostrar == 'S') {
+                atualiza_pos_tiro(&tiro_atual, fase_atual);
+            }
+            
             // Compara se a posição do lolo é a mesma de um coração, para ele poder pegar o coração
             if (fase_atual.elementos[pos_lolo_game.y/48][pos_lolo_game.x/48] == 'C' ||
                 fase_atual.elementos[(pos_lolo_game.y + 47)/48][pos_lolo_game.x/48] == 'C' ||
@@ -471,6 +496,7 @@ int main(void) {
                     
                 fase_atual.elementos[pos_lolo_game.y/48][pos_lolo_game.x/48] = 'L';
                 fase_atual.num_coracoes--;
+                itoa(atoi(fase_atual.num_especiais) + 1, fase_atual.num_especiais, 10);
             }
             
             if (fase_atual.num_coracoes == 0) {
@@ -484,6 +510,13 @@ int main(void) {
                         fase_atual.porta_estado = 'A';
                     }
                 }
+            }
+            
+            if (IsKeyPressed(KEY_F) && atoi(fase_atual.num_especiais) > 0 && tiro_atual.mostrar == 'N') {
+                tiro_atual.posicao.x = BordaMapax + pos_lolo_game.x + 48;
+                tiro_atual.posicao.y = BordaMapay + pos_lolo_game.y + ((48 - tiro_texture.height)/2);
+                tiro_atual.mostrar = 'S';
+                tiro_atual.direcao = 'R';
             }
             
             // Mostra a tela do jogo baseado nos blocos contidos em fase_atual.elementos e na posição do lolo
@@ -529,6 +562,9 @@ int main(void) {
                             case 'C':
                                 DrawTexture(coracao_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
                                 break;
+                            case 'I':
+                                DrawTexture(inimigo_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
+                                break;
                         }
                     }
                 }
@@ -540,6 +576,11 @@ int main(void) {
                     DrawTexture(porta_aberta_texture, BordaMapax + 48*atoi(fase_atual.pos_porta) - 4, BordaMapay - 36, WHITE);
                 }
                 
+                if (tiro_atual.mostrar == 'S') {
+                    DrawTexture(tiro_texture, tiro_atual.posicao.x, tiro_atual.posicao.y, WHITE);
+                }
+                
+                DrawTextEx(Fonte_principal, fase_atual.num_especiais, position_num_especiais, 40, 1, WHITE);
 
                 // Imprime o lolo baseado em sua posição atualizada
                 DrawTexture(lolo_F_texture, BordaMapax + pos_lolo_game.x, BordaMapay + pos_lolo_game.y, WHITE);

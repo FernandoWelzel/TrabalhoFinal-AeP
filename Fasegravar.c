@@ -62,6 +62,7 @@ int main(void)
     strcpy(nivel1.nome, "Fase inicial");
     nivel1.porta_estado = 'F';
     nivel1.num_coracoes = 2;
+    strcpy(nivel1.num_especiais, "0\0");
     
     for (i = 0; i < 11; i++) {
         strcpy(nivel1.elementos[i], elementos[i]);
