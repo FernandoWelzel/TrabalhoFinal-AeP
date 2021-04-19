@@ -268,10 +268,13 @@ void atualiza_pos_lolo(pLOLO lolo, pFASE fase) {
 }
 
 char atualiza_pos_tiro(pTIRO Ptiro, pFASE fase) {
+    PONTO ponto1, ponto2;
+    
     if (Ptiro->direcao == 'R') {
-        if (!bloco_eh_imovel(fase, 'R', (Ptiro->posicao.y), (Ptiro->posicao.x + 43)) &&
-            !bloco_eh_imovel(fase, 'R', (Ptiro->posicao.y + 30), (Ptiro->posicao.x + 43)) &&
-            (Ptiro->posicao.x + 43) < 528) {
+        ponto1.x = (Ptiro->posicao.x + 43); ponto1.y = (Ptiro->posicao.y);
+        ponto2.x = (Ptiro->posicao.x + 43); ponto2.y = (Ptiro->posicao.y + 30);
+        
+        if (testar_pontos_imoveis(fase, 'R', ponto1, ponto2) && ponto1.x < 528) {
             Ptiro->posicao.x += 8;
             return 'L';
         }
@@ -280,9 +283,10 @@ char atualiza_pos_tiro(pTIRO Ptiro, pFASE fase) {
         }
     }
     if (Ptiro->direcao == 'L') {
-        if (!bloco_eh_imovel(fase, 'L', (Ptiro->posicao.y), (Ptiro->posicao.x)) &&
-            !bloco_eh_imovel(fase, 'L', (Ptiro->posicao.y + 30), (Ptiro->posicao.x)) &&
-            (Ptiro->posicao.x) > 0) {
+        ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y);
+        ponto2.x = (Ptiro->posicao.x); ponto2.y = (Ptiro->posicao.y + 30);
+        
+        if (testar_pontos_imoveis(fase, 'L', ponto1, ponto2) && ponto1.x > 0) {
             Ptiro->posicao.x -= 8;
             return 'L';
         }
@@ -291,9 +295,10 @@ char atualiza_pos_tiro(pTIRO Ptiro, pFASE fase) {
         }
     }
     if (Ptiro->direcao == 'U') {
-        if (!bloco_eh_imovel(fase, 'U', (Ptiro->posicao.y), (Ptiro->posicao.x)) &&
-            !bloco_eh_imovel(fase, 'U', (Ptiro->posicao.y), (Ptiro->posicao.x + 30)) &&
-            Ptiro->posicao.y > 0) {
+        ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y);
+        ponto2.x = (Ptiro->posicao.x + 30); ponto2.y = (Ptiro->posicao.y);
+        
+        if (testar_pontos_imoveis(fase, 'U', ponto1, ponto2) && ponto1.y > 0) {
             Ptiro->posicao.y -= 8;
             return 'L';
         }
@@ -302,9 +307,10 @@ char atualiza_pos_tiro(pTIRO Ptiro, pFASE fase) {
         }
     }
     if (Ptiro->direcao == 'D') {
-        if (!bloco_eh_imovel(fase, 'D', (Ptiro->posicao.y + 45), (Ptiro->posicao.x)) &&
-            !bloco_eh_imovel(fase, 'D', (Ptiro->posicao.y + 45), (Ptiro->posicao.x + 30)) &&
-            Ptiro->posicao.y < 528) {
+        ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y + 45);
+        ponto2.x = (Ptiro->posicao.x + 30); ponto2.y = (Ptiro->posicao.y + 45);
+        
+        if (testar_pontos_imoveis(fase, 'D', ponto1, ponto2) && ponto1.y < 528) {
             Ptiro->posicao.y += 8;
             return 'L';
         }
@@ -315,18 +321,23 @@ char atualiza_pos_tiro(pTIRO Ptiro, pFASE fase) {
 }
 
 PONTO pos_tiro_bateu(pTIRO Ptiro, pFASE fase) {
-    PONTO retorno;
+    PONTO retorno, ponto1, ponto2;
     
     if (Ptiro->direcao == 'R') {
-        if (bloco_eh_imovel(fase, 'R', (Ptiro->posicao.y), (Ptiro->posicao.x + 43))) {
-            retorno.x = ((Ptiro->posicao.x + 43)/48);
-            retorno.y = ((Ptiro->posicao.y)/48);
-            return retorno;
+        ponto1.x = (Ptiro->posicao.x + 43); ponto1.y = (Ptiro->posicao.y);
+        ponto2.x = (Ptiro->posicao.x + 43); ponto2.y = (Ptiro->posicao.y + 30);
+        
+        if (bloco_eh_imovel(fase, 'R', ponto1.y, ponto1.x)) {
+            return ponto1;
         }
-        else if (bloco_eh_imovel(fase, 'R', (Ptiro->posicao.y + 30), (Ptiro->posicao.x + 43))) {
-            retorno.x = ((Ptiro->posicao.x + 43)/48);
-            retorno.y = ((Ptiro->posicao.y + 30)/48);
-            return retorno;
+        else if (bloco_eh_imovel(fase, 'R', ponto2.y, ponto2.x)) {
+            return ponto2;
+        }
+        else if (eh_inimigo_imovel(fase, 'R', ponto1.y, ponto1.x)) {
+            return ponto1;
+        }
+        else if (eh_inimigo_imovel(fase, 'R', ponto2.y, ponto2.x)) {
+            return ponto2;
         }
         else if ((Ptiro->posicao.x + 43) > 528) {
             retorno.x = -1;
@@ -336,17 +347,22 @@ PONTO pos_tiro_bateu(pTIRO Ptiro, pFASE fase) {
     }
     
     if (Ptiro->direcao == 'L') {
-        if (bloco_eh_imovel(fase, 'L', (Ptiro->posicao.y), (Ptiro->posicao.x))) {
-            retorno.x = ((Ptiro->posicao.x)/48);
-            retorno.y = ((Ptiro->posicao.y)/48);
-            return retorno;
+        ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y);
+        ponto2.x = (Ptiro->posicao.x); ponto2.y = (Ptiro->posicao.y + 30);
+        
+        if (bloco_eh_imovel(fase, 'L', ponto1.y, ponto1.x)) {
+            return ponto1;
         }
-        else if (bloco_eh_imovel(fase, 'L', (Ptiro->posicao.y + 30), (Ptiro->posicao.x))) {
-            retorno.x = ((Ptiro->posicao.x)/48);
-            retorno.y = ((Ptiro->posicao.y + 30)/48);
-            return retorno;
+        else if (bloco_eh_imovel(fase, 'L', ponto2.y, ponto2.x)) {
+            return ponto2;
         }
-        else if (Ptiro->posicao.x < 0) {
+        else if (eh_inimigo_imovel(fase, 'L', ponto1.y, ponto1.x)) {
+            return ponto1;
+        }
+        else if (eh_inimigo_imovel(fase, 'L', ponto2.y, ponto2.x)) {
+            return ponto2;
+        }
+        else if ((Ptiro->posicao.x) < 528) {
             retorno.x = -1;
             retorno.y = -1;
             return retorno;
@@ -354,17 +370,22 @@ PONTO pos_tiro_bateu(pTIRO Ptiro, pFASE fase) {
     }
     
     if (Ptiro->direcao == 'U') {
-        if (bloco_eh_imovel(fase, 'U', (Ptiro->posicao.y), (Ptiro->posicao.x))) {
-            retorno.x = ((Ptiro->posicao.x)/48);
-            retorno.y = ((Ptiro->posicao.y)/48);
-            return retorno;
+        ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y);
+        ponto2.x = (Ptiro->posicao.x + 30); ponto2.y = (Ptiro->posicao.y);
+        
+        if (bloco_eh_imovel(fase, 'U', ponto1.y, ponto1.x)) {
+            return ponto1;
         }
-        else if (bloco_eh_imovel(fase, 'U', (Ptiro->posicao.y), (Ptiro->posicao.x + 30))) {
-            retorno.x = ((Ptiro->posicao.x + 30)/48);
-            retorno.y = ((Ptiro->posicao.y)/48);
-            return retorno;
+        else if (bloco_eh_imovel(fase, 'U', ponto2.y, ponto2.x)) {
+            return ponto2;
         }
-        else if (Ptiro->posicao.y < 0) {
+        else if (eh_inimigo_imovel(fase, 'U', ponto1.y, ponto1.x)) {
+            return ponto1;
+        }
+        else if (eh_inimigo_imovel(fase, 'U', ponto2.y, ponto2.x)) {
+            return ponto2;
+        }
+        else if ((Ptiro->posicao.y) < 0) {
             retorno.x = -1;
             retorno.y = -1;
             return retorno;
@@ -372,17 +393,22 @@ PONTO pos_tiro_bateu(pTIRO Ptiro, pFASE fase) {
     }
     
     if (Ptiro->direcao == 'D') {
-        if (bloco_eh_imovel(fase, 'D', (Ptiro->posicao.y + 45), (Ptiro->posicao.x))) {
-            retorno.x = ((Ptiro->posicao.x)/48);
-            retorno.y = ((Ptiro->posicao.y + 45)/48);
-            return retorno;
+        ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y + 45);
+        ponto2.x = (Ptiro->posicao.x + 30); ponto2.y = (Ptiro->posicao.y + 45);
+        
+        if (bloco_eh_imovel(fase, 'D', ponto1.y, ponto1.x)) {
+            return ponto1;
         }
-        else if (bloco_eh_imovel(fase, 'D', (Ptiro->posicao.y + 45), (Ptiro->posicao.x + 30))) {
-            retorno.x = ((Ptiro->posicao.x + 30)/48);
-            retorno.y = ((Ptiro->posicao.y + 45)/48);
-            return retorno;
+        else if (bloco_eh_imovel(fase, 'D', ponto2.y, ponto2.x)) {
+            return ponto2;
         }
-        else if (Ptiro->posicao.y > 528) {
+        else if (eh_inimigo_imovel(fase, 'D', ponto1.y, ponto1.x)) {
+            return ponto1;
+        }
+        else if (eh_inimigo_imovel(fase, 'D', ponto2.y, ponto2.x)) {
+            return ponto2;
+        }
+        else if ((Ptiro->posicao.y) > 528) {
             retorno.x = -1;
             retorno.y = -1;
             return retorno;
@@ -484,7 +510,7 @@ int main(void) {
     tiro_atual.posicao.x = 0;
     tiro_atual.posicao.y = 0;
     tiro_atual.mostrar = 'N';
-    PONTO bloco_tiro_bateu;
+    PONTO pos_tiro_bateu_atual;
     
     // Main game loop
     while (!WindowShouldClose() && strcmp(status_jogo.parte, "SAIR") != 0)    // Detect window close button or ESC key
@@ -496,7 +522,8 @@ int main(void) {
         quarda a parte do jogo que estamos.
         */
         
-        /*GRAVACAO gravacao_1 = le_gravacao_por_pos(ARQ_GRAVACAO,1);
+        /*
+        GRAVACAO gravacao_1 = le_gravacao_por_pos(ARQ_GRAVACAO,1);
         GRAVACAO gravacao_2 = le_gravacao_por_pos(ARQ_GRAVACAO,2);
         GRAVACAO gravacao_3 = le_gravacao_por_pos(ARQ_GRAVACAO,3);
         GRAVACAO gravacao_4 = le_gravacao_por_pos(ARQ_GRAVACAO,4);
@@ -727,24 +754,39 @@ int main(void) {
             if (tiro_atual.mostrar == 'S') {
                 if (atualiza_pos_tiro(&tiro_atual, &fase_atual) == 'B') {
                     tiro_atual.mostrar = 'N';
-                    bloco_tiro_bateu = pos_tiro_bateu(&tiro_atual, &fase_atual);
-                    if (bloco_tiro_bateu.x != -1) {
-                        switch (fase_atual.elementos[bloco_tiro_bateu.y][bloco_tiro_bateu.x]) {
-                            case 'I':
-                                fase_atual.elementos[bloco_tiro_bateu.y][bloco_tiro_bateu.x] = 'O';
-                                break;
+                    pos_tiro_bateu_atual = pos_tiro_bateu(&tiro_atual, &fase_atual);
+                    printf("%d %d\n", pos_tiro_bateu_atual.x, pos_tiro_bateu_atual.y);
+                    if (pos_tiro_bateu_atual.x != -1) {
+                        for (i = 0; i < fase_atual.num_inimigos; i++) {
+                            printf("%d %d\n", fase_atual.inimigos[i].posicao.x, fase_atual.inimigos[i].posicao.y);
+                            if (pos_tiro_bateu_atual.x - fase_atual.inimigos[i].posicao.x > 0 &&  pos_tiro_bateu_atual.x - fase_atual.inimigos[i].posicao.x < 48 &&
+                                pos_tiro_bateu_atual.y - fase_atual.inimigos[i].posicao.y > 0 &&  pos_tiro_bateu_atual.y - fase_atual.inimigos[i].posicao.y < 48) {
+                                fase_atual.inimigos[i].bola = 'S';
+                                printf("Passou");
+                            }
                         }
                     }
                 }
             }        
             
             // Compara se a posição do lolo é a mesma de um coração, para ele poder pegar o coração
-            if (fase_atual.elementos[lolo_atual.posicao.y/48][lolo_atual.posicao.x/48] == 'C' ||
-                fase_atual.elementos[(lolo_atual.posicao.y + 47)/48][lolo_atual.posicao.x/48] == 'C' ||
-                fase_atual.elementos[lolo_atual.posicao.y/48][(lolo_atual.posicao.x + 47)/48] == 'C' ||
-                fase_atual.elementos[(lolo_atual.posicao.y + 47)/48][(lolo_atual.posicao.x + 47)/48] == 'C') {
-                    
+            if (fase_atual.elementos[lolo_atual.posicao.y/48][lolo_atual.posicao.x/48] == 'C') {
                 fase_atual.elementos[lolo_atual.posicao.y/48][lolo_atual.posicao.x/48] = 'L';
+                fase_atual.num_coracoes--;
+                itoa(atoi(fase_atual.num_especiais) + 1, fase_atual.num_especiais, 10);
+            }
+            else if (fase_atual.elementos[(lolo_atual.posicao.y + 47)/48][lolo_atual.posicao.x/48] == 'C') {
+                fase_atual.elementos[(lolo_atual.posicao.y + 47)/48][lolo_atual.posicao.x/48] = 'L';
+                fase_atual.num_coracoes--;
+                itoa(atoi(fase_atual.num_especiais) + 1, fase_atual.num_especiais, 10);
+            }
+            else if (fase_atual.elementos[lolo_atual.posicao.y/48][(lolo_atual.posicao.x + 47)/48] == 'C') {
+                fase_atual.elementos[lolo_atual.posicao.y/48][(lolo_atual.posicao.x + 47)/48] = 'L';
+                fase_atual.num_coracoes--;
+                itoa(atoi(fase_atual.num_especiais) + 1, fase_atual.num_especiais, 10);
+            }
+            else if (fase_atual.elementos[(lolo_atual.posicao.y + 47)/48][(lolo_atual.posicao.x + 47)/48] == 'C') {
+                fase_atual.elementos[(lolo_atual.posicao.y + 47)/48][(lolo_atual.posicao.x + 47)/48] = 'L';
                 fase_atual.num_coracoes--;
                 itoa(atoi(fase_atual.num_especiais) + 1, fase_atual.num_especiais, 10);
             }

@@ -53,17 +53,17 @@ int main(void)
                               "PTTPBLLLTTL",
                               "PPPPPPLLLLL"};*/
                               
-    char elementos[11][12] = {"LLLLLLLLLLL",
+    char elementos[11][12] = {"LLCLLLLLLLC",
                               "LLLLLLLLLLL",
                               "LLLLLLLLLLL",
                               "LLLLLLLLLLL",
+                              "LLLCLLLLLLL",
                               "LLLLLLLLLLL",
                               "LLLLLLLLLLL",
                               "LLLLLLLLLLL",
+                              "LLCLLLLLLLL",
                               "LLLLLLLLLLL",
-                              "LLLLLLLLLLL",
-                              "LLLLLLLLLLL",
-                              "LLLLLLLLLLL"};                          
+                              "LLLLLLLLCLL"};                          
     
                               
     char texto_inicial[200] = "Ao longo\nda primeira fase,\nmate os inimigos\ne passe pela\nporta.";
@@ -81,7 +81,7 @@ int main(void)
     nivel1.inimigos[0].tipo = 'L';
     nivel1.inimigos[0].posicao.x = 6*48;
     nivel1.inimigos[0].posicao.y = 5*48;
-    nivel1.inimigos[0].bola = 'S';
+    nivel1.inimigos[0].bola = 'N';
     
     nivel1.inimigos[1].morto = 'N';
     nivel1.inimigos[1].tipo = 'L';
