@@ -128,60 +128,149 @@ FASE le_fase_por_pos(char * nome_arquivo, int pos) {
 // Funções de movimentação
 
 // Função que recebe uma posição em uma fase e retorna se o bloco nessa posição é imóvel
-int bloco_eh_imovel(FASE fase, int y, int x) {
-    switch (fase.elementos[y][x]) {
+int bloco_eh_imovel(pFASE fase, char orientacao, int y, int x) {    
+    switch (fase->elementos[y/48][x/48]) {
         case 'T':
         case 'P':
-        case 'I':
             return 1;
         default:
             return 0;
     }
 }
 
+int testar_pontos_imoveis(pFASE fase, char orientacao, PONTO ponto1, PONTO ponto2);
+
+int eh_inimigo_imovel (pFASE fase, char orientacao, int y, int x) {
+    int i, retorno = 0;
+    PONTO ponto1, ponto2;
+    
+    for (i = 0; i < fase->num_inimigos; i++) {
+        if ((fase->inimigos + i)->bola == 'S') {
+            if (x - (fase->inimigos + i)->posicao.x > 0 &&  x -(fase->inimigos + i)->posicao.x < 48 &&
+                y - (fase->inimigos + i)->posicao.y > 0 &&  y - (fase->inimigos + i)->posicao.y < 48) {
+                if (orientacao == 'U') {
+                    ponto1.x = (fase->inimigos + i)->posicao.x; ponto1.y = (fase->inimigos + i)->posicao.y - 1;
+                    ponto2.x = (fase->inimigos + i)->posicao.x + 47; ponto2.y = (fase->inimigos + i)->posicao.y - 1;
+                    
+                    if (testar_pontos_imoveis(fase, 'U', ponto1, ponto2) && ponto1.y > 0) {
+                        (fase->inimigos + i)->posicao.y -= 2;
+                        retorno = 0;
+                    }
+                    else {
+                        retorno = 1;
+                    }
+                }
+                else if (orientacao == 'D') {
+                    ponto1.x = (fase->inimigos + i)->posicao.x; ponto1.y = (fase->inimigos + i)->posicao.y + 48;
+                    ponto2.x = (fase->inimigos + i)->posicao.x + 47; ponto2.y = (fase->inimigos + i)->posicao.y + 48;
+                    
+                    if (testar_pontos_imoveis(fase, 'D', ponto1, ponto2) && ponto1.y < 528) {
+                        (fase->inimigos + i)->posicao.y += 2;
+                        retorno = 0;
+                    }
+                    else {
+                        retorno = 1;
+                    }
+                }
+                else if (orientacao == 'L') {
+                    ponto1.x = (fase->inimigos + i)->posicao.x - 1; ponto1.y = (fase->inimigos + i)->posicao.y;
+                    ponto2.x = (fase->inimigos + i)->posicao.x - 1; ponto2.y = (fase->inimigos + i)->posicao.y + 47;
+                    
+                    if (testar_pontos_imoveis(fase, 'L', ponto1, ponto2) && ponto1.x > 0) {
+                        (fase->inimigos + i)->posicao.x -= 2;
+                        retorno = 0;
+                    }
+                    else {
+                        retorno = 1;
+                    }
+                }
+                else if (orientacao == 'R') {
+                    ponto1.x = (fase->inimigos + i)->posicao.x + 48; ponto1.y = (fase->inimigos + i)->posicao.y;
+                    ponto2.x = (fase->inimigos + i)->posicao.x + 48; ponto2.y = (fase->inimigos + i)->posicao.y + 47;
+                    
+                    if (testar_pontos_imoveis(fase, 'R', ponto1, ponto2) && ponto1.x < 528) {
+                        (fase->inimigos + i)->posicao.x += 2;
+                        retorno = 0;
+                    }
+                    else {
+                        retorno = 1;
+                    }
+                }
+            }
+        }
+        else if ((fase->inimigos + i)->bola == 'N') {
+            if (x - (fase->inimigos + i)->posicao.x > 0 &&  x -(fase->inimigos + i)->posicao.x < 48 &&
+                y - (fase->inimigos + i)->posicao.y > 0 &&  y - (fase->inimigos + i)->posicao.y < 48) {
+                     retorno = 1;
+            }
+        }
+    }
+    
+    return retorno;
+}
+
+int testar_pontos_imoveis(pFASE fase, char orientacao, PONTO ponto1, PONTO ponto2) {
+    if (!bloco_eh_imovel(fase, orientacao, ponto1.y, ponto1.x) &&
+        !bloco_eh_imovel(fase, orientacao, ponto2.y, ponto2.x) &&
+        !eh_inimigo_imovel(fase, orientacao, ponto1.y, ponto1.x) &&
+        !eh_inimigo_imovel(fase, orientacao, ponto2.y, ponto2.x)) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
 // Função que atuliza a posição do lolo no jogo baseado na sua posição atual, nos blocos a sua volta e na entrada do usuário
-void atualiza_pos_lolo(pLOLO lolo, FASE fase) {
+void atualiza_pos_lolo(pLOLO lolo, pFASE fase) {
+    // Declaração dos pontos a serem testados para cada caso
+    PONTO ponto1, ponto2;
+
     if (IsKeyDown(KEY_UP)) {
         lolo->direcao = 'U';
-        if (!bloco_eh_imovel(fase, ((lolo->posicao.y - 1)/48), ((lolo->posicao.x)/48)) &&
-            !bloco_eh_imovel(fase, ((lolo->posicao.y - 1)/48), ((lolo->posicao.x + 47)/48)) &&
-            (lolo->posicao.y - 1) > 0) {
+        ponto1.x = (lolo->posicao.x); ponto1.y = (lolo->posicao.y - 1);
+        ponto2.x = (lolo->posicao.x + 47); ponto2.y = (lolo->posicao.y - 1);
+        
+        if (testar_pontos_imoveis(fase, 'U', ponto1, ponto2) && ponto1.y > 0) {
             lolo->posicao.y -= 2;
         }
     }
 
     if (IsKeyDown(KEY_DOWN)) {
         lolo->direcao = 'D';
-        if (!bloco_eh_imovel(fase, ((lolo->posicao.y + 49)/48), ((lolo->posicao.x)/48)) &&
-        !bloco_eh_imovel(fase, ((lolo->posicao.y + 49)/48), ((lolo->posicao.x + 47)/48)) &&
-        (lolo->posicao.y + 49) < 528) {
+        ponto1.x = (lolo->posicao.x); ponto1.y = (lolo->posicao.y + 49);
+        ponto2.x = (lolo->posicao.x + 47); ponto2.y = (lolo->posicao.y + 49);
+        
+        if (testar_pontos_imoveis(fase, 'D', ponto1, ponto2) && ponto1.y < 528) {
             lolo->posicao.y += 2;
         }
     }
 
     if (IsKeyDown(KEY_RIGHT)) {
         lolo->direcao = 'R';
-        if (!bloco_eh_imovel(fase, ((lolo->posicao.y)/48), ((lolo->posicao.x + 49)/48)) &&
-        !bloco_eh_imovel(fase, ((lolo->posicao.y + 47)/48), ((lolo->posicao.x + 49)/48)) &&
-        (lolo->posicao.x + 49) < 528) {
+        ponto1.x = (lolo->posicao.x + 49); ponto1.y = (lolo->posicao.y);
+        ponto2.x = (lolo->posicao.x + 49); ponto2.y = (lolo->posicao.y + 47);
+        
+        if (testar_pontos_imoveis(fase, 'R', ponto1, ponto2) && ponto1.x < 528) {
             lolo->posicao.x += 2;
         }
     }
 
     if (IsKeyDown(KEY_LEFT)) {
         lolo->direcao = 'L';
-        if (!bloco_eh_imovel(fase, ((lolo->posicao.y)/48), ((lolo->posicao.x - 1)/48)) &&
-        !bloco_eh_imovel(fase, ((lolo->posicao.y + 47)/48), ((lolo->posicao.x - 1)/48)) &&
-        (lolo->posicao.x - 1) > 0) {
+        ponto1.x = (lolo->posicao.x - 1); ponto1.y = (lolo->posicao.y);
+        ponto2.x = (lolo->posicao.x - 1); ponto2.y = (lolo->posicao.y + 47);
+        
+        if (testar_pontos_imoveis(fase, 'L', ponto1, ponto2) && ponto1.x > 0) {
             lolo->posicao.x -= 2;
         }
     }
 }
 
-char atualiza_pos_tiro(pTIRO Ptiro, FASE fase) {
+char atualiza_pos_tiro(pTIRO Ptiro, pFASE fase) {
     if (Ptiro->direcao == 'R') {
-        if (!bloco_eh_imovel(fase, ((Ptiro->posicao.y)/48), ((Ptiro->posicao.x + 43)/48)) &&
-            !bloco_eh_imovel(fase, ((Ptiro->posicao.y + 30)/48), ((Ptiro->posicao.x + 43)/48)) &&
+        if (!bloco_eh_imovel(fase, 'R', (Ptiro->posicao.y), (Ptiro->posicao.x + 43)) &&
+            !bloco_eh_imovel(fase, 'R', (Ptiro->posicao.y + 30), (Ptiro->posicao.x + 43)) &&
             (Ptiro->posicao.x + 43) < 528) {
             Ptiro->posicao.x += 8;
             return 'L';
@@ -191,8 +280,8 @@ char atualiza_pos_tiro(pTIRO Ptiro, FASE fase) {
         }
     }
     if (Ptiro->direcao == 'L') {
-        if (!bloco_eh_imovel(fase, ((Ptiro->posicao.y)/48), ((Ptiro->posicao.x)/48)) &&
-            !bloco_eh_imovel(fase, ((Ptiro->posicao.y + 30)/48), ((Ptiro->posicao.x)/48)) &&
+        if (!bloco_eh_imovel(fase, 'L', (Ptiro->posicao.y), (Ptiro->posicao.x)) &&
+            !bloco_eh_imovel(fase, 'L', (Ptiro->posicao.y + 30), (Ptiro->posicao.x)) &&
             (Ptiro->posicao.x) > 0) {
             Ptiro->posicao.x -= 8;
             return 'L';
@@ -202,8 +291,8 @@ char atualiza_pos_tiro(pTIRO Ptiro, FASE fase) {
         }
     }
     if (Ptiro->direcao == 'U') {
-        if (!bloco_eh_imovel(fase, ((Ptiro->posicao.y)/48), ((Ptiro->posicao.x)/48)) &&
-            !bloco_eh_imovel(fase, ((Ptiro->posicao.y)/48), ((Ptiro->posicao.x + 30)/48)) &&
+        if (!bloco_eh_imovel(fase, 'U', (Ptiro->posicao.y), (Ptiro->posicao.x)) &&
+            !bloco_eh_imovel(fase, 'U', (Ptiro->posicao.y), (Ptiro->posicao.x + 30)) &&
             Ptiro->posicao.y > 0) {
             Ptiro->posicao.y -= 8;
             return 'L';
@@ -213,8 +302,8 @@ char atualiza_pos_tiro(pTIRO Ptiro, FASE fase) {
         }
     }
     if (Ptiro->direcao == 'D') {
-        if (!bloco_eh_imovel(fase, ((Ptiro->posicao.y + 45)/48), ((Ptiro->posicao.x)/48)) &&
-            !bloco_eh_imovel(fase, ((Ptiro->posicao.y + 45)/48), ((Ptiro->posicao.x + 30)/48)) &&
+        if (!bloco_eh_imovel(fase, 'D', (Ptiro->posicao.y + 45), (Ptiro->posicao.x)) &&
+            !bloco_eh_imovel(fase, 'D', (Ptiro->posicao.y + 45), (Ptiro->posicao.x + 30)) &&
             Ptiro->posicao.y < 528) {
             Ptiro->posicao.y += 8;
             return 'L';
@@ -225,16 +314,16 @@ char atualiza_pos_tiro(pTIRO Ptiro, FASE fase) {
     }
 }
 
-PONTO pos_tiro_bateu(pTIRO Ptiro, FASE fase) {
+PONTO pos_tiro_bateu(pTIRO Ptiro, pFASE fase) {
     PONTO retorno;
     
     if (Ptiro->direcao == 'R') {
-        if (bloco_eh_imovel(fase, ((Ptiro->posicao.y)/48), ((Ptiro->posicao.x + 43)/48))) {
+        if (bloco_eh_imovel(fase, 'R', (Ptiro->posicao.y), (Ptiro->posicao.x + 43))) {
             retorno.x = ((Ptiro->posicao.x + 43)/48);
             retorno.y = ((Ptiro->posicao.y)/48);
             return retorno;
         }
-        else if (bloco_eh_imovel(fase, ((Ptiro->posicao.y + 30)/48), ((Ptiro->posicao.x + 43)/48))) {
+        else if (bloco_eh_imovel(fase, 'R', (Ptiro->posicao.y + 30), (Ptiro->posicao.x + 43))) {
             retorno.x = ((Ptiro->posicao.x + 43)/48);
             retorno.y = ((Ptiro->posicao.y + 30)/48);
             return retorno;
@@ -247,12 +336,12 @@ PONTO pos_tiro_bateu(pTIRO Ptiro, FASE fase) {
     }
     
     if (Ptiro->direcao == 'L') {
-        if (bloco_eh_imovel(fase, ((Ptiro->posicao.y)/48), ((Ptiro->posicao.x)/48))) {
+        if (bloco_eh_imovel(fase, 'L', (Ptiro->posicao.y), (Ptiro->posicao.x))) {
             retorno.x = ((Ptiro->posicao.x)/48);
             retorno.y = ((Ptiro->posicao.y)/48);
             return retorno;
         }
-        else if (bloco_eh_imovel(fase, ((Ptiro->posicao.y + 30)/48), ((Ptiro->posicao.x)/48))) {
+        else if (bloco_eh_imovel(fase, 'L', (Ptiro->posicao.y + 30), (Ptiro->posicao.x))) {
             retorno.x = ((Ptiro->posicao.x)/48);
             retorno.y = ((Ptiro->posicao.y + 30)/48);
             return retorno;
@@ -265,12 +354,12 @@ PONTO pos_tiro_bateu(pTIRO Ptiro, FASE fase) {
     }
     
     if (Ptiro->direcao == 'U') {
-        if (bloco_eh_imovel(fase, ((Ptiro->posicao.y)/48), ((Ptiro->posicao.x)/48))) {
+        if (bloco_eh_imovel(fase, 'U', (Ptiro->posicao.y), (Ptiro->posicao.x))) {
             retorno.x = ((Ptiro->posicao.x)/48);
             retorno.y = ((Ptiro->posicao.y)/48);
             return retorno;
         }
-        else if (bloco_eh_imovel(fase, ((Ptiro->posicao.y)/48), ((Ptiro->posicao.x + 30)/48))) {
+        else if (bloco_eh_imovel(fase, 'U', (Ptiro->posicao.y), (Ptiro->posicao.x + 30))) {
             retorno.x = ((Ptiro->posicao.x + 30)/48);
             retorno.y = ((Ptiro->posicao.y)/48);
             return retorno;
@@ -283,12 +372,12 @@ PONTO pos_tiro_bateu(pTIRO Ptiro, FASE fase) {
     }
     
     if (Ptiro->direcao == 'D') {
-        if (bloco_eh_imovel(fase, ((Ptiro->posicao.y + 45)/48), ((Ptiro->posicao.x)/48))) {
+        if (bloco_eh_imovel(fase, 'D', (Ptiro->posicao.y + 45), (Ptiro->posicao.x))) {
             retorno.x = ((Ptiro->posicao.x)/48);
             retorno.y = ((Ptiro->posicao.y + 45)/48);
             return retorno;
         }
-        else if (bloco_eh_imovel(fase, ((Ptiro->posicao.y + 45)/48), ((Ptiro->posicao.x + 30)/48))) {
+        else if (bloco_eh_imovel(fase, 'D', (Ptiro->posicao.y + 45), (Ptiro->posicao.x + 30))) {
             retorno.x = ((Ptiro->posicao.x + 30)/48);
             retorno.y = ((Ptiro->posicao.y + 45)/48);
             return retorno;
@@ -633,12 +722,12 @@ int main(void) {
         if (strcmp(status_jogo.parte, "GAME") == 0) {
             
             // Atualiza a posição do lolo baseado na sua posição atual, na tecla que o usuário preciona e nos blocos a sua volta
-            atualiza_pos_lolo(&lolo_atual, fase_atual);
+            atualiza_pos_lolo(&lolo_atual, &fase_atual);
             
             if (tiro_atual.mostrar == 'S') {
-                if (atualiza_pos_tiro(&tiro_atual, fase_atual) == 'B') {
+                if (atualiza_pos_tiro(&tiro_atual, &fase_atual) == 'B') {
                     tiro_atual.mostrar = 'N';
-                    bloco_tiro_bateu = pos_tiro_bateu(&tiro_atual, fase_atual);
+                    bloco_tiro_bateu = pos_tiro_bateu(&tiro_atual, &fase_atual);
                     if (bloco_tiro_bateu.x != -1) {
                         switch (fase_atual.elementos[bloco_tiro_bateu.y][bloco_tiro_bateu.x]) {
                             case 'I':
@@ -795,10 +884,12 @@ int main(void) {
                     if (fase_atual.inimigos[i].bola == 'S') {
                         DrawTexture(ovo_texture, BordaMapax + fase_atual.inimigos[i].posicao.x, BordaMapay + fase_atual.inimigos[i].posicao.y, WHITE);
                     }
-                    switch (fase_atual.inimigos[i].tipo) {
+                    else {
+                        switch (fase_atual.inimigos[i].tipo) {
                         case 'L':
                             DrawTexture(inimigo_texture, BordaMapax + fase_atual.inimigos[i].posicao.x, BordaMapay + fase_atual.inimigos[i].posicao.y, WHITE);
                             break;
+                        }
                     }
                 }
                 

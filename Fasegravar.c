@@ -41,7 +41,7 @@ int main(void)
     int i;
     
     // Elementos da primeira fase do jogo original.
-    char elementos[11][12] = {"PPPPPPLPPTT",
+    /*char elementos[11][12] = {"PPPPPPLPPTT",
                               "PTTPCLLPPTT",
                               "LTTPPPLPPPT",
                               "LLTTPPLPPPT",
@@ -51,7 +51,19 @@ int main(void)
                               "TTTTLLLTTLL",
                               "TTTTLLLTTTL",
                               "PTTPBLLLTTL",
-                              "PPPPPPLLLLL"};
+                              "PPPPPPLLLLL"};*/
+                              
+    char elementos[11][12] = {"LLLLLLLLLLL",
+                              "LLLLLLLLLLL",
+                              "LLLLLLLLLLL",
+                              "LLLLLLLLLLL",
+                              "LLLLLLLLLLL",
+                              "LLLLLLLLLLL",
+                              "LLLLLLLLLLL",
+                              "LLLLLLLLLLL",
+                              "LLLLLLLLLLL",
+                              "LLLLLLLLLLL",
+                              "LLLLLLLLLLL"};                          
     
                               
     char texto_inicial[200] = "Ao longo\nda primeira fase,\nmate os inimigos\ne passe pela\nporta.";
@@ -69,9 +81,21 @@ int main(void)
     nivel1.inimigos[0].tipo = 'L';
     nivel1.inimigos[0].posicao.x = 6*48;
     nivel1.inimigos[0].posicao.y = 5*48;
-    nivel1.inimigos[0].bola = 'N';
+    nivel1.inimigos[0].bola = 'S';
     
-    nivel1.num_inimigos = 1;
+    nivel1.inimigos[1].morto = 'N';
+    nivel1.inimigos[1].tipo = 'L';
+    nivel1.inimigos[1].posicao.x = 6*48;
+    nivel1.inimigos[1].posicao.y = 4*48;
+    nivel1.inimigos[1].bola = 'S';
+    
+    nivel1.inimigos[2].morto = 'N';
+    nivel1.inimigos[2].tipo = 'L';
+    nivel1.inimigos[2].posicao.x = 7*48;
+    nivel1.inimigos[2].posicao.y = 4*48;
+    nivel1.inimigos[2].bola = 'S';
+    
+    nivel1.num_inimigos = 3;
     
     for (i = 0; i < 11; i++) {
         strcpy(nivel1.elementos[i], elementos[i]);
