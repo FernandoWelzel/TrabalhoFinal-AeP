@@ -474,7 +474,8 @@ int main(void) {
     int ponto_y_inic_lolo_load = (screen_height - menu_texture.height)/2 + 75;
     int desloc_y_lolo_menu = 60;
     int desloc_y_lolo_load = 50;
-    PONTO lolo_sel_ponto = {ponto_x_lolo_menu, ponto_y_inic_lolo_menu};
+    PONTO lolo_sel_ponto_menu = {ponto_x_lolo_menu, ponto_y_inic_lolo_menu};
+    PONTO lolo_sel_ponto_load = {ponto_x_lolo_menu, ponto_y_inic_lolo_load};
     Vector2 position11 = {275, 265};
     Vector2 position12 = {260, 320};
     Vector2 position2 = {250, 450};
@@ -530,30 +531,29 @@ int main(void) {
         if (strcmp(status_jogo.parte, "MENU") == 0) {
             
            // Detecta se o usuário apertou uma das setas para se mover no menu e muda a posição do lolo 
-            if (IsKeyPressed(KEY_UP) && lolo_sel_ponto.y != ponto_y_inic_lolo_menu) {
-                lolo_sel_ponto.y -= desloc_y_lolo_menu;
+            if (IsKeyPressed(KEY_UP) && lolo_sel_ponto_menu.y != ponto_y_inic_lolo_menu) {
+                lolo_sel_ponto_menu.y -= desloc_y_lolo_menu;
             }
 
-            if (IsKeyPressed(KEY_DOWN) && lolo_sel_ponto.y != ponto_y_inic_lolo_menu + 3*desloc_y_lolo_menu) {
-                lolo_sel_ponto.y += desloc_y_lolo_menu;
+            if (IsKeyPressed(KEY_DOWN) && lolo_sel_ponto_menu.y != ponto_y_inic_lolo_menu + 3*desloc_y_lolo_menu) {
+                lolo_sel_ponto_menu.y += desloc_y_lolo_menu;
             }
             
             // Detectas se o usuário apertou enter, indicando que ele quer entrar em outra área. Dessa maneira o direciona baseado na posição do lolo do menu
             if (IsKeyPressed(KEY_ENTER)) {
-                if (lolo_sel_ponto.y == ponto_y_inic_lolo_menu) {
+                if (lolo_sel_ponto_menu.y == ponto_y_inic_lolo_menu) {
                     strcpy(status_jogo.parte, "NAME");
                 }
-                else if (lolo_sel_ponto.y == ponto_y_inic_lolo_menu + 1*desloc_y_lolo_menu) {
+                else if (lolo_sel_ponto_menu.y == ponto_y_inic_lolo_menu + 1*desloc_y_lolo_menu) {
                     strcpy(status_jogo.parte, "LOAD");
-                    lolo_sel_ponto.y = ponto_y_inic_lolo_load;
                     for (i = 0; i < 5; i++) {
                         gravacoes_salvas[i] = le_gravacao_por_pos(ARQ_GRAVACAO, i);
                     }                    
                 }
-                else if (lolo_sel_ponto.y == ponto_y_inic_lolo_menu + 2*desloc_y_lolo_menu) {
+                else if (lolo_sel_ponto_menu.y == ponto_y_inic_lolo_menu + 2*desloc_y_lolo_menu) {
                     strcpy(status_jogo.parte, "CRED");
                 }
-                else if (lolo_sel_ponto.y == ponto_y_inic_lolo_menu + 3*desloc_y_lolo_menu) {
+                else if (lolo_sel_ponto_menu.y == ponto_y_inic_lolo_menu + 3*desloc_y_lolo_menu) {
                     strcpy(status_jogo.parte, "SAIR");
                 }
             }
@@ -564,7 +564,7 @@ int main(void) {
                 ClearBackground(BLACK);
 
                 DrawTexture(menu_texture, (screen_width - menu_texture.width)/2, (screen_height - menu_texture.height)/2, WHITE);
-                DrawTexture(lolo_texture, lolo_sel_ponto.x, lolo_sel_ponto.y, WHITE);
+                DrawTexture(lolo_texture, lolo_sel_ponto_menu.x, lolo_sel_ponto_menu.y, WHITE);
 
 
             EndDrawing();
@@ -655,17 +655,17 @@ int main(void) {
         
             
         if (strcmp(status_jogo.parte, "LOAD") == 0) {
-            if (IsKeyPressed(KEY_UP) && lolo_sel_ponto.y != ponto_y_inic_lolo_load) {
-                lolo_sel_ponto.y -= 58;
+            if (IsKeyPressed(KEY_UP) && lolo_sel_ponto_load.y > ponto_y_inic_lolo_load) {
+                lolo_sel_ponto_load.y -= 58;
             }
             
-            if ((IsKeyPressed(KEY_DOWN)) && (lolo_sel_ponto.y != ponto_y_inic_lolo_load + (4 * 58))) {
-                lolo_sel_ponto.y += 58;
+            if ((IsKeyPressed(KEY_DOWN)) && (lolo_sel_ponto_load.y < ponto_y_inic_lolo_load + (4 * 58))) {
+                lolo_sel_ponto_load.y += 58;
             }
             
             if (IsKeyPressed(KEY_ENTER)) {
                 for (i = 0; i < 5; i++) {
-                    if ((lolo_sel_ponto.y == ponto_y_inic_lolo_load + i*58)) { // Número_arquivos
+                    if ((lolo_sel_ponto_load.y == ponto_y_inic_lolo_load + i*58)) { // Número_arquivos
                         strcpy(jogo_atual.ident, gravacoes_salvas[i].ident);
                         strcpy(jogo_atual.totalpts, gravacoes_salvas[i].totalpts);
                         strcpy(jogo_atual.num_ult_fase, gravacoes_salvas[i].num_ult_fase);
@@ -680,11 +680,15 @@ int main(void) {
                 }
             }
             
+            if (IsKeyPressed(KEY_Q)) {
+                strcpy(status_jogo.parte, "MENU");
+            }
+            
             BeginDrawing();
                 ClearBackground(BLACK);
                 DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
                 DrawTextEx(Fonte_principal, "Escolha um jogo salvo", position5, 24, 2, BLACK);                
-                DrawTexture(lolo_texture, ponto_x_lolo_load, lolo_sel_ponto.y, WHITE);
+                DrawTexture(lolo_texture, ponto_x_lolo_load, lolo_sel_ponto_load.y, WHITE);
                 
                 for (i = 0; i < 5; i++) {
                     DrawText(gravacoes_salvas[i].nomejogador, ponto_x_lolo_load + 60, ponto_y_inic_lolo_load + 58*i, 40, BLACK);
@@ -796,6 +800,11 @@ int main(void) {
                 }
                 tiro_atual.mostrar = 'S';
                 itoa(atoi(fase_atual.num_especiais) - 1, fase_atual.num_especiais, 10);
+            }
+            
+            if (IsKeyPressed(KEY_Q)) {
+                strcpy(status_jogo.parte, "MENU");
+                escreve_gravacao(ARQ_GRAVACAO, &jogo_atual);
             }
             
             // Mostra a tela do jogo baseado nos blocos contidos em fase_atual.elementos e na posição do lolo
