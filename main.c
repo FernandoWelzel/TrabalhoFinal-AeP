@@ -342,7 +342,7 @@ int main(void) {
     Texture2D porta_fechada_texture = LoadTexture("./resources/Blocos/Porta_fechada.png");
     Texture2D porta_aberta_texture = LoadTexture("./resources/Blocos/Porta_aberta.png");
     Texture2D coracao_texture = LoadTexture("./resources/Blocos/Coracao.png");
-    Texture2D bloco_esquerda_texture = LoadTexture("./resources/Blocos/Lateral-esquerda.png");
+    //Texture2D bloco_esquerda_texture = LoadTexture("./resources/Blocos/Lateral-esquerda.png");
     Texture2D lolo_D_texture = LoadTexture("./resources/Lolo/Lolo-D.png");
     Texture2D lolo_R_texture = LoadTexture("./resources/Lolo/Lolo-R.png");
     Texture2D lolo_L_texture = LoadTexture("./resources/Lolo/Lolo-L.png");
@@ -350,7 +350,6 @@ int main(void) {
     Texture2D inimigo_texture = LoadTexture("./resources/Inimigos/Larva.png");
     Texture2D tiro_L_R_texture = LoadTexture("./resources/Poderes/tiro_L_R.png");
     Texture2D tiro_U_D_texture = LoadTexture("./resources/Poderes/tiro_U_D.png");
-    Texture2D tiro_texture = LoadTexture("./resources/Poderes/tiro.png");
     Texture2D ovo_texture = LoadTexture("./resources/Inimigos/ovo.png");
 
     // Variáveis de posicionamento
@@ -365,7 +364,7 @@ int main(void) {
     Vector2 position12 = {260, 320};
     Vector2 position2 = {250, 450};
     Vector2 position3 = {210, 500};
-    Vector2 position5 = {210, 250};
+    //Vector2 position5 = {210, 250};
     Rectangle textBox = {255, 385, 300, 50};
     Vector2 position4 = {textBox.x + 5, textBox.y + 8};
     Vector2 position6 = {215, 300};
@@ -761,7 +760,6 @@ int main(void) {
                 }
                 
                 if (tiro_atual.mostrar == 'S') {
-                    DrawTexture(tiro_texture, BordaMapax + tiro_atual.posicao.x, BordaMapay + tiro_atual.posicao.y, WHITE);
                     switch (tiro_atual.direcao) {
                         case 'D':
                         case 'U':
@@ -792,6 +790,18 @@ int main(void) {
                         DrawTexture(lolo_L_texture, BordaMapax + lolo_atual.posicao.x, BordaMapay + lolo_atual.posicao.y, WHITE);
                         break;
                 }
+                
+                for (i = 0; i < fase_atual.num_inimigos; i++) {
+                    if (fase_atual.inimigos[i].bola == 'S') {
+                        DrawTexture(ovo_texture, BordaMapax + fase_atual.inimigos[i].posicao.x, BordaMapay + fase_atual.inimigos[i].posicao.y, WHITE);
+                    }
+                    switch (fase_atual.inimigos[i].tipo) {
+                        case 'L':
+                            DrawTexture(inimigo_texture, BordaMapax + fase_atual.inimigos[i].posicao.x, BordaMapay + fase_atual.inimigos[i].posicao.y, WHITE);
+                            break;
+                    }
+                }
+                
 
             EndDrawing();
         }

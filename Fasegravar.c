@@ -46,7 +46,7 @@ int main(void)
                               "LTTPPPLPPPT",
                               "LLTTPPLPPPT",
                               "LLLLPPLPPTC",
-                              "LLLLLLILPLL",
+                              "LLLLLLLLPLL",
                               "LTTLLLLLLLL",
                               "TTTTLLLTTLL",
                               "TTTTLLLTTTL",
@@ -62,7 +62,16 @@ int main(void)
     strcpy(nivel1.nome, "Fase inicial");
     nivel1.porta_estado = 'F';
     nivel1.num_coracoes = 2;
-    strcpy(nivel1.num_especiais, "0\0");
+    strcpy(nivel1.num_especiais, "0\0");  
+
+    // Gravação de um inimigo
+    nivel1.inimigos[0].morto = 'N';
+    nivel1.inimigos[0].tipo = 'L';
+    nivel1.inimigos[0].posicao.x = 6*48;
+    nivel1.inimigos[0].posicao.y = 5*48;
+    nivel1.inimigos[0].bola = 'N';
+    
+    nivel1.num_inimigos = 1;
     
     for (i = 0; i < 11; i++) {
         strcpy(nivel1.elementos[i], elementos[i]);
