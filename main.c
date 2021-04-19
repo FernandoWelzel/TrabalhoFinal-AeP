@@ -201,22 +201,22 @@ char atualiza_pos_tiro(pTIRO Ptiro, FASE fase) {
             return 'B';
         }
     }
-    if (Ptiro->direcao == 'R') {
-        if (!bloco_eh_imovel(fase, ((Ptiro->posicao.y)/48), ((Ptiro->posicao.x + 43)/48)) &&
-            !bloco_eh_imovel(fase, ((Ptiro->posicao.y + 30)/48), ((Ptiro->posicao.x + 43)/48)) &&
-            (Ptiro->posicao.x + 43) < 528) {
-            Ptiro->posicao.x += 8;
+    if (Ptiro->direcao == 'U') {
+        if (!bloco_eh_imovel(fase, ((Ptiro->posicao.y)/48), ((Ptiro->posicao.x)/48)) &&
+            !bloco_eh_imovel(fase, ((Ptiro->posicao.y)/48), ((Ptiro->posicao.x + 30)/48)) &&
+            Ptiro->posicao.y > 0) {
+            Ptiro->posicao.y -= 8;
             return 'L';
         }
         else {
             return 'B';
         }
     }
-    if (Ptiro->direcao == 'R') {
-        if (!bloco_eh_imovel(fase, ((Ptiro->posicao.y)/48), ((Ptiro->posicao.x + 43)/48)) &&
-            !bloco_eh_imovel(fase, ((Ptiro->posicao.y + 30)/48), ((Ptiro->posicao.x + 43)/48)) &&
-            (Ptiro->posicao.x + 43) < 528) {
-            Ptiro->posicao.x += 8;
+    if (Ptiro->direcao == 'D') {
+        if (!bloco_eh_imovel(fase, ((Ptiro->posicao.y + 45)/48), ((Ptiro->posicao.x)/48)) &&
+            !bloco_eh_imovel(fase, ((Ptiro->posicao.y + 45)/48), ((Ptiro->posicao.x + 30)/48)) &&
+            Ptiro->posicao.y < 528) {
+            Ptiro->posicao.y += 8;
             return 'L';
         }
         else {
@@ -258,6 +258,42 @@ PONTO pos_tiro_bateu(pTIRO Ptiro, FASE fase) {
             return retorno;
         }
         else if (Ptiro->posicao.x < 0) {
+            retorno.x = -1;
+            retorno.y = -1;
+            return retorno;
+        }
+    }
+    
+    if (Ptiro->direcao == 'U') {
+        if (bloco_eh_imovel(fase, ((Ptiro->posicao.y)/48), ((Ptiro->posicao.x)/48))) {
+            retorno.x = ((Ptiro->posicao.x)/48);
+            retorno.y = ((Ptiro->posicao.y)/48);
+            return retorno;
+        }
+        else if (bloco_eh_imovel(fase, ((Ptiro->posicao.y)/48), ((Ptiro->posicao.x + 30)/48))) {
+            retorno.x = ((Ptiro->posicao.x + 30)/48);
+            retorno.y = ((Ptiro->posicao.y)/48);
+            return retorno;
+        }
+        else if (Ptiro->posicao.y < 0) {
+            retorno.x = -1;
+            retorno.y = -1;
+            return retorno;
+        }
+    }
+    
+    if (Ptiro->direcao == 'D') {
+        if (bloco_eh_imovel(fase, ((Ptiro->posicao.y + 45)/48), ((Ptiro->posicao.x)/48))) {
+            retorno.x = ((Ptiro->posicao.x)/48);
+            retorno.y = ((Ptiro->posicao.y + 45)/48);
+            return retorno;
+        }
+        else if (bloco_eh_imovel(fase, ((Ptiro->posicao.y + 45)/48), ((Ptiro->posicao.x + 30)/48))) {
+            retorno.x = ((Ptiro->posicao.x + 30)/48);
+            retorno.y = ((Ptiro->posicao.y + 45)/48);
+            return retorno;
+        }
+        else if (Ptiro->posicao.y > 528) {
             retorno.x = -1;
             retorno.y = -1;
             return retorno;
