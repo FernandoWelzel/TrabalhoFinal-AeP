@@ -4,6 +4,8 @@
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
+#include <time.h>
+
 
 // Bibliotecas adicionais
 #include "raylib.h"
@@ -36,7 +38,7 @@ char * string_to_lower (char * string, char * nova_string) {
 }
 
 // Funções relacionadas a a leitura e gravação em arquivos binários
-void escreve_gravacao(char * nome_arquivo, pGRAVACAO gravacao) {
+void escreve_gravacao(char * nome_arquivo, GRAVACAO gravacao[]) {
     FILE * arquivo;
     if (!(arquivo = fopen(nome_arquivo, "a+b"))) {
         printf("Erro ao abrir o arquivo de gravações");
@@ -253,9 +255,12 @@ int main(void) {
     Texture2D coracao_texture = LoadTexture("./resources/Blocos/Coracao.png");
     Texture2D bloco_esquerda_texture = LoadTexture("./resources/Blocos/Lateral-esquerda.png");
     Texture2D lolo_F_texture = LoadTexture("./resources/Lolo/Lolo-F.png");
-    Texture2D inimigo_texture = LoadTexture("./resources/Inimigos/Larva.png");
+    Texture2D inimigo_larva_texture = LoadTexture("./resources/Inimigos/Larva.png");
     Texture2D tiro_texture = LoadTexture("./resources/Poderes/tiro.png");
     Texture2D ovo_texture = LoadTexture("./resources/Inimigos/ovo.png");
+    Texture2D inimigo_impaciente_texture = LoadTexture("./resources/Inimigos/Impaciente.png");
+    Texture2D inimigo_lanca_chiclete_texture = LoadTexture("./resources/Inimigos/Lanca_chiclete.png");
+    Texture2D chiclete_texture = LoadTexture("./resources/Poderes/chiclete.png");
 
     // Variáveis de posicionamento
     int ponto_x_lolo_menu = (screen_width - menu_texture.width)/2 + 45;
@@ -338,9 +343,8 @@ int main(void) {
                     strcpy(status_jogo.parte, "NAME");
                 }
                 else if (lolo_sel_ponto.y == ponto_y_inic_lolo_menu + 1*desloc_y_lolo_menu) {
-                    strcpy(status_jogo.parte, "LOAD");
+                    strcpy(status_jogo.parte, "LOAD");    
                     lolo_sel_ponto.y = ponto_y_inic_lolo_load;
-                    
                 }
                 else if (lolo_sel_ponto.y == ponto_y_inic_lolo_menu + 2*desloc_y_lolo_menu) {
                     strcpy(status_jogo.parte, "CRED");
@@ -447,20 +451,24 @@ int main(void) {
             
         if (strcmp(status_jogo.parte, "LOAD") == 0) {
             BeginDrawing();
-            /*int i;
-                ClearBackground(BLACK);
-                DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
-                DrawTextEx(Fonte_principal, "Escolha um jogo salvo", position5, 24, 2, BLACK);                
-                DrawTexture(lolo_texture, ponto_x_lolo_load, lolo_sel_ponto.y, WHITE);
-                GRAVACAO gravacao_i;
-
-                for(i=1; i <= 4; i++){ //numero_gravacoes e numero de saves
+            ClearBackground(BLACK);
+            DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
+            DrawTextEx(Fonte_principal, "Escolha um jogo salvo", position5, 24, 2, BLACK);                
+            DrawTexture(lolo_texture, ponto_x_lolo_load, lolo_sel_ponto.y, WHITE);
+            
+            
+            /*GRAVACAO gravacao;
+            FILE * arquivo;
+            arquivo = fopen("gravacao.bin", "rb");
+            fread(gravacao[1],sizeof(GRAVACAO), 1,arquivo);
+                
+               
                     
+                  /*
                     
-                    if(numero_gravacoes>=1){
-                        DrawText(gravacao_1.nomejogador, ponto_x_lolo_load + 60, ponto_y_inic_lolo_load + 5 + ((1-1)*58), 35, BLACK); // Nome do jogador
-                        DrawText(gravacao_1.num_ult_fase, ponto_x_lolo_load + 250, ponto_y_inic_lolo_load + 5 + ((1-1)*58), 28, BLACK); // Fase do save
-                    }
+                        DrawText(pgravacao[1].nomejogador, ponto_x_lolo_load + 60, ponto_y_inic_lolo_load + 5 + ((1-1)*58), 35, BLACK); // Nome do jogador
+                        DrawText(pgravacao[1].num_ult_fase, ponto_x_lolo_load + 250, ponto_y_inic_lolo_load + 5 + ((1-1)*58), 28, BLACK); // Fase do save
+                   
                     if(numero_gravacoes>=2){
                         DrawText(gravacao_2.nomejogador, ponto_x_lolo_load + 60, ponto_y_inic_lolo_load + 5 + ((2-1)*58), 35, BLACK); // Nome do jogador
                         DrawText(gravacao_2.num_ult_fase, ponto_x_lolo_load + 250, ponto_y_inic_lolo_load + 5 + ((2-1)*58), 28, BLACK); // Fase do save
@@ -578,6 +586,26 @@ int main(void) {
                 }
             }
             
+            /*//movimento do inimigo (usei o inimigo verde só pra teste, ele nao se mexe)
+            int k;
+            for (j = 0; j < 11; i++) {
+                if(fase_atual.elementos[i][j+1]=='L' || fase_atual.elementos[i][j-1]=='L' || fase_atual.elementos[i][j]=='I'){
+                    if(fase_atual.elementos[i][j+1]=='L'){
+                        k = j;
+                        k++;
+                        fase_atual.elementos[i][k]='I';
+                        fase_atual.elementos[i][k-1]='L';
+                        }
+                        if(fase_atual.elementos[i][j-1]=='L'){
+                            k = j;
+                            k--; 
+                            fase_atual.elementos[i][k]='I';                                
+                            fase_atual.elementos[i][k+1]='L';
+                        }
+                    }
+                }
+            }*/
+            
             if (IsKeyPressed(KEY_F) && atoi(fase_atual.num_especiais) > 0 && tiro_atual.mostrar == 'N') {
                 tiro_atual.posicao.x = pos_lolo_game.x + 48;
                 tiro_atual.posicao.y = pos_lolo_game.y + ((48 - tiro_texture.height)/2);
@@ -585,7 +613,6 @@ int main(void) {
                 tiro_atual.direcao = 'R';
                 itoa(atoi(fase_atual.num_especiais) - 1, fase_atual.num_especiais, 10);
             }
-            
             // Mostra a tela do jogo baseado nos blocos contidos em fase_atual.elementos e na posição do lolo
             BeginDrawing();
                 
@@ -612,6 +639,7 @@ int main(void) {
                                 DrawTexture(pedra_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
                                 break;
                             case 'T':
+                            
                                 DrawTexture(arvore_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
                                 break;
                             case 'B':
@@ -629,12 +657,20 @@ int main(void) {
                             case 'C':
                                 DrawTexture(coracao_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
                                 break;
-                            case 'I':
-                                DrawTexture(inimigo_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
+                            case 'I': 
+                                DrawTexture(inimigo_larva_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
                                 break;
                             case 'O':
                                 DrawTexture(espaco_livre_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
                                 DrawTexture(ovo_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
+                                break;
+                            case 'Z':  
+                                DrawTexture(inimigo_impaciente_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
+                                DrawTexture(espaco_livre_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
+                                break;
+                            case 'X':
+                                DrawTexture(inimigo_lanca_chiclete_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
+                                DrawTexture(espaco_livre_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
                                 break;
                         }
                     }
