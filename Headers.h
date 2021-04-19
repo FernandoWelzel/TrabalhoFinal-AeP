@@ -5,15 +5,18 @@ typedef struct status {
 typedef struct ponto {
     int x;
     int y;
-} PONTO;
+} PONTO, * pPONTO;
 
 typedef struct fase {
     char num[3];
     char nome[20];
-    char elementos[132];
+    char elementos[11][12];
     char pos_porta[3];
-    PONTO pos_i_jog;
+    PONTO pos_i_jogador;
     char texto_inic[200];
+    char porta_estado;
+    int num_coracoes;
+    char num_especiais[2];
 } FASE, * pFASE;
 
 typedef struct lolo {
@@ -34,6 +37,12 @@ typedef struct gravacao {
     char vidas[3];
     char nomejogador[9];
 } GRAVACAO, * pGRAVACAO;
+
+typedef struct tiro {
+    PONTO posicao;
+    char mostrar;
+    char direcao;
+} TIRO, * pTIRO;
 
 void escreve_gravacao(char * nome_arquivo, pGRAVACAO gravacao);
 int nome_unico(char * nome_arquivo, char * nome);

@@ -23,29 +23,56 @@ void escreve_fase(char * nome_arquivo, pFASE fase) {
     }
 }
 
-void imprime_fase(char * nome_arquivo) {
+FASE le_fase_por_pos(char * nome_arquivo, int pos) {
     FILE * arquivo;
-    FASE intermediario;
+    FASE fase_lida;
     if (!(arquivo = fopen(nome_arquivo, "rb"))) {
         printf("Erro ao abrir o arquivo de fases");
     }
     else {
-        while(!feof(arquivo)) {
-            fread(&intermediario, sizeof(FASE), 1, arquivo);
-            printf("%s %s %s %s %s\n", intermediario.num, intermediario.nome, intermediario.elementos, intermediario.pos_porta, intermediario.texto_inic);
-        }
-        fclose(arquivo);
+        fseek(arquivo, sizeof(FASE)*pos, SEEK_SET);
+        fread(&fase_lida, sizeof(FASE), 1, arquivo);
     }
+    return fase_lida;
 }
 
 int main(void)
 {    
-    char elementos[132] = "LLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\nLLLLLLLLLLL\0";
-    char texto_inicial[200] = "Ao longo da primeira fase, mate os inimigos e passe pela porta";
+    int i;
     
-    FASE nivel1 = {"01", "Fase inicial", elementos, "01", {3, 5}, texto_inicial};
+    // Elementos da primeira fase do jogo original.
+    char elementos[11][12] = {"PPPPPPLPPTT",
+                              "PTTPCLLPPTT",
+                              "LTTPPPLPPPT",
+                              "LLTTPPLPPPT",
+                              "LLLLPPLPPTC",
+                              "LLLLLLILPLL",
+                              "LTTLLLLLLLL",
+                              "TTTTLLLTTLL",
+                              "TTTTLLLTTTL",
+                              "PTTPBLLLTTL",
+                              "PPPPPPLLLLL"};
+    
+                              
+    char texto_inicial[200] = "Ao longo\nda primeira fase,\nmate os inimigos\ne passe pela\nporta.";
+    PONTO pos_jogador = {1, 5};
+    
+    FASE nivel1;
+    strcpy(nivel1.num, "01");
+    strcpy(nivel1.nome, "Fase inicial");
+    nivel1.porta_estado = 'F';
+    nivel1.num_coracoes = 2;
+    strcpy(nivel1.num_especiais, "0\0");
+    
+    for (i = 0; i < 11; i++) {
+        strcpy(nivel1.elementos[i], elementos[i]);
+    }
+    
+    strcpy(nivel1.pos_porta, "06");
+    nivel1.pos_i_jogador = pos_jogador;
+    strcpy(nivel1.texto_inic, texto_inicial);
     
     escreve_fase(ARQ_FASE, &nivel1);
-    imprime_fase(ARQ_FASE);
+    
     return 0;
 }
