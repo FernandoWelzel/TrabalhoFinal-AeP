@@ -132,6 +132,7 @@ int bloco_eh_imovel(pFASE fase, char orientacao, int y, int x) {
     switch (fase->elementos[y/48][x/48]) {
         case 'T':
         case 'P':
+        case 'A':
             return 1;
         default:
             return 0;
@@ -231,8 +232,13 @@ void atualiza_pos_lolo(pLOLO lolo, pFASE fase) {
         ponto1.x = (lolo->posicao.x); ponto1.y = (lolo->posicao.y - 1);
         ponto2.x = (lolo->posicao.x + 47); ponto2.y = (lolo->posicao.y - 1);
         
-        if (testar_pontos_imoveis(fase, 'U', ponto1, ponto2) && ponto1.y > 0) {
-            lolo->posicao.y -= 2;
+        if (testar_pontos_imoveis(fase, 'U', ponto1, ponto2)) {
+            if (ponto1.y > 0) {
+                lolo->posicao.y -= 2;
+            }
+            else if (ponto1.y <= 0 && lolo->posicao.x == atoi(fase->pos_porta)*48 && fase->porta_estado == 'A') {
+                lolo->posicao.y -= 2;
+            }
         }
     }
 
@@ -527,7 +533,8 @@ int main(void) {
         exibida na tela. Para isso fazemos comparações com a string que
         quarda a parte do jogo que estamos.
         */
-
+        
+        // MENU // Seleção entre demais telas
         if (strcmp(status_jogo.parte, "MENU") == 0) {
             
            // Detecta se o usuário apertou uma das setas para se mover no menu e muda a posição do lolo 
@@ -653,7 +660,7 @@ int main(void) {
             EndDrawing();
         }
         
-            
+        // LOAD    
         if (strcmp(status_jogo.parte, "LOAD") == 0) {
             if (IsKeyPressed(KEY_UP) && lolo_sel_ponto_load.y > ponto_y_inic_lolo_load) {
                 lolo_sel_ponto_load.y -= 58;
@@ -728,14 +735,11 @@ int main(void) {
                 if (atualiza_pos_tiro(&tiro_atual, &fase_atual) == 'B') {
                     tiro_atual.mostrar = 'N';
                     pos_tiro_bateu_atual = pos_tiro_bateu(&tiro_atual, &fase_atual);
-                    printf("%d %d\n", pos_tiro_bateu_atual.x, pos_tiro_bateu_atual.y);
                     if (pos_tiro_bateu_atual.x != -1) {
                         for (i = 0; i < fase_atual.num_inimigos; i++) {
-                            printf("%d %d\n", fase_atual.inimigos[i].posicao.x, fase_atual.inimigos[i].posicao.y);
                             if (pos_tiro_bateu_atual.x - fase_atual.inimigos[i].posicao.x > 0 &&  pos_tiro_bateu_atual.x - fase_atual.inimigos[i].posicao.x < 48 &&
                                 pos_tiro_bateu_atual.y - fase_atual.inimigos[i].posicao.y > 0 &&  pos_tiro_bateu_atual.y - fase_atual.inimigos[i].posicao.y < 48) {
                                 fase_atual.inimigos[i].bola = 'S';
-                                printf("Passou");
                             }
                         }
                     }
@@ -805,6 +809,18 @@ int main(void) {
             if (IsKeyPressed(KEY_Q)) {
                 strcpy(status_jogo.parte, "MENU");
                 escreve_gravacao(ARQ_GRAVACAO, &jogo_atual);
+            }
+            
+            if (lolo_atual.posicao.y < -24) {
+                strcpy(status_jogo.parte, "MENU");
+                bau_cheio = 'S';
+                itoa(atoi(jogo_atual.num_ult_fase) + 1, jogo_atual.num_ult_fase, 10);
+                strcpy(status_jogo.parte, "TEXT");
+                fase_atual = le_fase_por_pos(ARQ_FASE , atoi(jogo_atual.num_ult_fase));
+                lolo_atual.posicao.x = fase_atual.pos_i_jogador.x*48;
+                lolo_atual.posicao.y = fase_atual.pos_i_jogador.y*48;
+                lolo_atual.direcao = 'D';
+                framesCounter2 = 0;
             }
             
             // Mostra a tela do jogo baseado nos blocos contidos em fase_atual.elementos e na posição do lolo
@@ -916,7 +932,8 @@ int main(void) {
 
             EndDrawing();
         }
-
+        
+        // CRED (Créditos do jogo)
         if (strcmp(status_jogo.parte, "CRED") == 0) {
             BeginDrawing();
 

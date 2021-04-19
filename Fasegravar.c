@@ -41,71 +41,90 @@ int main(void)
     int i;
     
     // Elementos da primeira fase do jogo original.
-    /*char elementos[11][12] = {"PPPPPPLPPTT",
-                              "PTTPCLLPPTT",
-                              "LTTPPPLPPPT",
-                              "LLTTPPLPPPT",
-                              "LLLLPPLPPTC",
-                              "LLLLLLLLPLL",
-                              "LTTLLLLLLLL",
-                              "TTTTLLLTTLL",
-                              "TTTTLLLTTTL",
-                              "PTTPBLLLTTL",
-                              "PPPPPPLLLLL"};*/
-                              
-    char elementos[11][12] = {"LLCLLLLLLLC",
-                              "LLLLLLLLLLL",
-                              "LLLLLLLLLLL",
-                              "LLLLLLLLLLL",
-                              "LLLCLLLLLLL",
-                              "LLLLLLLLLLL",
-                              "LLLLLLLLLLL",
-                              "LLLLLLLLLLL",
-                              "LLCLLLLLLLL",
-                              "LLLLLLLLLLL",
-                              "LLLLLLLLCLL"};                          
-    
-                              
-    char texto_inicial[200] = "Ao longo\nda primeira fase,\nmate os inimigos\ne passe pela\nporta.";
-    PONTO pos_jogador = {1, 5};
-    
     FASE nivel1;
+    
     strcpy(nivel1.num, "01");
     strcpy(nivel1.nome, "Fase inicial");
+    
+    char texto_inicial_fase1[200] = "Ao longo\nda primeira fase,\nabra o bau e\npasse pela\nporta.";
+    strcpy(nivel1.texto_inic, texto_inicial_fase1);
+    
+    strcpy(nivel1.num_especiais, "0\0");
+    PONTO pos_jogador_fase1 = {1, 5};
     nivel1.porta_estado = 'F';
     nivel1.num_coracoes = 2;
-    strcpy(nivel1.num_especiais, "0\0");  
-
-    // Gravação de um inimigo
+    strcpy(nivel1.pos_porta, "06");
+    nivel1.pos_i_jogador = pos_jogador_fase1;
+    
+    char elementos_fase1[11][12] = {"PPPPPPLPPTT",
+                                    "PTTPCLLPPTT",
+                                    "LTTPPPLPPPT",
+                                    "LLTTPPLPPPT",
+                                    "LLLLPPLPPTC",
+                                    "LLLLLLLLPLL",
+                                    "LTTLLLLLLLL",
+                                    "TTTTLLLTTLL",
+                                    "TTTTLLLTTTL",
+                                    "PTTPBLLLTTL",
+                                    "PPPPPPLLLLL"};
+                                    
+    for (i = 0; i < 11; i++) {
+        strcpy(nivel1.elementos[i], elementos_fase1[i]);
+    }
+    
+    // Inimigos
     nivel1.inimigos[0].morto = 'N';
     nivel1.inimigos[0].tipo = 'L';
     nivel1.inimigos[0].posicao.x = 6*48;
     nivel1.inimigos[0].posicao.y = 5*48;
     nivel1.inimigos[0].bola = 'N';
     
-    nivel1.inimigos[1].morto = 'N';
-    nivel1.inimigos[1].tipo = 'L';
-    nivel1.inimigos[1].posicao.x = 6*48;
-    nivel1.inimigos[1].posicao.y = 4*48;
-    nivel1.inimigos[1].bola = 'S';
-    
-    nivel1.inimigos[2].morto = 'N';
-    nivel1.inimigos[2].tipo = 'L';
-    nivel1.inimigos[2].posicao.x = 7*48;
-    nivel1.inimigos[2].posicao.y = 4*48;
-    nivel1.inimigos[2].bola = 'S';
-    
-    nivel1.num_inimigos = 3;
-    
-    for (i = 0; i < 11; i++) {
-        strcpy(nivel1.elementos[i], elementos[i]);
-    }
-    
-    strcpy(nivel1.pos_porta, "06");
-    nivel1.pos_i_jogador = pos_jogador;
-    strcpy(nivel1.texto_inic, texto_inicial);
+    nivel1.num_inimigos = 1; 
     
     escreve_fase(ARQ_FASE, &nivel1);
+    
+    // Elementos da segunda fase do jogo modificado
+    FASE nivel2;
+    
+    strcpy(nivel2.num, "02");
+    strcpy(nivel2.nome, "Segunda fase");
+    
+    char texto_inicial_fase2[200] = "Na segunda fase,\nfaca o que for\npreciso para\nvencer!!!\n";
+    strcpy(nivel2.texto_inic, texto_inicial_fase2);
+    
+    strcpy(nivel2.num_especiais, "0\0");
+    PONTO pos_jogador_fase2 = {2, 2};
+    nivel2.porta_estado = 'F';
+    nivel2.num_coracoes = 3;
+    strcpy(nivel2.pos_porta, "08");
+    nivel2.pos_i_jogador = pos_jogador_fase2;
+    
+    char elementos_fase2[11][12] = {"PTTTLLLLLLL",
+                                    "PLLTTPPPTTL",
+                                    "PLLLTLLLLLL",
+                                    "PPLLTCLLLLL",
+                                    "TPLLTPPPPLT",
+                                    "TTLLPPAAPLT",
+                                    "TTTLTLLACLL",
+                                    "TLLLLLLALLL",
+                                    "TTPPPLLAALL",
+                                    "CLLLLLAALLL",
+                                    "TTPBTLLLLLL"};
+                                    
+    for (i = 0; i < 11; i++) {
+        strcpy(nivel2.elementos[i], elementos_fase2[i]);
+    }
+    
+    // Inimigos
+    nivel2.inimigos[0].morto = 'N';
+    nivel2.inimigos[0].tipo = 'L';
+    nivel2.inimigos[0].posicao.x = 8*48;
+    nivel2.inimigos[0].posicao.y = 10*48;
+    nivel2.inimigos[0].bola = 'N';
+    
+    nivel2.num_inimigos = 1; 
+    
+    escreve_fase(ARQ_FASE, &nivel2);
     
     return 0;
 }
