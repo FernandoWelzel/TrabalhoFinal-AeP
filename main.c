@@ -479,7 +479,7 @@ int main(void) {
     Vector2 position12 = {260, 320};
     Vector2 position2 = {250, 450};
     Vector2 position3 = {210, 500};
-    //Vector2 position5 = {210, 250};
+    Vector2 position5 = {210, 250};
     Rectangle textBox = {255, 385, 300, 50};
     Vector2 position4 = {textBox.x + 5, textBox.y + 8};
     Vector2 position6 = {215, 300};
@@ -512,6 +512,11 @@ int main(void) {
     tiro_atual.mostrar = 'N';
     PONTO pos_tiro_bateu_atual;
     
+    // Gravações jogos antigos
+    GRAVACAO gravacoes_salvas[5];
+    
+    int numero_de_gravacoes = numero_gravacoes(ARQ_GRAVACAO);
+    
     // Main game loop
     while (!WindowShouldClose() && strcmp(status_jogo.parte, "SAIR") != 0)    // Detect window close button or ESC key
     {
@@ -521,17 +526,7 @@ int main(void) {
         exibida na tela. Para isso fazemos comparações com a string que
         quarda a parte do jogo que estamos.
         */
-        
-        /*
-        GRAVACAO gravacao_1 = le_gravacao_por_pos(ARQ_GRAVACAO,1);
-        GRAVACAO gravacao_2 = le_gravacao_por_pos(ARQ_GRAVACAO,2);
-        GRAVACAO gravacao_3 = le_gravacao_por_pos(ARQ_GRAVACAO,3);
-        GRAVACAO gravacao_4 = le_gravacao_por_pos(ARQ_GRAVACAO,4);
-        GRAVACAO gravacao_5 = le_gravacao_por_pos(ARQ_GRAVACAO,5);
-        */
-        
-        
-        
+
         if (strcmp(status_jogo.parte, "MENU") == 0) {
             
            // Detecta se o usuário apertou uma das setas para se mover no menu e muda a posição do lolo 
@@ -551,7 +546,9 @@ int main(void) {
                 else if (lolo_sel_ponto.y == ponto_y_inic_lolo_menu + 1*desloc_y_lolo_menu) {
                     strcpy(status_jogo.parte, "LOAD");
                     lolo_sel_ponto.y = ponto_y_inic_lolo_load;
-                    
+                    for (i = 0; i < 5; i++) {
+                        gravacoes_salvas[i] = le_gravacao_por_pos(ARQ_GRAVACAO, i);
+                    }                    
                 }
                 else if (lolo_sel_ponto.y == ponto_y_inic_lolo_menu + 2*desloc_y_lolo_menu) {
                     strcpy(status_jogo.parte, "CRED");
@@ -658,71 +655,43 @@ int main(void) {
         
             
         if (strcmp(status_jogo.parte, "LOAD") == 0) {
+            if (IsKeyPressed(KEY_UP) && lolo_sel_ponto.y != ponto_y_inic_lolo_load) {
+                lolo_sel_ponto.y -= 58;
+            }
+            
+            if ((IsKeyPressed(KEY_DOWN)) && (lolo_sel_ponto.y != ponto_y_inic_lolo_load + (4 * 58))) {
+                lolo_sel_ponto.y += 58;
+            }
+            
+            if (IsKeyPressed(KEY_ENTER)) {
+                for (i = 0; i < 5; i++) {
+                    if ((lolo_sel_ponto.y == ponto_y_inic_lolo_load + i*58)) { // Número_arquivos
+                        strcpy(jogo_atual.ident, gravacoes_salvas[i].ident);
+                        strcpy(jogo_atual.totalpts, gravacoes_salvas[i].totalpts);
+                        strcpy(jogo_atual.num_ult_fase, gravacoes_salvas[i].num_ult_fase);
+                        strcpy(jogo_atual.vidas, gravacoes_salvas[i].vidas);
+                        strcpy(jogo_atual.nomejogador, gravacoes_salvas[i].nomejogador);
+                        strcpy(status_jogo.parte, "TEXT");
+                        fase_atual = le_fase_por_pos(ARQ_FASE , atoi(jogo_atual.num_ult_fase));
+                        lolo_atual.posicao.x = fase_atual.pos_i_jogador.x*48;
+                        lolo_atual.posicao.y = fase_atual.pos_i_jogador.y*48;
+                        lolo_atual.direcao = 'D';
+                    }
+                }
+            }
+            
             BeginDrawing();
-            /*int i;
                 ClearBackground(BLACK);
                 DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
                 DrawTextEx(Fonte_principal, "Escolha um jogo salvo", position5, 24, 2, BLACK);                
                 DrawTexture(lolo_texture, ponto_x_lolo_load, lolo_sel_ponto.y, WHITE);
-                GRAVACAO gravacao_i;
-
-                for(i=1; i <= 4; i++){ //numero_gravacoes e numero de saves
-                    
-                    
-                    if(numero_gravacoes>=1){
-                        DrawText(gravacao_1.nomejogador, ponto_x_lolo_load + 60, ponto_y_inic_lolo_load + 5 + ((1-1)*58), 35, BLACK); // Nome do jogador
-                        DrawText(gravacao_1.num_ult_fase, ponto_x_lolo_load + 250, ponto_y_inic_lolo_load + 5 + ((1-1)*58), 28, BLACK); // Fase do save
-                    }
-                    if(numero_gravacoes>=2){
-                        DrawText(gravacao_2.nomejogador, ponto_x_lolo_load + 60, ponto_y_inic_lolo_load + 5 + ((2-1)*58), 35, BLACK); // Nome do jogador
-                        DrawText(gravacao_2.num_ult_fase, ponto_x_lolo_load + 250, ponto_y_inic_lolo_load + 5 + ((2-1)*58), 28, BLACK); // Fase do save
-                    }
-                    if(numero_gravacoes>=3){
-                        DrawText(gravacao_3.nomejogador, ponto_x_lolo_load + 60, ponto_y_inic_lolo_load + 5 + ((3-1)*58), 35, BLACK); // Nome do jogador
-                        DrawText(gravacao_3.num_ult_fase, ponto_x_lolo_load + 250, ponto_y_inic_lolo_load + 5 + ((3-1)*58), 28, BLACK); // Fase do save
-                    }
-                    if(numero_gravacoes>=4){
-                        DrawText(gravacao_4.nomejogador, ponto_x_lolo_load + 60, ponto_y_inic_lolo_load + 5 + ((4-1)*58), 35, BLACK); // Nome do jogador
-                        DrawText(gravacao_4.num_ult_fase, ponto_x_lolo_load + 250, ponto_y_inic_lolo_load + 5 + ((4-1)*58), 28, BLACK); // Fase do save
-                    }
-                    if(numero_gravacoes==5){
-                        DrawText(gravacao_5.nomejogador, ponto_x_lolo_load + 60, ponto_y_inic_lolo_load + 5 + ((5-1)*58), 35, BLACK); // Nome do jogador
-                        DrawText(gravacao_5.num_ult_fase, ponto_x_lolo_load + 250, ponto_y_inic_lolo_load + 5 + ((5-1)*58), 28, BLACK); // Fase do save
-                    }
-
+                
+                for (i = 0; i < 5; i++) {
+                    DrawText(gravacoes_salvas[i].nomejogador, ponto_x_lolo_load + 60, ponto_y_inic_lolo_load + 58*i, 40, BLACK);
+                    DrawText(gravacoes_salvas[i].num_ult_fase, ponto_x_lolo_load + 300, ponto_y_inic_lolo_load + 58*i, 40, BLACK);
                 }
-                for (i=numero_gravacoes; i<5; i++ ){
-                    DrawText("Memoria vazia", ponto_x_lolo_load + 60, ponto_y_inic_lolo_load + (i*58), 35, LIGHTGRAY);     
-                }
-              
-                    if (IsKeyPressed(KEY_UP) && lolo_sel_ponto.y != ponto_y_inic_lolo_load) {
-                        lolo_sel_ponto.y -= 58;
-                    }
-            
-                    if ((IsKeyPressed(KEY_DOWN)) && (lolo_sel_ponto.y != ponto_y_inic_lolo_load + (4 * 58))) {
-                    lolo_sel_ponto.y += 58;
-                    }
-               
-                    if (IsKeyPressed(KEY_ENTER)) {
-                        if ((lolo_sel_ponto.y == ponto_y_inic_lolo_load) && (4>=1)) { // Número_arquivos
-                            strcpy(status_jogo.parte, "GAME");
-                        }
-                        else if ((lolo_sel_ponto.y == ponto_y_inic_lolo_load + 1*58) && (4>=2)) { // Número_arquivos
-                            strcpy(status_jogo.parte, "GAME");
-                        }
-                        else if ((lolo_sel_ponto.y == ponto_y_inic_lolo_load + 2*58) && (4/>=3)) { // Número_arquivos
-                            strcpy(status_jogo.parte, "GAME");
-                        }
-                        else if ((lolo_sel_ponto.y == ponto_y_inic_lolo_load + 3*58) && (4>=4)) { // Número_arquivos
-                            strcpy(status_jogo.parte, "GAME");
-                        }
-                        else if ((lolo_sel_ponto.y == ponto_y_inic_lolo_load + 4*58) && (4>=5)) { // Número_arquivos
-                            strcpy(status_jogo.parte, "GAME");
-                        }
-                    }
-        
-                */
-                EndDrawing();
+                
+            EndDrawing();
         }
         
         // TEXT (Tela que exibe o texto inicial do jogo)
