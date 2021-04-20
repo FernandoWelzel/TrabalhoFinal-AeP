@@ -16,7 +16,9 @@
 #define ARQ_GRAVACAO "gravacao.bin"
 #define ARQ_FASE "fase.bin"
 
-// Funções relacionadas a manipulação de texto e entrada do usuário
+// --->> Funções relacionadas a manipulação de texto e entrada do usuário <<--- //
+
+// Função que retorna se alguma tecla com valor válido foi precionada e retorna o valor numérico tecla
 int IsAnyKeyPressed() {
     int keyPressed = 0;
     int key = GetKeyPressed();
@@ -26,6 +28,7 @@ int IsAnyKeyPressed() {
     return keyPressed;
 }
 
+// Função que recebe uma string e um ponteiro para uma nova string e salva a primeira string na posição da nova
 char * string_to_lower (char * string, char * nova_string) {
     int i, tam_string = strlen(string);
     for (i = 0; i < tam_string; i++) {
@@ -35,7 +38,9 @@ char * string_to_lower (char * string, char * nova_string) {
     return nova_string;
 }
 
-// Funções relacionadas a a leitura e gravação em arquivos binários
+// --->> Funções relacionadas a a leitura e gravação em arquivos binários <<--- //
+
+// Função que recebe uma gravação e a escreve no final do arquivo de gravações
 void escreve_gravacao(char * nome_arquivo, pGRAVACAO gravacao) {
     FILE * arquivo;
     if (!(arquivo = fopen(nome_arquivo, "a+b"))) {
@@ -47,6 +52,7 @@ void escreve_gravacao(char * nome_arquivo, pGRAVACAO gravacao) {
     }
 }
 
+// Função que recebe um nome e retorna 1 se o nome não aparece no arquivo de gravações e 0 se ele aparece
 int nome_unico(char * nome_arquivo, char * nome) {
     FILE * arquivo;
     GRAVACAO gravacao_corrente;
@@ -64,6 +70,7 @@ int nome_unico(char * nome_arquivo, char * nome) {
     return 1;
 }
 
+// Função que retorna o número total de gravações no arquivo de gravações
 int numero_gravacoes(char * nome_arquivo) {
     FILE * arquivo;
     int tamanho = 0;
@@ -80,6 +87,7 @@ int numero_gravacoes(char * nome_arquivo) {
     return tamanho;
 }
 
+// Função que lê uma gravação no arquivo de posição pela posição que ela se encontra nesse arquivo
 GRAVACAO le_gravacao_por_pos(char * nome_arquivo, int pos) {
     FILE * arquivo;
     GRAVACAO gravacao_lida;
@@ -93,6 +101,10 @@ GRAVACAO le_gravacao_por_pos(char * nome_arquivo, int pos) {
     return gravacao_lida;
 }
 
+/* Função que recebe um nome de jogador e retorna a posição em que há uma gravação
+   com esse nome no arquivo de gravações. Se não encontrar uma gravação com esse
+   nome, retorna -1.
+*/
 int pos_por_nomejogador(char * nome_arquivo, char * nomejogador) {
     FILE * arquivo;
     GRAVACAO gravacao_lida;
@@ -112,6 +124,7 @@ int pos_por_nomejogador(char * nome_arquivo, char * nomejogador) {
     return -1;
 }
 
+// Função que lê uma fase no arquivo de fases pela posição que ela se encontra nesse arquivo
 FASE le_fase_por_pos(char * nome_arquivo, int pos) {
     FILE * arquivo;
     FASE fase_lida;
@@ -125,9 +138,9 @@ FASE le_fase_por_pos(char * nome_arquivo, int pos) {
     return fase_lida;
 }
 
-// Funções de movimentação
+// --->> Funções relacionadas a movimentação e colisão de objetos  <<--- //
 
-// Função que recebe uma posição em uma fase e retorna se o bloco nessa posição é imóvel
+// Função que recebe um ponto em uma fase e retorna se nesse ponto há um bloco imóvel
 int bloco_eh_imovel(pFASE fase, char orientacao, int y, int x) {    
     switch (fase->elementos[y/48][x/48]) {
         case 'T':
@@ -139,8 +152,17 @@ int bloco_eh_imovel(pFASE fase, char orientacao, int y, int x) {
     }
 }
 
+// Protótipo da função testar_pontos_imoveis
 int testar_pontos_imoveis(pFASE fase, char orientacao, PONTO ponto1, PONTO ponto2);
 
+/* 
+   Função que retorna se um ponto na fase é um inimigo imóvel.
+   Inimigos em formato de "bola", serão móveis no caso de que o bloco
+   na direção em que o lolo pretende se mover, for imóvel. No caso do
+   inimigo estar formato bola, e a direção que se pretende mover não posuir
+   um bloco móvel, a posição do inimigo é atualizada com base na direção e
+   a função retorna 0.
+*/
 int eh_inimigo_imovel (pFASE fase, char orientacao, int y, int x) {
     int i, retorno = 0;
     PONTO ponto1, ponto2;
@@ -210,6 +232,7 @@ int eh_inimigo_imovel (pFASE fase, char orientacao, int y, int x) {
     return retorno;
 }
 
+// Função que testa um ponto do mapa tanto para blocos imoveis quanto para inimigos imóveis
 int testar_pontos_imoveis(pFASE fase, char orientacao, PONTO ponto1, PONTO ponto2) {
     if (!bloco_eh_imovel(fase, orientacao, ponto1.y, ponto1.x) &&
         !bloco_eh_imovel(fase, orientacao, ponto2.y, ponto2.x) &&
@@ -222,7 +245,7 @@ int testar_pontos_imoveis(pFASE fase, char orientacao, PONTO ponto1, PONTO ponto
     }
 }
 
-// Função que atuliza a posição do lolo no jogo baseado na sua posição atual, nos blocos a sua volta e na entrada do usuário
+// Função que atualiza a posição do lolo no jogo baseado na sua posição atual, nos blocos a sua volta e na entrada do usuário
 void atualiza_pos_lolo(pLOLO lolo, pFASE fase) {
     // Declaração dos pontos a serem testados para cada caso
     PONTO ponto1, ponto2;
@@ -273,6 +296,11 @@ void atualiza_pos_lolo(pLOLO lolo, pFASE fase) {
     }
 }
 
+/* 
+   Função que atualiza a posição de um do "tiro" lançado pelo lolo
+   retornando um char 'L' caso o tiro esteja livre e não tenha batido
+   em nenhum bloco e 'B', caso o tiro tenha batido em um bloco.
+*/
 char atualiza_pos_tiro(pTIRO Ptiro, pFASE fase) {
     PONTO ponto1, ponto2;
     
@@ -326,6 +354,10 @@ char atualiza_pos_tiro(pTIRO Ptiro, pFASE fase) {
     }
 }
 
+/* 
+   Posição que retorna um ponto em que o tiro bateu, testando se havia
+   blocos ou inimigos imóveis na direção na qual o tiro estava se movendo   
+*/
 PONTO pos_tiro_bateu(pTIRO Ptiro, pFASE fase) {
     PONTO retorno, ponto1, ponto2;
     
@@ -422,8 +454,9 @@ PONTO pos_tiro_bateu(pTIRO Ptiro, pFASE fase) {
     }
 }
 
-//Função principal MAIN
+// --->> MAIN <<--- //
 int main(void) {
+    
     // Inicia a janela com as dimensões indicadas
     int screen_width = 800;
     int screen_height = 800;
@@ -431,8 +464,6 @@ int main(void) {
 
     // Créditos (return menu)
     char message[28] = "PRESS ENTER TO RETURN MENU";
-    int framesCounter = 0;
-    int framesCounter2 = 0;
 
     // Configurações
     SetTargetFPS(60);
@@ -463,7 +494,6 @@ int main(void) {
     Texture2D porta_fechada_texture = LoadTexture("./resources/Blocos/Porta_fechada.png");
     Texture2D porta_aberta_texture = LoadTexture("./resources/Blocos/Porta_aberta.png");
     Texture2D coracao_texture = LoadTexture("./resources/Blocos/Coracao.png");
-    //Texture2D bloco_esquerda_texture = LoadTexture("./resources/Blocos/Lateral-esquerda.png");
     Texture2D lolo_D_texture = LoadTexture("./resources/Lolo/Lolo-D.png");
     Texture2D lolo_R_texture = LoadTexture("./resources/Lolo/Lolo-R.png");
     Texture2D lolo_L_texture = LoadTexture("./resources/Lolo/Lolo-L.png");
@@ -474,15 +504,19 @@ int main(void) {
     Texture2D ovo_texture = LoadTexture("./resources/Inimigos/ovo.png");
 
     // Variáveis de posicionamento
+    int BordaMapax = ((screen_width - mapa_vazio_texture.width)/2) + 45;
+    int BordaMapay = ((screen_height - mapa_vazio_texture.height)/2) + 96;
     int ponto_x_lolo_menu = (screen_width - menu_texture.width)/2 + 45;
     int ponto_x_lolo_load = (screen_width - menu_texture.width)/2 + 25;
     int ponto_y_inic_lolo_menu = (screen_height - menu_texture.height)/2 + 85;
     int ponto_y_inic_lolo_load = (screen_height - menu_texture.height)/2 + 75;
     int desloc_y_lolo_menu = 60;
     int desloc_y_lolo_load = 58;
+    
     PONTO lolo_sel_ponto_menu = {ponto_x_lolo_menu, ponto_y_inic_lolo_menu};
     PONTO lolo_sel_ponto_load = {ponto_x_lolo_menu, ponto_y_inic_lolo_load};
     PONTO lolo_sel_ponto_quit = {ponto_x_lolo_menu, ponto_y_inic_lolo_load};
+    
     Vector2 position11 = {275, 265};
     Vector2 position12 = {260, 320};
     Vector2 position2 = {250, 450};
@@ -493,8 +527,6 @@ int main(void) {
     Vector2 position6 = {215, 300};
     Vector2 position7 = {285, 290};
     Vector2 position8 = {285, 350};
-    int BordaMapax = ((screen_width - mapa_vazio_texture.width)/2) + 45;
-    int BordaMapay = ((screen_height - mapa_vazio_texture.height)/2) + 96;
     Vector2 position_num_especiais = {BordaMapax + 585, 300};
     Vector2 position_num_vidas = {BordaMapax + 585, 210};
 
@@ -510,23 +542,23 @@ int main(void) {
     LOLO lolo_atual;
     
     // Variáveis para iteração
-    int i;
-    int j;
+    int i, j;
     
     // Variáveis estilo booleanas
     char bau_cheio = 'S';
     
     // Tiro
     TIRO tiro_atual;
-    tiro_atual.posicao.x = 0;
-    tiro_atual.posicao.y = 0;
     tiro_atual.mostrar = 'N';
     PONTO pos_tiro_bateu_atual;
     
     // Gravações jogos antigos
     GRAVACAO gravacoes_salvas[5];
-    
     int numero_de_gravacoes = numero_gravacoes(ARQ_GRAVACAO);
+    
+    // Contadores de frames
+    int framesCounter = 0;
+    int framesCounter2 = 0;
     
     // Main game loop
     while (!WindowShouldClose() && strcmp(status_jogo.parte, "SAIR") != 0)    // Detect window close button or ESC key
@@ -584,9 +616,8 @@ int main(void) {
         // NAME (Início de um novo jogo pegando o nome do usuário)
         if (strcmp(status_jogo.parte, "NAME") == 0) {
 
-            // Implementação da caixa de texto para o jogador inserir o nome
-            
-            // Pega a tecla apertada
+            // --> Implementação da caixa de texto para o jogador inserir o nome <-- //
+            // Guarda a tecla apertada na variável key
             int key = GetCharPressed();
 
             // Checa se mais de um caracter foi precionado por frame e adiciona o valor ao nome
@@ -595,7 +626,6 @@ int main(void) {
                     name[letterCount] = (char)key;
                     letterCount++;
                 }
-
                 key = GetCharPressed();  // Pega o próximo caracter se houver
             }
 
@@ -603,8 +633,7 @@ int main(void) {
             if (IsKeyPressed(KEY_BACKSPACE)) {
                 if (letterCount > 0) {
                     letterCount--;
-                };
-
+                }
                 name[letterCount] = '\0';
             }
 
@@ -666,14 +695,21 @@ int main(void) {
         
         // LOAD    
         if (strcmp(status_jogo.parte, "LOAD") == 0) {
+            
+            // Atualiza a posição do lolo (cursor que indica o save) baseado na entrada do usuário e na posição dele
             if (IsKeyPressed(KEY_UP) && lolo_sel_ponto_load.y > ponto_y_inic_lolo_load) {
                 lolo_sel_ponto_load.y -= desloc_y_lolo_load;
             }
-            
             if ((IsKeyPressed(KEY_DOWN)) && (lolo_sel_ponto_load.y < ponto_y_inic_lolo_load + (4 * desloc_y_lolo_load))) {
                 lolo_sel_ponto_load.y += desloc_y_lolo_load;
             }
             
+            /*
+                Se for pressionado enter, indicando que o usuário quer carregar aquele save:
+                - Distingue que save o usuário quer baseado na posição do cursor
+                - Copia as informações do save para jogo_atual (que é uma GRAVACAO)
+                - Lê a fase que estava na gravação lida e armazena em fase_atual (que é uma FASE)
+            */
             if (IsKeyPressed(KEY_ENTER)) {
                 for (i = 0; i < 5; i++) {
                     if ((lolo_sel_ponto_load.y == ponto_y_inic_lolo_load + i*desloc_y_lolo_load)) { // Número_arquivos
@@ -682,25 +718,31 @@ int main(void) {
                         strcpy(jogo_atual.num_ult_fase, gravacoes_salvas[i].num_ult_fase);
                         strcpy(jogo_atual.vidas, gravacoes_salvas[i].vidas);
                         strcpy(jogo_atual.nomejogador, gravacoes_salvas[i].nomejogador);
-                        strcpy(status_jogo.parte, "TEXT");
                         fase_atual = le_fase_por_pos(ARQ_FASE , atoi(jogo_atual.num_ult_fase));
                         lolo_atual.posicao.x = fase_atual.pos_i_jogador.x*48;
                         lolo_atual.posicao.y = fase_atual.pos_i_jogador.y*48;
                         lolo_atual.direcao = 'D';
+                        strcpy(status_jogo.parte, "TEXT");
                     }
                 }
             }
             
+            // Se o usuário precinar a tecla 'Q' -> Retorna ao menu
             if (IsKeyPressed(KEY_Q)) {
                 strcpy(status_jogo.parte, "MENU");
             }
             
             BeginDrawing();
                 ClearBackground(BLACK);
+                
+                // Mostra uma tela com fundo padrão e o texto solicitando que o usuário escolha um save
                 DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
-                DrawTextEx(Fonte_principal, "Escolha um jogo salvo", position5, 24, 2, BLACK);                
+                DrawTextEx(Fonte_principal, "Escolha um jogo salvo", position5, 24, 2, BLACK);
+
+                // Imprime o lolo (cursor que indica o save) na posição atualizada
                 DrawTexture(lolo_texture, ponto_x_lolo_load, lolo_sel_ponto_load.y, WHITE);
                 
+                // Imprime as 5 primeiras gravações do vetor de gravações salvas
                 for (i = 0; i < 5; i++) {
                     DrawText(gravacoes_salvas[i].nomejogador, ponto_x_lolo_load + 65, ponto_y_inic_lolo_load + desloc_y_lolo_load*i, 35, BLACK);
                     DrawText(gravacoes_salvas[i].num_ult_fase, ponto_x_lolo_load + 240, ponto_y_inic_lolo_load + desloc_y_lolo_load*i + 10, 25, BLACK);
@@ -717,6 +759,7 @@ int main(void) {
             // Faz a contagem do número de frames, para depois de 3 segundo sair da tela de texto
             framesCounter2++;
             if (framesCounter2/60 > 3) {
+                framesCounter2 = 0;
                 strcpy(status_jogo.parte, "GAME");
             }
             
@@ -737,8 +780,14 @@ int main(void) {
             // Atualiza a posição do lolo baseado na sua posição atual, na tecla que o usuário preciona e nos blocos a sua volta
             atualiza_pos_lolo(&lolo_atual, &fase_atual);
             
+            // Se o tiro estiver sendo mostrado -> atualiza a posição do tiro até ele bater
             if (tiro_atual.mostrar == 'S') {
                 if (atualiza_pos_tiro(&tiro_atual, &fase_atual) == 'B') {
+                    /* 
+                        Quando o tiro bate, para de mostrar o tiro e pega a posição que o tiro bateu,
+                        se a posição não for uma lateral e for um inimigo imóvel, transforma o inimigo
+                        em bola.
+                    */
                     tiro_atual.mostrar = 'N';
                     pos_tiro_bateu_atual = pos_tiro_bateu(&tiro_atual, &fase_atual);
                     if (pos_tiro_bateu_atual.x != -1) {
@@ -752,7 +801,11 @@ int main(void) {
                 }
             }        
             
-            // Compara se a posição do lolo é a mesma de um coração, para ele poder pegar o coração
+            /*
+                Compara se a posição de alguma das bordas do lolo é a mesma de um coração,
+                para que ele poça pegar o coração. Se ele pegar o coração, tranforma o bloco
+                de 'C' para 'L'.
+            */
             if (fase_atual.elementos[lolo_atual.posicao.y/48][lolo_atual.posicao.x/48] == 'C') {
                 fase_atual.elementos[lolo_atual.posicao.y/48][lolo_atual.posicao.x/48] = 'L';
                 fase_atual.num_coracoes--;
@@ -774,7 +827,11 @@ int main(void) {
                 itoa(atoi(fase_atual.num_especiais) + 1, fase_atual.num_especiais, 10);
             }
             
-            if (fase_atual.num_coracoes == 0) {
+            /* 
+                Compara se alguma das bordas do lolo está dentro de um bloco
+                que tem um bau aberto e cheio. Nesse caso, esvazia o bau e abre a porta.
+            */
+            if (fase_atual.num_coracoes == 0 && bau_cheio == 'S') {
                 if (fase_atual.elementos[lolo_atual.posicao.y/48][lolo_atual.posicao.x/48] == 'B' ||
                     fase_atual.elementos[(lolo_atual.posicao.y + 47)/48][lolo_atual.posicao.x/48] == 'B' ||
                     fase_atual.elementos[lolo_atual.posicao.y/48][(lolo_atual.posicao.x + 47)/48] == 'B' ||
@@ -787,6 +844,27 @@ int main(void) {
                 }
             }
             
+            /*
+                Se o jogador chegar a uma posição y menor do que -24 pixels em relação a borda,
+                o que só pode acontecer se ele passou pela porta, aumenta a contagem da fase no
+                jogo atual e lê a nova fase, salvando em fase_atual.
+            */
+            if (lolo_atual.posicao.y < -24) {
+                strcpy(status_jogo.parte, "MENU");
+                bau_cheio = 'S';
+                itoa(atoi(jogo_atual.num_ult_fase) + 1, jogo_atual.num_ult_fase, 10);
+                strcpy(status_jogo.parte, "TEXT");
+                fase_atual = le_fase_por_pos(ARQ_FASE , atoi(jogo_atual.num_ult_fase));
+                lolo_atual.posicao.x = fase_atual.pos_i_jogador.x*48;
+                lolo_atual.posicao.y = fase_atual.pos_i_jogador.y*48;
+                lolo_atual.direcao = 'D';
+            }
+            
+            /*
+                Observa se a tecla F foi precionada, indicando que o jogador quer lançar um tiro.
+                Se for possível atirar, faz o tiro ser mostrado em uma posição baseado na direção
+                que o lolo está olhando e na posição atual do lolo.
+            */
             if (IsKeyPressed(KEY_F) && atoi(fase_atual.num_especiais) > 0 && tiro_atual.mostrar == 'N') {
                 tiro_atual.direcao = lolo_atual.direcao;
                 
@@ -812,10 +890,12 @@ int main(void) {
                 itoa(atoi(fase_atual.num_especiais) - 1, fase_atual.num_especiais, 10);
             }
             
+            // Se o jogador apertar Q, muda a janela que está sendo mostrada para QUIT
             if (IsKeyPressed(KEY_Q)) {
                 strcpy(status_jogo.parte, "QUIT");
             }
             
+            // Se o jogador apertar S, reinicia a fase, diminuindo uma vida do jogador e lendo novamente a fase do arquivo de fases
             if (IsKeyPressed(KEY_S)) {
                 itoa(atoi(jogo_atual.vidas) - 1, jogo_atual.vidas, 10);
                 
@@ -825,19 +905,6 @@ int main(void) {
                 lolo_atual.posicao.x = fase_atual.pos_i_jogador.x*48;
                 lolo_atual.posicao.y = fase_atual.pos_i_jogador.y*48;
                 lolo_atual.direcao = 'D';
-                framesCounter2 = 0;
-            }
-            
-            if (lolo_atual.posicao.y < -24) {
-                strcpy(status_jogo.parte, "MENU");
-                bau_cheio = 'S';
-                itoa(atoi(jogo_atual.num_ult_fase) + 1, jogo_atual.num_ult_fase, 10);
-                strcpy(status_jogo.parte, "TEXT");
-                fase_atual = le_fase_por_pos(ARQ_FASE , atoi(jogo_atual.num_ult_fase));
-                lolo_atual.posicao.x = fase_atual.pos_i_jogador.x*48;
-                lolo_atual.posicao.y = fase_atual.pos_i_jogador.y*48;
-                lolo_atual.direcao = 'D';
-                framesCounter2 = 0;
             }
             
             // Mostra a tela do jogo baseado nos blocos contidos em fase_atual.elementos e na posição do lolo
@@ -847,14 +914,9 @@ int main(void) {
                 ClearBackground(BLACK);
                 DrawTexture(mapa_vazio_texture, (screen_width - mapa_vazio_texture.width)/2, (screen_height - mapa_vazio_texture.height)/2, WHITE);
 
-                // Imprime cada um dos quadrados do mapa, no qual o lolo andará por cima, que estão em fase_atual.elementos
+                // Imprime cada um dos quadrados do mapa, no qual o lolo e os inimigos andarão por cima, que estão em fase_atual.elementos
                 for (i = 0; i < 11; i++) {
                     for (j = 0; j < 11; j++) {
-                        /*
-                        // Não funciona por que está gravando por baixo do outro (teria que arrumar a textura da maioria dos blocos também)
-                        if (i == 0 && fase_atual.elementos[j][i] != 'A') {
-                            DrawTexture(bloco_esquerda_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
-                        }*/
                         switch (fase_atual.elementos[j][i]) {
                             case 'L':
                                 DrawTexture(espaco_livre_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
@@ -883,17 +945,15 @@ int main(void) {
                             case 'C':
                                 DrawTexture(coracao_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
                                 break;
-                            case 'I':
-                                DrawTexture(inimigo_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
-                                break;
-                            case 'O':
-                                DrawTexture(espaco_livre_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
-                                DrawTexture(ovo_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
-                                break;
                         }
                     }
                 }
                 
+                /* 
+                   Imprime a porta em sua posição definida em fase_atual.pos_porta.
+                   Muda a textura da porta mostrada a partir da variável
+                   fase_atual.porta_estado -> 'F' = fechada; 'A' = aberta
+                */
                 if (fase_atual.porta_estado == 'F') {
                     DrawTexture(porta_fechada_texture, BordaMapax + 48*atoi(fase_atual.pos_porta) - 4, BordaMapay - 36, WHITE);
                 }
@@ -901,6 +961,7 @@ int main(void) {
                     DrawTexture(porta_aberta_texture, BordaMapax + 48*atoi(fase_atual.pos_porta) - 4, BordaMapay - 36, WHITE);
                 }
                 
+                // Imprime o tiro na sua posição e direção atuais.
                 if (tiro_atual.mostrar == 'S') {
                     switch (tiro_atual.direcao) {
                         case 'D':
@@ -914,11 +975,11 @@ int main(void) {
                     }
                 }
                 
-               
+                // Imprime o número de vidas e tiros na lateral direita da tela
                 DrawTextEx(Fonte_principal, fase_atual.num_especiais, position_num_especiais, 40, 1, WHITE);
                 DrawTextEx(Fonte_principal, jogo_atual.vidas, position_num_vidas, 40, 1, WHITE);
 
-                // Imprime o lolo baseado em sua posição atualizada e a direção que ele está olhando
+                // Imprime o lolo baseado em sua posição atualizada e na direção que ele está olhando
                 switch (lolo_atual.direcao) {
                     case 'D':
                         DrawTexture(lolo_D_texture, BordaMapax + lolo_atual.posicao.x, BordaMapay + lolo_atual.posicao.y, WHITE);
@@ -934,6 +995,7 @@ int main(void) {
                         break;
                 }
                 
+                // Imprime cada um dos inimigos do vetor de inimigos baseado em seu tipo e no fato de estarem formato bola ou não.
                 for (i = 0; i < fase_atual.num_inimigos; i++) {
                     if (fase_atual.inimigos[i].bola == 'S') {
                         DrawTexture(ovo_texture, BordaMapax + fase_atual.inimigos[i].posicao.x, BordaMapay + fase_atual.inimigos[i].posicao.y, WHITE);
@@ -951,15 +1013,18 @@ int main(void) {
             EndDrawing();
         }
         
+        // QUIT (Tela que aparece quando o usuário decidir sair do jogo)
         if (strcmp(status_jogo.parte, "QUIT") == 0) {
+            
+            // Movimenta o lolo (cursor que indica a ação) com base na entrada do usuário
             if (IsKeyPressed(KEY_UP) && lolo_sel_ponto_quit.y > ponto_y_inic_lolo_load) {
                 lolo_sel_ponto_quit.y -= desloc_y_lolo_load;
             }
-            
             if ((IsKeyPressed(KEY_DOWN)) && (lolo_sel_ponto_quit.y < ponto_y_inic_lolo_load + (1 * desloc_y_lolo_load))) {
                 lolo_sel_ponto_quit.y += desloc_y_lolo_load;
             }
             
+            // Observa se o usuário deseja sair ou continuar e muda o estado das variáveis status_jogo.parte de maneira apropriada
             if (IsKeyPressed(KEY_ENTER) && lolo_sel_ponto_quit.y == ponto_y_inic_lolo_load) {
                 strcpy(status_jogo.parte, "GAME");
             }
@@ -968,7 +1033,7 @@ int main(void) {
                 escreve_gravacao(ARQ_GRAVACAO, &jogo_atual);
             }
             
-            
+            // Mostra a tela para sair baseado na posição do cursor
             BeginDrawing();
             ClearBackground(BLACK);
                 DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
@@ -980,26 +1045,27 @@ int main(void) {
         
         // CRED (Créditos do jogo)
         if (strcmp(status_jogo.parte, "CRED") == 0) {
+            
+            // Se o usuário aperta ENTER, retorna ao menu
+            if(IsKeyPressed(KEY_ENTER)){
+                framesCounter = 0;
+                strcpy(status_jogo.parte,"MENU");
+            }
+            
+            framesCounter++;
+            
+            // Mostra a tela dos créditos com uma mensagem que fica atualizando com o tempo
             BeginDrawing();
 
                 ClearBackground(BLACK);
                 DrawTexture(cred_texture, (screen_width - cred_texture.width)/2, (screen_height - cred_texture.height)/2, WHITE);
-
-
-                framesCounter++;
                 DrawText(TextSubtext(message, 0, framesCounter/5), 230, 550, 20, BLACK);
-
-
-                if(IsKeyPressed(KEY_ENTER)){
-                    framesCounter = 0;
-                    strcpy(status_jogo.parte,"MENU");
-                }
-
 
             EndDrawing();
         }
     }
+    
+    
     CloseAudioDevice();
-
     return 0;
 }
