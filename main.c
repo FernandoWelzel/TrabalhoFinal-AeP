@@ -475,13 +475,14 @@ int main(void) {
 
     // Variáveis de posicionamento
     int ponto_x_lolo_menu = (screen_width - menu_texture.width)/2 + 45;
-    int ponto_x_lolo_load = (screen_width - menu_texture.width)/2 + 40;
+    int ponto_x_lolo_load = (screen_width - menu_texture.width)/2 + 25;
     int ponto_y_inic_lolo_menu = (screen_height - menu_texture.height)/2 + 85;
     int ponto_y_inic_lolo_load = (screen_height - menu_texture.height)/2 + 75;
     int desloc_y_lolo_menu = 60;
-    int desloc_y_lolo_load = 50;
+    int desloc_y_lolo_load = 58;
     PONTO lolo_sel_ponto_menu = {ponto_x_lolo_menu, ponto_y_inic_lolo_menu};
     PONTO lolo_sel_ponto_load = {ponto_x_lolo_menu, ponto_y_inic_lolo_load};
+    PONTO lolo_sel_ponto_quit = {ponto_x_lolo_menu, ponto_y_inic_lolo_load};
     Vector2 position11 = {275, 265};
     Vector2 position12 = {260, 320};
     Vector2 position2 = {250, 450};
@@ -490,9 +491,12 @@ int main(void) {
     Rectangle textBox = {255, 385, 300, 50};
     Vector2 position4 = {textBox.x + 5, textBox.y + 8};
     Vector2 position6 = {215, 300};
+    Vector2 position7 = {285, 290};
+    Vector2 position8 = {285, 350};
     int BordaMapax = ((screen_width - mapa_vazio_texture.width)/2) + 45;
     int BordaMapay = ((screen_height - mapa_vazio_texture.height)/2) + 96;
     Vector2 position_num_especiais = {BordaMapax + 585, 300};
+    Vector2 position_num_vidas = {BordaMapax + 585, 210};
 
     // Declaração das variáveis da caixa de texto com o nome do jogador
     char name[MAX_INPUT_CHARS + 1] = "\0";
@@ -614,7 +618,7 @@ int main(void) {
                     strcpy(jogo_atual.ident, "00");
                     strcpy(jogo_atual.totalpts, "00");
                     strcpy(jogo_atual.num_ult_fase, "00");
-                    strcpy(jogo_atual.vidas, "05");
+                    strcpy(jogo_atual.vidas, "3");
                     char string_interm[9];
                     strcpy(jogo_atual.nomejogador, string_to_lower(name, string_interm));
 
@@ -663,16 +667,16 @@ int main(void) {
         // LOAD    
         if (strcmp(status_jogo.parte, "LOAD") == 0) {
             if (IsKeyPressed(KEY_UP) && lolo_sel_ponto_load.y > ponto_y_inic_lolo_load) {
-                lolo_sel_ponto_load.y -= 58;
+                lolo_sel_ponto_load.y -= desloc_y_lolo_load;
             }
             
-            if ((IsKeyPressed(KEY_DOWN)) && (lolo_sel_ponto_load.y < ponto_y_inic_lolo_load + (4 * 58))) {
-                lolo_sel_ponto_load.y += 58;
+            if ((IsKeyPressed(KEY_DOWN)) && (lolo_sel_ponto_load.y < ponto_y_inic_lolo_load + (4 * desloc_y_lolo_load))) {
+                lolo_sel_ponto_load.y += desloc_y_lolo_load;
             }
             
             if (IsKeyPressed(KEY_ENTER)) {
                 for (i = 0; i < 5; i++) {
-                    if ((lolo_sel_ponto_load.y == ponto_y_inic_lolo_load + i*58)) { // Número_arquivos
+                    if ((lolo_sel_ponto_load.y == ponto_y_inic_lolo_load + i*desloc_y_lolo_load)) { // Número_arquivos
                         strcpy(jogo_atual.ident, gravacoes_salvas[i].ident);
                         strcpy(jogo_atual.totalpts, gravacoes_salvas[i].totalpts);
                         strcpy(jogo_atual.num_ult_fase, gravacoes_salvas[i].num_ult_fase);
@@ -698,8 +702,10 @@ int main(void) {
                 DrawTexture(lolo_texture, ponto_x_lolo_load, lolo_sel_ponto_load.y, WHITE);
                 
                 for (i = 0; i < 5; i++) {
-                    DrawText(gravacoes_salvas[i].nomejogador, ponto_x_lolo_load + 60, ponto_y_inic_lolo_load + 58*i, 40, BLACK);
-                    DrawText(gravacoes_salvas[i].num_ult_fase, ponto_x_lolo_load + 300, ponto_y_inic_lolo_load + 58*i, 40, BLACK);
+                    DrawText(gravacoes_salvas[i].nomejogador, ponto_x_lolo_load + 65, ponto_y_inic_lolo_load + desloc_y_lolo_load*i, 35, BLACK);
+                    DrawText(gravacoes_salvas[i].num_ult_fase, ponto_x_lolo_load + 240, ponto_y_inic_lolo_load + desloc_y_lolo_load*i + 10, 25, BLACK);
+                    DrawText(gravacoes_salvas[i].vidas, ponto_x_lolo_load + 290, ponto_y_inic_lolo_load + desloc_y_lolo_load*i + 10, 25, BLACK);
+                    DrawText(gravacoes_salvas[i].totalpts, ponto_x_lolo_load + 340, ponto_y_inic_lolo_load + desloc_y_lolo_load*i + 10, 25, BLACK);
                 }
                 
             EndDrawing();
@@ -807,8 +813,19 @@ int main(void) {
             }
             
             if (IsKeyPressed(KEY_Q)) {
-                strcpy(status_jogo.parte, "MENU");
-                escreve_gravacao(ARQ_GRAVACAO, &jogo_atual);
+                strcpy(status_jogo.parte, "QUIT");
+            }
+            
+            if (IsKeyPressed(KEY_S)) {
+                itoa(atoi(jogo_atual.vidas) - 1, jogo_atual.vidas, 10);
+                
+                strcpy(status_jogo.parte, "TEXT");
+                bau_cheio = 'S';
+                fase_atual = le_fase_por_pos(ARQ_FASE , atoi(jogo_atual.num_ult_fase));
+                lolo_atual.posicao.x = fase_atual.pos_i_jogador.x*48;
+                lolo_atual.posicao.y = fase_atual.pos_i_jogador.y*48;
+                lolo_atual.direcao = 'D';
+                framesCounter2 = 0;
             }
             
             if (lolo_atual.posicao.y < -24) {
@@ -899,6 +916,7 @@ int main(void) {
                 
                
                 DrawTextEx(Fonte_principal, fase_atual.num_especiais, position_num_especiais, 40, 1, WHITE);
+                DrawTextEx(Fonte_principal, jogo_atual.vidas, position_num_vidas, 40, 1, WHITE);
 
                 // Imprime o lolo baseado em sua posição atualizada e a direção que ele está olhando
                 switch (lolo_atual.direcao) {
@@ -930,6 +948,33 @@ int main(void) {
                 }
                 
 
+            EndDrawing();
+        }
+        
+        if (strcmp(status_jogo.parte, "QUIT") == 0) {
+            if (IsKeyPressed(KEY_UP) && lolo_sel_ponto_quit.y > ponto_y_inic_lolo_load) {
+                lolo_sel_ponto_quit.y -= desloc_y_lolo_load;
+            }
+            
+            if ((IsKeyPressed(KEY_DOWN)) && (lolo_sel_ponto_quit.y < ponto_y_inic_lolo_load + (1 * desloc_y_lolo_load))) {
+                lolo_sel_ponto_quit.y += desloc_y_lolo_load;
+            }
+            
+            if (IsKeyPressed(KEY_ENTER) && lolo_sel_ponto_quit.y == ponto_y_inic_lolo_load) {
+                strcpy(status_jogo.parte, "GAME");
+            }
+            else if (IsKeyPressed(KEY_ENTER) && lolo_sel_ponto_quit.y == ponto_y_inic_lolo_load + (1 * desloc_y_lolo_load)) {
+                strcpy(status_jogo.parte, "MENU");
+                escreve_gravacao(ARQ_GRAVACAO, &jogo_atual);
+            }
+            
+            
+            BeginDrawing();
+            ClearBackground(BLACK);
+                DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
+                DrawTextEx(Fonte_principal, "Continuar", position7, 36, 2, BLACK);
+                DrawTextEx(Fonte_principal, "Sair", position8, 36, 2, BLACK); 
+                DrawTexture(lolo_texture, lolo_sel_ponto_quit.x, lolo_sel_ponto_quit.y, WHITE);
             EndDrawing();
         }
         
