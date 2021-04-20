@@ -99,14 +99,14 @@ int main(void)
     strcpy(nivel2.pos_porta, "08");
     nivel2.pos_i_jogador = pos_jogador_fase2;
     
-    char elementos_fase2[11][12] = {"PTTTLLLLLLL",
-                                    "PLLTTPPPTTL",
+    char elementos_fase2[11][12] = {"PTTTTTPLLLL",
+                                    "PLLTTTPPPPL",
                                     "PLLLTLLLLLL",
-                                    "PPLLTCLLLLL",
-                                    "TPLLTPPPPLT",
+                                    "PPLLTCAPLLL",
+                                    "TPLLTPAPPLT",
                                     "TTLLPPAAPLT",
-                                    "TTTLTLLACLL",
-                                    "TLLLLLLALLL",
+                                    "TTTLTLAACLL",
+                                    "TLLLLLLAALL",
                                     "TTPPPLLAALL",
                                     "CLLLLLAALLL",
                                     "TTPBTLLLLLL"};

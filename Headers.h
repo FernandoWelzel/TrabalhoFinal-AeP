@@ -48,9 +48,3 @@ typedef struct tiro {
     char mostrar;
     char direcao;
 } TIRO, * pTIRO;
-
-void escreve_gravacao(char * nome_arquivo, pGRAVACAO gravacao);
-int nome_unico(char * nome_arquivo, char * nome);
-
-int IsAnyKeyPressed();
-char * string_to_lower (char * string, char * nova_string);

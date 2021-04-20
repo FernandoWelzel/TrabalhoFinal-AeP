@@ -157,11 +157,16 @@ int testar_pontos_imoveis(pFASE fase, char orientacao, PONTO ponto1, PONTO ponto
 
 /* 
    Função que retorna se um ponto na fase é um inimigo imóvel.
-   Inimigos em formato de "bola", serão móveis no caso de que o bloco
-   na direção em que o lolo pretende se mover, for imóvel. No caso do
-   inimigo estar formato bola, e a direção que se pretende mover não posuir
-   um bloco móvel, a posição do inimigo é atualizada com base na direção e
-   a função retorna 0.
+   Inimigos em formato de "bola" serão móveis no caso de que o bloco ao 
+   lado do inimigo e na direção em que o lolo pretende se mover não for imóvel.
+   No caso do inimigo estar formato bola, e a direção que se pretende mover
+   não posuir um bloco móvel, a posição do inimigo é atualizada com base na
+   direção e a função retorna 0.
+   OBS.: Nessa função temos um esquema de recursividade, pois a função acaba
+   chamando ela mesma através da função testar_pontos_imoveis para observar
+   se há um inimigo imóvel na posição em que se pretende mover. Dessa maneira,
+   é possível que o lolo movimente, teoricamente, infinitos inimigos móveis (em fase
+   de bola) se não houver nenhum inimigo ou bloco fixo na direção que se deseja mover. 
 */
 int eh_inimigo_imovel (pFASE fase, char orientacao, int y, int x) {
     int i, retorno = 0;
