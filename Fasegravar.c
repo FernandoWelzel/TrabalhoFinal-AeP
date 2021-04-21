@@ -1,3 +1,5 @@
+// -->> Programa auxiliar para gravar as fases no arquivo de fases <<-- // 
+
 // Bibliotecas padrão
 #include <stdio.h>
 #include <stdlib.h>

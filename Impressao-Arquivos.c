@@ -1,3 +1,5 @@
+// -->> Programa auxiliar para ver as gravações do arquivo de gravações <<-- // 
+
 // Bibliotecas padrão
 #include <stdio.h>
 #include <stdlib.h>
