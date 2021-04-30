@@ -516,7 +516,7 @@ int main(void) {
     int ponto_y_inic_lolo_menu = (screen_height - menu_texture.height)/2 + 85;
     int ponto_y_inic_lolo_load = (screen_height - menu_texture.height)/2 + 75;
     int desloc_y_lolo_menu = 60;
-    int desloc_y_lolo_load = 58;
+    int desloc_y_lolo_load = 42;
     
     PONTO lolo_sel_ponto_menu = {ponto_x_lolo_menu, ponto_y_inic_lolo_menu};
     PONTO lolo_sel_ponto_load = {ponto_x_lolo_menu, ponto_y_inic_lolo_load};
@@ -532,6 +532,7 @@ int main(void) {
     Vector2 position6 = {215, 300};
     Vector2 position7 = {285, 290};
     Vector2 position8 = {285, 350};
+    Vector2 position9 = {210, 530};
     Vector2 position_num_especiais = {BordaMapax + 585, 300};
     Vector2 position_num_vidas = {BordaMapax + 585, 210};
     Vector2 position_num_fase = {BordaMapax + 120, BordaMapay - 140};
@@ -595,9 +596,11 @@ int main(void) {
             if (IsKeyPressed(KEY_ENTER)) {
                 if (lolo_sel_ponto_menu.y == ponto_y_inic_lolo_menu) {
                     strcpy(status_jogo.parte, "NAME");
+                    numero_de_gravacoes = numero_gravacoes(ARQ_GRAVACAO);
                 }
                 else if (lolo_sel_ponto_menu.y == ponto_y_inic_lolo_menu + 1*desloc_y_lolo_menu) {
                     strcpy(status_jogo.parte, "LOAD");
+                    numero_de_gravacoes = numero_gravacoes(ARQ_GRAVACAO);
                     for (i = 0; i < 5; i++) {
                         gravacoes_salvas[i] = le_gravacao_por_pos(ARQ_GRAVACAO, i);
                     }                    
@@ -652,7 +655,7 @@ int main(void) {
             uma tela com o texto inicial da fase.
             */
             if (IsKeyPressed(KEY_ENTER)) {
-                if (letterCount > 0) {
+                if (letterCount > 0 && numero_de_gravacoes < 5) {
                     strcpy(jogo_atual.ident, "00");
                     strcpy(jogo_atual.totalpts, "00");
                     strcpy(jogo_atual.num_ult_fase, "00");
@@ -674,6 +677,10 @@ int main(void) {
                 }
             }
             
+            if (IsKeyPressed(KEY_DELETE)) {
+                strcpy(status_jogo.parte, "MENU");
+            }
+            
             // Mostra a tela para escrever o nome do jogador
             BeginDrawing();
 
@@ -692,11 +699,17 @@ int main(void) {
 
                 // Texto a baixo
                 DrawTextEx(Fonte_principal, TextFormat("Caracteres %i de %i", letterCount, MAX_INPUT_CHARS), position2, 25, 1, BLACK);
-                if (nome_n_unico) {
-                    DrawTextEx(Fonte_principal, "  Insira outro nome", position3, 30, 1, MAROON);
+                if (numero_de_gravacoes >= 5) {
+                    DrawTextEx(Fonte_principal, "Maximo de saves atingido!", position3, 23, 1, MAROON);
+                    DrawTextEx(Fonte_principal, " Aperte DEL para voltar", position9, 23, 1, MAROON);
                 }
                 else {
-                    DrawTextEx(Fonte_principal, "Precione Enter para salvar", position3, 20, 1, BLACK);
+                    if (nome_n_unico) {
+                        DrawTextEx(Fonte_principal, "  Insira outro nome", position3, 30, 1, MAROON);
+                    }
+                    else {
+                        DrawTextEx(Fonte_principal, "Precione Enter para salvar", position3, 20, 1, BLACK);
+                    }
                 }
 
             EndDrawing();
@@ -747,7 +760,8 @@ int main(void) {
                 // Mostra uma tela com fundo padrão e o texto solicitando que o usuário escolha um save
                 DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
                 DrawTextEx(Fonte_principal, "Escolha um jogo salvo", position5, 24, 2, BLACK);
-
+                DrawTextEx(Fonte_principal, "  Aperte DEL para apagar\n                          o jogo", position3, 23, 1, MAROON);
+                
                 // Imprime o lolo (cursor que indica o save) na posição atualizada
                 DrawTexture(lolo_texture, ponto_x_lolo_load, lolo_sel_ponto_load.y, WHITE);
                 
