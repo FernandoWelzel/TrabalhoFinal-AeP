@@ -534,6 +534,10 @@ int main(void) {
     Vector2 position8 = {285, 350};
     Vector2 position_num_especiais = {BordaMapax + 585, 300};
     Vector2 position_num_vidas = {BordaMapax + 585, 210};
+    Vector2 position_num_fase = {BordaMapax + 120, BordaMapay - 140};
+    Vector2 position_num_fase_letra = {BordaMapax - 20, BordaMapay - 140};
+    Vector2 position_pontuacao = {BordaMapax + 440, BordaMapay - 140};
+    Vector2 position_pontuacao_letra = {BordaMapax + 240, BordaMapay - 140};
 
     // Declaração das variáveis da caixa de texto com o nome do jogador
     char name[MAX_INPUT_CHARS + 1] = "\0";
@@ -799,7 +803,12 @@ int main(void) {
                         for (i = 0; i < fase_atual.num_inimigos; i++) {
                             if (pos_tiro_bateu_atual.x - fase_atual.inimigos[i].posicao.x > 0 &&  pos_tiro_bateu_atual.x - fase_atual.inimigos[i].posicao.x < 48 &&
                                 pos_tiro_bateu_atual.y - fase_atual.inimigos[i].posicao.y > 0 &&  pos_tiro_bateu_atual.y - fase_atual.inimigos[i].posicao.y < 48) {
-                                fase_atual.inimigos[i].bola = 'S';
+                                if (fase_atual.inimigos[i].bola == 'N' && fase_atual.inimigos[i].morto == 'N') {
+                                    fase_atual.inimigos[i].bola = 'S';
+                                }
+                                else if (fase_atual.inimigos[i].bola == 'S' && fase_atual.inimigos[i].morto == 'N') {
+                                    fase_atual.inimigos[i].morto = 'S';
+                                }
                             }
                         }
                     }
@@ -912,6 +921,10 @@ int main(void) {
                 lolo_atual.direcao = 'D';
             }
             
+            if (atoi(jogo_atual.vidas) <= 0) {
+                strcpy(status_jogo.parte, "LOSE");
+            }
+            
             // Mostra a tela do jogo baseado nos blocos contidos em fase_atual.elementos e na posição do lolo
             BeginDrawing();
                 
@@ -983,6 +996,10 @@ int main(void) {
                 // Imprime o número de vidas e tiros na lateral direita da tela
                 DrawTextEx(Fonte_principal, fase_atual.num_especiais, position_num_especiais, 40, 1, WHITE);
                 DrawTextEx(Fonte_principal, jogo_atual.vidas, position_num_vidas, 40, 1, WHITE);
+                DrawTextEx(Fonte_principal, jogo_atual.num_ult_fase, position_num_fase, 40, 1, WHITE);
+                DrawTextEx(Fonte_principal, "Fase", position_num_fase_letra, 40, 1, WHITE);
+                DrawTextEx(Fonte_principal, jogo_atual.totalpts, position_pontuacao, 40, 1, WHITE);
+                DrawTextEx(Fonte_principal, "Pontos", position_pontuacao_letra, 40, 1, WHITE);
 
                 // Imprime o lolo baseado em sua posição atualizada e na direção que ele está olhando
                 switch (lolo_atual.direcao) {
@@ -1002,14 +1019,16 @@ int main(void) {
                 
                 // Imprime cada um dos inimigos do vetor de inimigos baseado em seu tipo e no fato de estarem formato bola ou não.
                 for (i = 0; i < fase_atual.num_inimigos; i++) {
-                    if (fase_atual.inimigos[i].bola == 'S') {
-                        DrawTexture(ovo_texture, BordaMapax + fase_atual.inimigos[i].posicao.x, BordaMapay + fase_atual.inimigos[i].posicao.y, WHITE);
-                    }
-                    else {
-                        switch (fase_atual.inimigos[i].tipo) {
-                        case 'L':
-                            DrawTexture(inimigo_texture, BordaMapax + fase_atual.inimigos[i].posicao.x, BordaMapay + fase_atual.inimigos[i].posicao.y, WHITE);
-                            break;
+                    if (fase_atual.inimigos[i].morto == 'N') {
+                        if (fase_atual.inimigos[i].bola == 'S') {
+                            DrawTexture(ovo_texture, BordaMapax + fase_atual.inimigos[i].posicao.x, BordaMapay + fase_atual.inimigos[i].posicao.y, WHITE);
+                        }
+                        else {
+                            switch (fase_atual.inimigos[i].tipo) {
+                            case 'L':
+                                DrawTexture(inimigo_texture, BordaMapax + fase_atual.inimigos[i].posicao.x, BordaMapay + fase_atual.inimigos[i].posicao.y, WHITE);
+                                break;
+                            }
                         }
                     }
                 }
@@ -1045,6 +1064,27 @@ int main(void) {
                 DrawTextEx(Fonte_principal, "Continuar", position7, 36, 2, BLACK);
                 DrawTextEx(Fonte_principal, "Sair", position8, 36, 2, BLACK); 
                 DrawTexture(lolo_texture, lolo_sel_ponto_quit.x, lolo_sel_ponto_quit.y, WHITE);
+            EndDrawing();
+        }
+        
+        // LOSE (Tela que exibe a mensagem que o jogador perdeu o jogo)
+        if (strcmp(status_jogo.parte, "LOSE") == 0) {
+            
+            // Faz a contagem do número de frames, para depois de 3 segundo sair da tela de texto
+            framesCounter2++;
+            if (framesCounter2/60 > 3) {
+                framesCounter2 = 0;
+                strcpy(status_jogo.parte, "MENU");
+            }
+            
+            // Mostra a tela com o fundo padrão e a mensagem de texto que está em fase_atual.texto_inic
+            BeginDrawing();
+
+                ClearBackground(BLACK);
+                DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
+
+                DrawTextEx(Fonte_principal, "Suas vidas\nacabaram\nVoltando para\n o menu...", position6, 30, 1, BLACK);
+
             EndDrawing();
         }
         
