@@ -63,10 +63,12 @@ int nome_unico(char * nome_arquivo, char * nome) {
         while (!feof(arquivo)) {
             fread(&gravacao_corrente, sizeof(GRAVACAO), 1, arquivo);
             if (strcmp(nome, gravacao_corrente.nomejogador) == 0) {
+                fclose(arquivo);
                 return 0;
             }
         }
     }
+    fclose(arquivo);
     return 1;
 }
 
@@ -84,6 +86,7 @@ int numero_gravacoes(char * nome_arquivo) {
             tamanho++;
         }
     }
+    fclose(arquivo);
     return tamanho;
 }
 
@@ -98,10 +101,12 @@ GRAVACAO le_gravacao_por_pos(char * nome_arquivo, int pos) {
         fseek(arquivo, sizeof(GRAVACAO)*pos, SEEK_SET);
         fread(&gravacao_lida, sizeof(GRAVACAO), 1, arquivo);
     }
+    fclose(arquivo);
     return gravacao_lida;
 }
 
-/* Função que recebe um nome de jogador e retorna a posição em que há uma gravação
+/* 
+   Função que recebe um nome de jogador e retorna a posição em que há uma gravação
    com esse nome no arquivo de gravações. Se não encontrar uma gravação com esse
    nome, retorna -1.
 */
@@ -120,9 +125,61 @@ int pos_por_nomejogador(char * nome_arquivo, char * nomejogador) {
             }
             pos++;
         }
+        fclose(arquivo);
     }
     return -1;
 }
+
+void copiar_gravacao (pGRAVACAO gravacao1, pGRAVACAO gravacao2) {
+    strcpy(gravacao1->ident, gravacao2->ident);
+    strcpy(gravacao1->totalpts, gravacao2->totalpts);
+    strcpy(gravacao1->num_ult_fase, gravacao2->num_ult_fase);
+    strcpy(gravacao1->vidas, gravacao2->vidas);
+    strcpy(gravacao1->nomejogador, gravacao2->nomejogador);
+}
+
+int apagar_gravacao(char * nome_arquivo, char *ident) {
+    int i = 0, k;
+    FILE * arquivo;
+    
+    GRAVACAO gravacao_lida;
+    GRAVACAO * gravacoes;
+    gravacoes = (pGRAVACAO) malloc(numero_gravacoes(nome_arquivo) * sizeof(GRAVACAO));
+    
+    printf("Numero de gravacoes do arquivo: %d\n", numero_gravacoes(nome_arquivo));
+    
+    if (!(arquivo = fopen(nome_arquivo, "rb"))) {
+        printf("Erro ao abrir o arquivo de gravações");
+        return 0;
+    }
+    else {
+        for (k = 0; k < numero_gravacoes(nome_arquivo); k++) {
+            fread(&gravacao_lida, sizeof(GRAVACAO), 1, arquivo);
+            if (strcmp(gravacao_lida.ident, ident) != 0) {
+                copiar_gravacao(gravacoes + i, &gravacao_lida);
+                i++;
+            }
+        }
+        fclose(arquivo);
+    }
+    if (i <= 0) {
+        remove(nome_arquivo);
+        
+    }
+    else {
+        if (!(arquivo = fopen(nome_arquivo, "wb"))) {
+            printf("Erro ao abrir o arquivo de gravações");
+            return 0;
+        }
+        else {
+            fwrite(gravacoes, i - 1, sizeof(GRAVACAO), arquivo);
+            fclose(arquivo);
+        }
+    }
+    free (gravacoes);
+    return 1;
+}
+
 
 // Função que lê uma fase no arquivo de fases pela posição que ela se encontra nesse arquivo
 FASE le_fase_por_pos(char * nome_arquivo, int pos) {
@@ -533,6 +590,7 @@ int main(void) {
     Vector2 position7 = {285, 290};
     Vector2 position8 = {285, 350};
     Vector2 position9 = {210, 530};
+    Vector2 position10 = {210, 300};
     Vector2 position_num_especiais = {BordaMapax + 585, 300};
     Vector2 position_num_vidas = {BordaMapax + 585, 210};
     Vector2 position_num_fase = {BordaMapax + 120, BordaMapay - 140};
@@ -601,7 +659,7 @@ int main(void) {
                 else if (lolo_sel_ponto_menu.y == ponto_y_inic_lolo_menu + 1*desloc_y_lolo_menu) {
                     strcpy(status_jogo.parte, "LOAD");
                     numero_de_gravacoes = numero_gravacoes(ARQ_GRAVACAO);
-                    for (i = 0; i < 5; i++) {
+                    for (i = 0; i < numero_de_gravacoes; i++) {
                         gravacoes_salvas[i] = le_gravacao_por_pos(ARQ_GRAVACAO, i);
                     }                    
                 }
@@ -656,9 +714,9 @@ int main(void) {
             */
             if (IsKeyPressed(KEY_ENTER)) {
                 if (letterCount > 0 && numero_de_gravacoes < 5) {
-                    strcpy(jogo_atual.ident, "00");
-                    strcpy(jogo_atual.totalpts, "00");
-                    strcpy(jogo_atual.num_ult_fase, "00");
+                    itoa(numero_gravacoes(ARQ_GRAVACAO), jogo_atual.ident, 10);
+                    strcpy(jogo_atual.totalpts, "0");
+                    strcpy(jogo_atual.num_ult_fase, "0");
                     strcpy(jogo_atual.vidas, "3");
                     char string_interm[9];
                     strcpy(jogo_atual.nomejogador, string_to_lower(name, string_interm));
@@ -722,7 +780,7 @@ int main(void) {
             if (IsKeyPressed(KEY_UP) && lolo_sel_ponto_load.y > ponto_y_inic_lolo_load) {
                 lolo_sel_ponto_load.y -= desloc_y_lolo_load;
             }
-            if ((IsKeyPressed(KEY_DOWN)) && (lolo_sel_ponto_load.y < ponto_y_inic_lolo_load + (4 * desloc_y_lolo_load))) {
+            if ((IsKeyPressed(KEY_DOWN)) && (lolo_sel_ponto_load.y < ponto_y_inic_lolo_load + ((numero_de_gravacoes - 1) * desloc_y_lolo_load))) {
                 lolo_sel_ponto_load.y += desloc_y_lolo_load;
             }
             
@@ -733,7 +791,7 @@ int main(void) {
                 - Lê a fase que estava na gravação lida e armazena em fase_atual (que é uma FASE)
             */
             if (IsKeyPressed(KEY_ENTER)) {
-                for (i = 0; i < 5; i++) {
+                for (i = 0; i < numero_de_gravacoes; i++) {
                     if ((lolo_sel_ponto_load.y == ponto_y_inic_lolo_load + i*desloc_y_lolo_load)) { // Número_arquivos
                         strcpy(jogo_atual.ident, gravacoes_salvas[i].ident);
                         strcpy(jogo_atual.totalpts, gravacoes_salvas[i].totalpts);
@@ -749,6 +807,15 @@ int main(void) {
                 }
             }
             
+            if (IsKeyPressed(KEY_DELETE)) {
+                for (i = 0; i < numero_de_gravacoes; i++) {
+                    if ((lolo_sel_ponto_load.y == ponto_y_inic_lolo_load + i*desloc_y_lolo_load)) { // Número_arquivos
+                        printf("Ident a ser apagada: %s\n", gravacoes_salvas[i].ident);
+                        apagar_gravacao(ARQ_GRAVACAO, gravacoes_salvas[i].ident);
+                    }
+                }
+            }
+            
             // Se o usuário precinar a tecla 'Q' -> Retorna ao menu
             if (IsKeyPressed(KEY_Q)) {
                 strcpy(status_jogo.parte, "MENU");
@@ -760,13 +827,18 @@ int main(void) {
                 // Mostra uma tela com fundo padrão e o texto solicitando que o usuário escolha um save
                 DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
                 DrawTextEx(Fonte_principal, "Escolha um jogo salvo", position5, 24, 2, BLACK);
-                DrawTextEx(Fonte_principal, "  Aperte DEL para apagar\n                          o jogo", position3, 23, 1, MAROON);
+                if (numero_de_gravacoes < 0) {
+                    DrawTextEx(Fonte_principal, "  Sem jogos\n   para\n   mostrar", position10, 40, 1, MAROON);
+                }
+                else {
+                    DrawTextEx(Fonte_principal, "  Aperte DEL para apagar\n                          o jogo", position3, 23, 1, MAROON);
+                }
                 
                 // Imprime o lolo (cursor que indica o save) na posição atualizada
                 DrawTexture(lolo_texture, ponto_x_lolo_load, lolo_sel_ponto_load.y, WHITE);
                 
                 // Imprime as 5 primeiras gravações do vetor de gravações salvas
-                for (i = 0; i < 5; i++) {
+                for (i = 0; i < numero_de_gravacoes; i++) {
                     DrawText(gravacoes_salvas[i].nomejogador, ponto_x_lolo_load + 65, ponto_y_inic_lolo_load + desloc_y_lolo_load*i, 35, BLACK);
                     DrawText(gravacoes_salvas[i].num_ult_fase, ponto_x_lolo_load + 240, ponto_y_inic_lolo_load + desloc_y_lolo_load*i + 10, 25, BLACK);
                     DrawText(gravacoes_salvas[i].vidas, ponto_x_lolo_load + 290, ponto_y_inic_lolo_load + desloc_y_lolo_load*i + 10, 25, BLACK);
