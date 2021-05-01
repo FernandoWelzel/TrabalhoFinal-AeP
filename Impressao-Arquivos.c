@@ -77,7 +77,7 @@ int pos_por_nomejogador(char * nome_arquivo, char * nomejogador) {
 
 int main(void)
 {    
-    GRAVACAO gravacao_de_numero_5 = le_gravacao_por_pos(ARQ_GRAVACAO, 5);
+    /*GRAVACAO gravacao_de_numero_0 = le_gravacao_por_pos(ARQ_GRAVACAO, 0);
     int pos_do_jogador_com_nome_claudine = pos_por_nomejogador(ARQ_GRAVACAO, "claudine");
     
     GRAVACAO gravacao_do_jogador_com_nome_claudine = le_gravacao_por_pos(ARQ_GRAVACAO, pos_do_jogador_com_nome_claudine);
@@ -85,6 +85,8 @@ int main(void)
     printf("%s\n", gravacao_de_numero_5.nomejogador);
     printf("%d\n", pos_do_jogador_com_nome_claudine);
     printf("%s\n", gravacao_do_jogador_com_nome_claudine.vidas);
+    */
+    imprime_gravacao(ARQ_GRAVACAO);
     
     return 0;
 }

@@ -87,6 +87,11 @@ int numero_gravacoes(char * nome_arquivo) {
         }
     }
     fclose(arquivo);
+    
+    if (tamanho != 0) {
+        tamanho--;
+    }
+    
     return tamanho;
 }
 
@@ -172,7 +177,7 @@ int apagar_gravacao(char * nome_arquivo, char *ident) {
             return 0;
         }
         else {
-            fwrite(gravacoes, i - 1, sizeof(GRAVACAO), arquivo);
+            fwrite(gravacoes, i, sizeof(GRAVACAO), arquivo);
             fclose(arquivo);
         }
     }
@@ -180,6 +185,52 @@ int apagar_gravacao(char * nome_arquivo, char *ident) {
     return 1;
 }
 
+int substitui_gravacao(char * nome_arquivo, GRAVACAO * nova_gravacao) {
+    int i = 0, k;
+    FILE * arquivo;
+    
+    GRAVACAO gravacao_lida;
+    GRAVACAO * gravacoes;
+    gravacoes = (pGRAVACAO) malloc(numero_gravacoes(nome_arquivo) * sizeof(GRAVACAO));
+    
+    printf("Numero de gravacoes do arquivo: %d\n", numero_gravacoes(nome_arquivo));
+    
+    if (!(arquivo = fopen(nome_arquivo, "rb"))) {
+        printf("Erro ao abrir o arquivo de gravações");
+        return 0;
+    }
+    else {
+        for (k = 0; k < numero_gravacoes(nome_arquivo); k++) {
+            fread(&gravacao_lida, sizeof(GRAVACAO), 1, arquivo);
+            if (strcmp(gravacao_lida.ident, nova_gravacao->ident) != 0) {
+                copiar_gravacao(gravacoes + i, &gravacao_lida);
+            }
+            else {
+                copiar_gravacao(gravacoes + i, nova_gravacao);
+            }
+            i++;
+        }
+        fclose(arquivo);
+    }
+    
+    if (i <= 0) {
+        remove(nome_arquivo); 
+    }
+    
+    else {
+        if (!(arquivo = fopen(nome_arquivo, "wb"))) {
+            printf("Erro ao abrir o arquivo de gravações");
+            return 0;
+        }
+        else {
+            fwrite(gravacoes, i, sizeof(GRAVACAO), arquivo);
+            fclose(arquivo);
+        }
+    }
+    
+    free (gravacoes);
+    return 1;
+}
 
 // Função que lê uma fase no arquivo de fases pela posição que ela se encontra nesse arquivo
 FASE le_fase_por_pos(char * nome_arquivo, int pos) {
@@ -542,6 +593,7 @@ int main(void) {
 
     // Texturas
     Texture2D menu_texture = LoadTexture("./resources/Menus/Menu.png");
+    Texture2D load_vazio_texture = LoadTexture("./resources/Menus/Tela loads vazio.png");
     Texture2D lolo_texture = LoadTexture("./resources/Menus/Menu_lolo.png");
     Texture2D cred_texture = LoadTexture("./resources/Menus/Creditos.png");
     Texture2D fundo_texture = LoadTexture("./resources/Menus/Fundo sem nada.png");
@@ -579,8 +631,7 @@ int main(void) {
     PONTO lolo_sel_ponto_load = {ponto_x_lolo_menu, ponto_y_inic_lolo_load};
     PONTO lolo_sel_ponto_quit = {ponto_x_lolo_menu, ponto_y_inic_lolo_load};
     
-    Vector2 position11 = {275, 265};
-    Vector2 position12 = {260, 320};
+    Vector2 position1 = {275, 265};
     Vector2 position2 = {250, 450};
     Vector2 position3 = {210, 500};
     Vector2 position5 = {210, 250};
@@ -591,6 +642,8 @@ int main(void) {
     Vector2 position8 = {285, 350};
     Vector2 position9 = {210, 530};
     Vector2 position10 = {210, 300};
+    Vector2 position11 = {210, 497};
+    Vector2 position12 = {260, 320};
     Vector2 position_num_especiais = {BordaMapax + 585, 300};
     Vector2 position_num_vidas = {BordaMapax + 585, 210};
     Vector2 position_num_fase = {BordaMapax + 120, BordaMapay - 140};
@@ -657,11 +710,16 @@ int main(void) {
                     numero_de_gravacoes = numero_gravacoes(ARQ_GRAVACAO);
                 }
                 else if (lolo_sel_ponto_menu.y == ponto_y_inic_lolo_menu + 1*desloc_y_lolo_menu) {
-                    strcpy(status_jogo.parte, "LOAD");
                     numero_de_gravacoes = numero_gravacoes(ARQ_GRAVACAO);
-                    for (i = 0; i < numero_de_gravacoes; i++) {
-                        gravacoes_salvas[i] = le_gravacao_por_pos(ARQ_GRAVACAO, i);
-                    }                    
+                    if (numero_de_gravacoes == 0) {
+                        strcpy(status_jogo.parte, "NULL");
+                    }
+                    else {
+                        for (i = 0; i < numero_de_gravacoes; i++) {
+                            gravacoes_salvas[i] = le_gravacao_por_pos(ARQ_GRAVACAO, i);
+                            strcpy(status_jogo.parte, "LOAD");
+                        }
+                    }
                 }
                 else if (lolo_sel_ponto_menu.y == ponto_y_inic_lolo_menu + 2*desloc_y_lolo_menu) {
                     strcpy(status_jogo.parte, "CRED");
@@ -748,7 +806,7 @@ int main(void) {
                 DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
 
                 // Texto a cima
-                DrawTextEx(Fonte_principal, "Nome do", position11, 50, 1, BLACK);
+                DrawTextEx(Fonte_principal, "Nome do", position1, 50, 1, BLACK);
                 DrawTextEx(Fonte_principal, "jogador:", position12, 50, 1, BLACK);
 
                 // Caixa para inserir o nome
@@ -831,7 +889,7 @@ int main(void) {
                     DrawTextEx(Fonte_principal, "  Sem jogos\n   para\n   mostrar", position10, 40, 1, MAROON);
                 }
                 else {
-                    DrawTextEx(Fonte_principal, "  Aperte DEL para apagar\n                          o jogo", position3, 23, 1, MAROON);
+                    DrawTextEx(Fonte_principal, "  Aperte DEL para apagar\n                          o jogo", position11, 23, 1, MAROON);
                 }
                 
                 // Imprime o lolo (cursor que indica o save) na posição atualizada
@@ -1140,7 +1198,7 @@ int main(void) {
             }
             else if (IsKeyPressed(KEY_ENTER) && lolo_sel_ponto_quit.y == ponto_y_inic_lolo_load + (1 * desloc_y_lolo_load)) {
                 strcpy(status_jogo.parte, "MENU");
-                escreve_gravacao(ARQ_GRAVACAO, &jogo_atual);
+                substitui_gravacao(ARQ_GRAVACAO, &jogo_atual);
             }
             
             // Mostra a tela para sair baseado na posição do cursor
@@ -1190,6 +1248,27 @@ int main(void) {
 
                 ClearBackground(BLACK);
                 DrawTexture(cred_texture, (screen_width - cred_texture.width)/2, (screen_height - cred_texture.height)/2, WHITE);
+                DrawText(TextSubtext(message, 0, framesCounter/5), 230, 550, 20, BLACK);
+
+            EndDrawing();
+        }
+        
+        // NULL (Tela mostrada quando não há nenhum jogo salvo)
+        if (strcmp(status_jogo.parte, "NULL") == 0) {
+            
+            // Se o usuário aperta ENTER, retorna ao menu
+            if(IsKeyPressed(KEY_ENTER)){
+                framesCounter = 0;
+                strcpy(status_jogo.parte,"MENU");
+            }
+            
+            framesCounter++;
+            
+            // Mostra a tela dos créditos com uma mensagem que fica atualizando com o tempo
+            BeginDrawing();
+
+                ClearBackground(BLACK);
+                DrawTexture(load_vazio_texture, (screen_width - load_vazio_texture.width)/2, (screen_height - load_vazio_texture.height)/2, WHITE);
                 DrawText(TextSubtext(message, 0, framesCounter/5), 230, 550, 20, BLACK);
 
             EndDrawing();
