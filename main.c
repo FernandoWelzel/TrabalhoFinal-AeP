@@ -868,8 +868,8 @@ int main(void) {
             if (IsKeyPressed(KEY_DELETE)) {
                 for (i = 0; i < numero_de_gravacoes; i++) {
                     if ((lolo_sel_ponto_load.y == ponto_y_inic_lolo_load + i*desloc_y_lolo_load)) { // Número_arquivos
-                        printf("Ident a ser apagada: %s\n", gravacoes_salvas[i].ident);
-                        apagar_gravacao(ARQ_GRAVACAO, gravacoes_salvas[i].ident);
+                        copiar_gravacao(gravacoes_salvas,gravacoes_salvas + i);
+                        strcpy(status_jogo.parte, "CONF");
                     }
                 }
             }
@@ -1198,6 +1198,7 @@ int main(void) {
             }
             else if (IsKeyPressed(KEY_ENTER) && lolo_sel_ponto_quit.y == ponto_y_inic_lolo_load + (1 * desloc_y_lolo_load)) {
                 strcpy(status_jogo.parte, "MENU");
+                bau_cheio = 'S';
                 substitui_gravacao(ARQ_GRAVACAO, &jogo_atual);
             }
             
@@ -1273,6 +1274,41 @@ int main(void) {
 
             EndDrawing();
         }
+        
+        // CONF (Tela para o usuário confirmar que quer apagar a gravação)
+        if (strcmp(status_jogo.parte, "CONF") == 0) {
+            
+            // Movimenta o lolo (cursor que indica a ação) com base na entrada do usuário
+            if (IsKeyPressed(KEY_UP) && lolo_sel_ponto_quit.y > ponto_y_inic_lolo_load) {
+                lolo_sel_ponto_quit.y -= desloc_y_lolo_load;
+            }
+            if ((IsKeyPressed(KEY_DOWN)) && (lolo_sel_ponto_quit.y < ponto_y_inic_lolo_load + (1 * desloc_y_lolo_load))) {
+                lolo_sel_ponto_quit.y += desloc_y_lolo_load;
+            }
+            
+            // Observa se o usuário deseja sair ou continuar e muda o estado das variáveis status_jogo.parte de maneira apropriada
+            if (IsKeyPressed(KEY_ENTER) && lolo_sel_ponto_quit.y == ponto_y_inic_lolo_load) {
+                strcpy(status_jogo.parte, "MENU");
+                apagar_gravacao(ARQ_GRAVACAO, gravacoes_salvas[0].ident);
+            }
+            else if (IsKeyPressed(KEY_ENTER) && lolo_sel_ponto_quit.y == ponto_y_inic_lolo_load + (1 * desloc_y_lolo_load)) {
+                strcpy(status_jogo.parte, "MENU");
+            }
+            
+            // Mostra a tela para sair baseado na posição do cursor
+            BeginDrawing();
+            ClearBackground(BLACK);
+                
+                DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
+                
+                DrawTextEx(Fonte_principal, "Deseja apagar o jogo?", position5, 24, 2, BLACK);
+                DrawTextEx(Fonte_principal, "APAGAR", position7, 36, 2, BLACK);
+                DrawTextEx(Fonte_principal, "MANTER", position8, 36, 2, BLACK); 
+                
+                DrawTexture(lolo_texture, lolo_sel_ponto_quit.x, lolo_sel_ponto_quit.y, WHITE);
+            EndDrawing();
+        }
+        
     }
     
     
