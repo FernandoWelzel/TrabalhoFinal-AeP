@@ -567,6 +567,35 @@ PONTO pos_tiro_bateu(pTIRO Ptiro, pFASE fase) {
     }
 }
 
+char atualiza_pos_chiclete(pTIRO Ptiro, pLOLO Plolo) {
+    PONTO ponto1, ponto2;
+    
+    if (Ptiro->direcao == 'R') {
+        ponto1.x = (Ptiro->posicao.x + 48); ponto1.y = (Ptiro->posicao.y);
+        ponto2.x = (Ptiro->posicao.x + 48); ponto2.y = (Ptiro->posicao.y + 30);
+        
+        if ((ponto1.x >= Plolo->posicao.x && ponto1.x <= Plolo->posicao.x + 47 && ponto1.y >= Plolo->posicao.y && ponto1.y <= Plolo->posicao.y + 47) ||
+            (ponto2.x >= Plolo->posicao.x && ponto2.x <= Plolo->posicao.x + 47 && ponto2.y >= Plolo->posicao.y && ponto2.y <= Plolo->posicao.y + 47)) {
+            return 'B';
+        }
+        else {
+            return 'L';
+        }
+    }
+    if (Ptiro->direcao == 'D') {
+        ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y + 48);
+        ponto2.x = (Ptiro->posicao.x + 30); ponto2.y = (Ptiro->posicao.y + 48);
+        
+        if ((ponto1.x >= Plolo->posicao.x && ponto1.x <= Plolo->posicao.x + 47 && ponto1.y >= Plolo->posicao.y && ponto1.y <= Plolo->posicao.y + 47) ||
+            (ponto2.x >= Plolo->posicao.x && ponto2.x <= Plolo->posicao.x + 47 && ponto2.y >= Plolo->posicao.y && ponto2.y <= Plolo->posicao.y + 47)) {
+            return 'B';
+        }
+        else {
+            return 'L';
+        }
+    }
+}
+
 // --->> MAIN <<--- //
 int main(void) {
     
@@ -612,10 +641,14 @@ int main(void) {
     Texture2D lolo_R_texture = LoadTexture("./resources/Lolo/Lolo-R.png");
     Texture2D lolo_L_texture = LoadTexture("./resources/Lolo/Lolo-L.png");
     Texture2D lolo_U_texture = LoadTexture("./resources/Lolo/Lolo-U.png");
-    Texture2D inimigo_texture = LoadTexture("./resources/Inimigos/Larva.png");
+    Texture2D larva_texture = LoadTexture("./resources/Inimigos/Larva.png");
     Texture2D tiro_L_R_texture = LoadTexture("./resources/Poderes/tiro_L_R.png");
     Texture2D tiro_U_D_texture = LoadTexture("./resources/Poderes/tiro_U_D.png");
     Texture2D ovo_texture = LoadTexture("./resources/Inimigos/ovo.png");
+    Texture2D atirador_R_texture = LoadTexture("./resources/Inimigos/atirador_R.png");
+    Texture2D chiclete_R_texture = LoadTexture("./resources/Inimigos/chiclete_R.png");
+    Texture2D atirador_D_texture = LoadTexture("./resources/Inimigos/atirador_D.png");
+    Texture2D chiclete_D_texture = LoadTexture("./resources/Inimigos/chiclete_D.png");
 
     // Variáveis de posicionamento
     int BordaMapax = ((screen_width - mapa_vazio_texture.width)/2) + 45;
@@ -1069,6 +1102,61 @@ int main(void) {
                 strcpy(status_jogo.parte, "LOSE");
             }
             
+            for (i = 0; i < fase_atual.num_inimigos; i++) {
+                if (fase_atual.inimigos[i].morto == 'N' && fase_atual.inimigos[i].bola == 'N') {
+                    if (fase_atual.inimigos[i].tipo == 'R') {
+                        if (fase_atual.inimigos[i].tiro.mostrar == 'N') {
+                            if (lolo_atual.posicao.y + 48 >= fase_atual.inimigos[i].posicao.y && lolo_atual.posicao.y + 48 <= fase_atual.inimigos[i].posicao.y + 95 && lolo_atual.posicao.x >= fase_atual.inimigos[i].posicao.x + 48) {
+                                fase_atual.inimigos[i].tiro.posicao.x = fase_atual.inimigos[i].posicao.x + 48;
+                                fase_atual.inimigos[i].tiro.posicao.y = fase_atual.inimigos[i].posicao.y + ((48 - chiclete_R_texture.height)/2);
+                                fase_atual.inimigos[i].tiro.mostrar = 'S';
+                            }
+                        }
+                        else if (fase_atual.inimigos[i].tiro.mostrar == 'S') {
+                            if (atualiza_pos_tiro(&fase_atual.inimigos[i].tiro, &fase_atual) == 'B') {
+                                fase_atual.inimigos[i].tiro.mostrar = 'N';
+                            }
+                            else if (atualiza_pos_chiclete(&fase_atual.inimigos[i].tiro, &lolo_atual) == 'B') {
+                                fase_atual.inimigos[i].tiro.mostrar = 'N';
+                                itoa(atoi(jogo_atual.vidas) - 1, jogo_atual.vidas, 10);
+                
+                                strcpy(status_jogo.parte, "TEXT");
+                                bau_cheio = 'S';
+                                fase_atual = le_fase_por_pos(ARQ_FASE , atoi(jogo_atual.num_ult_fase));
+                                lolo_atual.posicao.x = fase_atual.pos_i_jogador.x*48;
+                                lolo_atual.posicao.y = fase_atual.pos_i_jogador.y*48;
+                                lolo_atual.direcao = 'D';
+                            }
+                        }
+                    }
+                    else if (fase_atual.inimigos[i].tipo == 'D') {
+                        if (fase_atual.inimigos[i].tiro.mostrar == 'N') {
+                            if (lolo_atual.posicao.x + 47 >= fase_atual.inimigos[i].posicao.x && lolo_atual.posicao.x + 47 <= fase_atual.inimigos[i].posicao.x + 95 && lolo_atual.posicao.y >= fase_atual.inimigos[i].posicao.y + 48) {
+                                fase_atual.inimigos[i].tiro.posicao.x = fase_atual.inimigos[i].posicao.x + (48 - chiclete_D_texture.width)/2;
+                                fase_atual.inimigos[i].tiro.posicao.y = fase_atual.inimigos[i].posicao.y + 48;
+                                fase_atual.inimigos[i].tiro.mostrar = 'S';
+                            }
+                        }
+                        else if (fase_atual.inimigos[i].tiro.mostrar == 'S') {
+                            if (atualiza_pos_tiro(&fase_atual.inimigos[i].tiro, &fase_atual) == 'B') {
+                                fase_atual.inimigos[i].tiro.mostrar = 'N';
+                            }
+                            else if (atualiza_pos_chiclete(&fase_atual.inimigos[i].tiro, &lolo_atual) == 'B') {
+                                fase_atual.inimigos[i].tiro.mostrar = 'N';
+                                itoa(atoi(jogo_atual.vidas) - 1, jogo_atual.vidas, 10);
+                
+                                strcpy(status_jogo.parte, "TEXT");
+                                bau_cheio = 'S';
+                                fase_atual = le_fase_por_pos(ARQ_FASE , atoi(jogo_atual.num_ult_fase));
+                                lolo_atual.posicao.x = fase_atual.pos_i_jogador.x*48;
+                                lolo_atual.posicao.y = fase_atual.pos_i_jogador.y*48;
+                                lolo_atual.direcao = 'D';
+                            }
+                        }
+                    }
+                }
+            }        
+            
             // Mostra a tela do jogo baseado nos blocos contidos em fase_atual.elementos e na posição do lolo
             BeginDrawing();
                 
@@ -1170,14 +1258,25 @@ int main(void) {
                         else {
                             switch (fase_atual.inimigos[i].tipo) {
                             case 'L':
-                                DrawTexture(inimigo_texture, BordaMapax + fase_atual.inimigos[i].posicao.x, BordaMapay + fase_atual.inimigos[i].posicao.y, WHITE);
+                                DrawTexture(larva_texture, BordaMapax + fase_atual.inimigos[i].posicao.x, BordaMapay + fase_atual.inimigos[i].posicao.y, WHITE);
+                                break;
+                            case 'R':
+                                DrawTexture(atirador_R_texture, BordaMapax + fase_atual.inimigos[i].posicao.x, BordaMapay + fase_atual.inimigos[i].posicao.y, WHITE);
+                                if (fase_atual.inimigos[i].tiro.mostrar == 'S') {
+                                    DrawTexture(chiclete_R_texture, BordaMapax + fase_atual.inimigos[i].tiro.posicao.x, BordaMapay + fase_atual.inimigos[i].tiro.posicao.y, WHITE);
+                                }
+                                break;
+                            case 'D':
+                                DrawTexture(atirador_D_texture, BordaMapax + fase_atual.inimigos[i].posicao.x, BordaMapay + fase_atual.inimigos[i].posicao.y, WHITE);
+                                if (fase_atual.inimigos[i].tiro.mostrar == 'S') {
+                                    DrawTexture(chiclete_D_texture, BordaMapax + fase_atual.inimigos[i].tiro.posicao.x, BordaMapay + fase_atual.inimigos[i].tiro.posicao.y, WHITE);
+                                }
                                 break;
                             }
                         }
                     }
                 }
                 
-
             EndDrawing();
         }
         

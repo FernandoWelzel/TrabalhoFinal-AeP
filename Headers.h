@@ -7,11 +7,18 @@ typedef struct ponto {
     int y;
 } PONTO, * pPONTO;
 
+typedef struct tiro {
+    PONTO posicao;
+    char mostrar;
+    char direcao;
+} TIRO, * pTIRO;
+
 typedef struct inimigo {
     char morto;
     char tipo;
     PONTO posicao;
     char bola;
+    TIRO tiro;
 } INIMIGO, * pINIMIGO;
 
 typedef struct fase {
@@ -42,9 +49,3 @@ typedef struct gravacao {
     char vidas[3];
     char nomejogador[9];
 } GRAVACAO, * pGRAVACAO;
-
-typedef struct tiro {
-    PONTO posicao;
-    char mostrar;
-    char direcao;
-} TIRO, * pTIRO;
