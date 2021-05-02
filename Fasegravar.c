@@ -76,20 +76,20 @@ int main(void)
     
     // Inimigos
     nivel1.inimigos[0].morto = 'N';
-    nivel1.inimigos[0].tipo = 'R';
-    nivel1.inimigos[0].posicao.x = 0*48;
+    nivel1.inimigos[0].tipo = 'L';
+    nivel1.inimigos[0].posicao.x = 6*48;
     nivel1.inimigos[0].posicao.y = 5*48;
     nivel1.inimigos[0].bola = 'N';
     nivel1.inimigos[0].tiro.posicao.x = 0;
     nivel1.inimigos[0].tiro.posicao.y = 0;
     nivel1.inimigos[0].tiro.mostrar = 'N';
-    nivel1.inimigos[0].tiro.direcao = 'R';
+    nivel1.inimigos[0].tiro.direcao = 'D';
     
     nivel1.inimigos[1].morto = 'N';
-    nivel1.inimigos[1].tipo = 'D';
-    nivel1.inimigos[1].posicao.x = 6*48;
-    nivel1.inimigos[1].posicao.y = 0*48;
-    nivel1.inimigos[1].bola = 'N';
+    nivel1.inimigos[1].tipo = 'M';
+    nivel1.inimigos[1].posicao.x = 8*48;
+    nivel1.inimigos[1].posicao.y = 10*48;
+    nivel1.inimigos[1].bola = 'S';
     nivel1.inimigos[1].tiro.posicao.x = 0;
     nivel1.inimigos[1].tiro.posicao.y = 0;
     nivel1.inimigos[1].tiro.mostrar = 'N';
@@ -99,7 +99,7 @@ int main(void)
     
     escreve_fase(ARQ_FASE, &nivel1);
     
-    /*// Elementos da segunda fase do jogo modificado
+    // Elementos da segunda fase do jogo modificado
     FASE nivel2;
     
     strcpy(nivel2.num, "02");
@@ -137,10 +137,14 @@ int main(void)
     nivel2.inimigos[0].posicao.x = 8*48;
     nivel2.inimigos[0].posicao.y = 10*48;
     nivel2.inimigos[0].bola = 'N';
+    nivel2.inimigos[0].tiro.posicao.x = 0;
+    nivel2.inimigos[0].tiro.posicao.y = 0;
+    nivel2.inimigos[0].tiro.mostrar = 'N';
+    nivel2.inimigos[0].tiro.direcao = 'D';
     
     nivel2.num_inimigos = 1; 
     
-    escreve_fase(ARQ_FASE, &nivel2);*/
+    escreve_fase(ARQ_FASE, &nivel2);
     
     return 0;
 }

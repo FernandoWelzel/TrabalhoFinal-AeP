@@ -281,7 +281,7 @@ int eh_inimigo_imovel (pFASE fase, char orientacao, int y, int x) {
     PONTO ponto1, ponto2;
     
     for (i = 0; i < fase->num_inimigos; i++) {
-        if ((fase->inimigos + i)->bola == 'S') {
+        if ((fase->inimigos + i)->bola == 'S' && (fase->inimigos + i)->morto == 'N') {
             if (x - (fase->inimigos + i)->posicao.x > 0 &&  x -(fase->inimigos + i)->posicao.x < 48 &&
                 y - (fase->inimigos + i)->posicao.y > 0 &&  y - (fase->inimigos + i)->posicao.y < 48) {
                 if (orientacao == 'U') {
@@ -334,11 +334,25 @@ int eh_inimigo_imovel (pFASE fase, char orientacao, int y, int x) {
                 }
             }
         }
-        else if ((fase->inimigos + i)->bola == 'N') {
+        else if ((fase->inimigos + i)->bola == 'N' && (fase->inimigos + i)->morto == 'N') {
             if (x - (fase->inimigos + i)->posicao.x > 0 &&  x -(fase->inimigos + i)->posicao.x < 48 &&
                 y - (fase->inimigos + i)->posicao.y > 0 &&  y - (fase->inimigos + i)->posicao.y < 48) {
                      retorno = 1;
             }
+        }
+    }
+    
+    return retorno;
+}
+
+int testar_inimigos_moveis(pFASE fase, char orientacao, int y, int x) {
+    int i, retorno = 0;
+    
+    for (i = 0; i < fase->num_inimigos; i++) {
+        if (x - (fase->inimigos + i)->posicao.x > 0 &&  x -(fase->inimigos + i)->posicao.x < 48 &&
+            y - (fase->inimigos + i)->posicao.y > 0 &&  y - (fase->inimigos + i)->posicao.y < 48 &&
+            (fase->inimigos + i)->morto == 'N') {
+            retorno = 1;
         }
     }
     
@@ -351,6 +365,16 @@ int testar_pontos_imoveis(pFASE fase, char orientacao, PONTO ponto1, PONTO ponto
         !bloco_eh_imovel(fase, orientacao, ponto2.y, ponto2.x) &&
         !eh_inimigo_imovel(fase, orientacao, ponto1.y, ponto1.x) &&
         !eh_inimigo_imovel(fase, orientacao, ponto2.y, ponto2.x)) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
+int testar_inimigos_moveis_pontos(pFASE fase, char orientacao, PONTO ponto1, PONTO ponto2) {
+    if (!testar_inimigos_moveis(fase, orientacao, ponto1.y, ponto1.x) &&
+        !testar_inimigos_moveis(fase, orientacao, ponto2.y, ponto2.x)) {
         return 1;
     }
     else {
@@ -421,7 +445,7 @@ char atualiza_pos_tiro(pTIRO Ptiro, pFASE fase) {
         ponto1.x = (Ptiro->posicao.x + 43); ponto1.y = (Ptiro->posicao.y);
         ponto2.x = (Ptiro->posicao.x + 43); ponto2.y = (Ptiro->posicao.y + 30);
         
-        if (testar_pontos_imoveis(fase, 'R', ponto1, ponto2) && ponto1.x < 528) {
+        if (testar_pontos_imoveis(fase, 'R', ponto1, ponto2) && testar_inimigos_moveis_pontos(fase, 'R', ponto1, ponto2) && ponto1.x < 528) {
             Ptiro->posicao.x += 8;
             return 'L';
         }
@@ -433,7 +457,7 @@ char atualiza_pos_tiro(pTIRO Ptiro, pFASE fase) {
         ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y);
         ponto2.x = (Ptiro->posicao.x); ponto2.y = (Ptiro->posicao.y + 30);
         
-        if (testar_pontos_imoveis(fase, 'L', ponto1, ponto2) && ponto1.x > 0) {
+        if (testar_pontos_imoveis(fase, 'L', ponto1, ponto2) && testar_inimigos_moveis_pontos(fase, 'L', ponto1, ponto2) && ponto1.x > 0) {
             Ptiro->posicao.x -= 8;
             return 'L';
         }
@@ -445,7 +469,7 @@ char atualiza_pos_tiro(pTIRO Ptiro, pFASE fase) {
         ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y);
         ponto2.x = (Ptiro->posicao.x + 30); ponto2.y = (Ptiro->posicao.y);
         
-        if (testar_pontos_imoveis(fase, 'U', ponto1, ponto2) && ponto1.y > 0) {
+        if (testar_pontos_imoveis(fase, 'U', ponto1, ponto2) && testar_inimigos_moveis_pontos(fase, 'L', ponto1, ponto2) && ponto1.y > 0) {
             Ptiro->posicao.y -= 8;
             return 'L';
         }
@@ -457,7 +481,7 @@ char atualiza_pos_tiro(pTIRO Ptiro, pFASE fase) {
         ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y + 45);
         ponto2.x = (Ptiro->posicao.x + 30); ponto2.y = (Ptiro->posicao.y + 45);
         
-        if (testar_pontos_imoveis(fase, 'D', ponto1, ponto2) && ponto1.y < 528) {
+        if (testar_pontos_imoveis(fase, 'D', ponto1, ponto2) && testar_inimigos_moveis_pontos(fase, 'L', ponto1, ponto2) && ponto1.y < 528) {
             Ptiro->posicao.y += 8;
             return 'L';
         }
@@ -475,8 +499,8 @@ PONTO pos_tiro_bateu(pTIRO Ptiro, pFASE fase) {
     PONTO retorno, ponto1, ponto2;
     
     if (Ptiro->direcao == 'R') {
-        ponto1.x = (Ptiro->posicao.x + 43); ponto1.y = (Ptiro->posicao.y);
-        ponto2.x = (Ptiro->posicao.x + 43); ponto2.y = (Ptiro->posicao.y + 30);
+        ponto1.x = (Ptiro->posicao.x + 48); ponto1.y = (Ptiro->posicao.y);
+        ponto2.x = (Ptiro->posicao.x + 48); ponto2.y = (Ptiro->posicao.y + 30);
         
         if (bloco_eh_imovel(fase, 'R', ponto1.y, ponto1.x)) {
             return ponto1;
@@ -490,7 +514,13 @@ PONTO pos_tiro_bateu(pTIRO Ptiro, pFASE fase) {
         else if (eh_inimigo_imovel(fase, 'R', ponto2.y, ponto2.x)) {
             return ponto2;
         }
-        else if ((Ptiro->posicao.x + 43) > 528) {
+        else if (testar_inimigos_moveis(fase, 'R', ponto1.y, ponto1.x)) {
+            return ponto1;
+        }
+        else if (testar_inimigos_moveis(fase, 'R', ponto2.y, ponto2.x)) {
+            return ponto2;
+        }
+        else if ((Ptiro->posicao.x + 45) > 528) {
             retorno.x = -1;
             retorno.y = -1;
             return retorno;
@@ -498,8 +528,8 @@ PONTO pos_tiro_bateu(pTIRO Ptiro, pFASE fase) {
     }
     
     if (Ptiro->direcao == 'L') {
-        ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y);
-        ponto2.x = (Ptiro->posicao.x); ponto2.y = (Ptiro->posicao.y + 30);
+        ponto1.x = (Ptiro->posicao.x - 3); ponto1.y = (Ptiro->posicao.y);
+        ponto2.x = (Ptiro->posicao.x - 3); ponto2.y = (Ptiro->posicao.y + 30);
         
         if (bloco_eh_imovel(fase, 'L', ponto1.y, ponto1.x)) {
             return ponto1;
@@ -513,6 +543,12 @@ PONTO pos_tiro_bateu(pTIRO Ptiro, pFASE fase) {
         else if (eh_inimigo_imovel(fase, 'L', ponto2.y, ponto2.x)) {
             return ponto2;
         }
+        else if (testar_inimigos_moveis(fase, 'L', ponto1.y, ponto1.x)) {
+            return ponto1;
+        }
+        else if (testar_inimigos_moveis(fase, 'L', ponto2.y, ponto2.x)) {
+            return ponto2;
+        }
         else if ((Ptiro->posicao.x) < 528) {
             retorno.x = -1;
             retorno.y = -1;
@@ -521,8 +557,8 @@ PONTO pos_tiro_bateu(pTIRO Ptiro, pFASE fase) {
     }
     
     if (Ptiro->direcao == 'U') {
-        ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y);
-        ponto2.x = (Ptiro->posicao.x + 30); ponto2.y = (Ptiro->posicao.y);
+        ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y - 3);
+        ponto2.x = (Ptiro->posicao.x + 30); ponto2.y = (Ptiro->posicao.y - 3);
         
         if (bloco_eh_imovel(fase, 'U', ponto1.y, ponto1.x)) {
             return ponto1;
@@ -536,6 +572,12 @@ PONTO pos_tiro_bateu(pTIRO Ptiro, pFASE fase) {
         else if (eh_inimigo_imovel(fase, 'U', ponto2.y, ponto2.x)) {
             return ponto2;
         }
+        else if (testar_inimigos_moveis(fase, 'U', ponto1.y, ponto1.x)) {
+            return ponto1;
+        }
+        else if (testar_inimigos_moveis(fase, 'U', ponto2.y, ponto2.x)) {
+            return ponto2;
+        }
         else if ((Ptiro->posicao.y) < 0) {
             retorno.x = -1;
             retorno.y = -1;
@@ -544,8 +586,8 @@ PONTO pos_tiro_bateu(pTIRO Ptiro, pFASE fase) {
     }
     
     if (Ptiro->direcao == 'D') {
-        ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y + 45);
-        ponto2.x = (Ptiro->posicao.x + 30); ponto2.y = (Ptiro->posicao.y + 45);
+        ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y + 48);
+        ponto2.x = (Ptiro->posicao.x + 30); ponto2.y = (Ptiro->posicao.y + 48);
         
         if (bloco_eh_imovel(fase, 'D', ponto1.y, ponto1.x)) {
             return ponto1;
@@ -557,6 +599,12 @@ PONTO pos_tiro_bateu(pTIRO Ptiro, pFASE fase) {
             return ponto1;
         }
         else if (eh_inimigo_imovel(fase, 'D', ponto2.y, ponto2.x)) {
+            return ponto2;
+        }
+        else if (testar_inimigos_moveis(fase, 'D', ponto1.y, ponto1.x)) {
+            return ponto1;
+        }
+        else if (testar_inimigos_moveis(fase, 'D', ponto2.y, ponto2.x)) {
             return ponto2;
         }
         else if ((Ptiro->posicao.y) > 528) {
@@ -649,6 +697,7 @@ int main(void) {
     Texture2D chiclete_R_texture = LoadTexture("./resources/Inimigos/chiclete_R.png");
     Texture2D atirador_D_texture = LoadTexture("./resources/Inimigos/atirador_D.png");
     Texture2D chiclete_D_texture = LoadTexture("./resources/Inimigos/chiclete_D.png");
+    Texture2D bloco_movel_texture = LoadTexture("./resources/Blocos/Bloco-Movel.png");
 
     // Variáveis de posicionamento
     int BordaMapax = ((screen_width - mapa_vazio_texture.width)/2) + 45;
@@ -983,7 +1032,7 @@ int main(void) {
                                 if (fase_atual.inimigos[i].bola == 'N' && fase_atual.inimigos[i].morto == 'N') {
                                     fase_atual.inimigos[i].bola = 'S';
                                 }
-                                else if (fase_atual.inimigos[i].bola == 'S' && fase_atual.inimigos[i].morto == 'N') {
+                                else if (fase_atual.inimigos[i].bola == 'S' && fase_atual.inimigos[i].morto == 'N' && fase_atual.inimigos[i].tipo != 'M') {
                                     fase_atual.inimigos[i].morto = 'S';
                                 }
                             }
@@ -1131,7 +1180,7 @@ int main(void) {
                     }
                     else if (fase_atual.inimigos[i].tipo == 'D') {
                         if (fase_atual.inimigos[i].tiro.mostrar == 'N') {
-                            if (lolo_atual.posicao.x + 47 >= fase_atual.inimigos[i].posicao.x && lolo_atual.posicao.x + 47 <= fase_atual.inimigos[i].posicao.x + 95 && lolo_atual.posicao.y >= fase_atual.inimigos[i].posicao.y + 48) {
+                            if (lolo_atual.posicao.x + 47 >= fase_atual.inimigos[i].posicao.x && lolo_atual.posicao.x <= fase_atual.inimigos[i].posicao.x + 47 && lolo_atual.posicao.y >= fase_atual.inimigos[i].posicao.y + 48) {
                                 fase_atual.inimigos[i].tiro.posicao.x = fase_atual.inimigos[i].posicao.x + (48 - chiclete_D_texture.width)/2;
                                 fase_atual.inimigos[i].tiro.posicao.y = fase_atual.inimigos[i].posicao.y + 48;
                                 fase_atual.inimigos[i].tiro.mostrar = 'S';
@@ -1252,7 +1301,10 @@ int main(void) {
                 // Imprime cada um dos inimigos do vetor de inimigos baseado em seu tipo e no fato de estarem formato bola ou não.
                 for (i = 0; i < fase_atual.num_inimigos; i++) {
                     if (fase_atual.inimigos[i].morto == 'N') {
-                        if (fase_atual.inimigos[i].bola == 'S') {
+                        if (fase_atual.inimigos[i].tipo == 'M') {
+                            DrawTexture(bloco_movel_texture, BordaMapax + fase_atual.inimigos[i].posicao.x, BordaMapay + fase_atual.inimigos[i].posicao.y, WHITE);
+                        }
+                        else if (fase_atual.inimigos[i].bola == 'S') {
                             DrawTexture(ovo_texture, BordaMapax + fase_atual.inimigos[i].posicao.x, BordaMapay + fase_atual.inimigos[i].posicao.y, WHITE);
                         }
                         else {
@@ -1271,7 +1323,7 @@ int main(void) {
                                 if (fase_atual.inimigos[i].tiro.mostrar == 'S') {
                                     DrawTexture(chiclete_D_texture, BordaMapax + fase_atual.inimigos[i].tiro.posicao.x, BordaMapay + fase_atual.inimigos[i].tiro.posicao.y, WHITE);
                                 }
-                                break;
+                                break;    
                             }
                         }
                     }
