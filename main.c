@@ -679,6 +679,7 @@ int main(void) {
     Texture2D agua_texture = LoadTexture("./resources/Blocos/Agua.png");
     Texture2D pedra_texture = LoadTexture("./resources/Blocos/Pedra.png");
     Texture2D arvore_texture = LoadTexture("./resources/Blocos/Tree.png");
+    Texture2D escada_texture = LoadTexture("./resources/Blocos/Escada.png");
     Texture2D bau_texture = LoadTexture("./resources/Blocos/Bau.png");
     Texture2D bau_aberto_cheio_texture = LoadTexture("./resources/Blocos/Bau_aberto_cheio.png");
     Texture2D bau_aberto_vazio_texture = LoadTexture("./resources/Blocos/Bau_aberto_vazio.png");
@@ -1244,6 +1245,9 @@ int main(void) {
                             case 'C':
                                 DrawTexture(coracao_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
                                 break;
+                            case 'E':
+                                DrawTexture(escada_texture, BordaMapax + 48*i, BordaMapay + 48*j, WHITE);
+                                break;    
                         }
                     }
                 }
