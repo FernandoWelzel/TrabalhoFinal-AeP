@@ -72,10 +72,10 @@ int main(void)
 {    
     int i;
     
-    /*// Elementos da primeira fase do jogo original.
+    // Elementos da primeira fase do jogo original.
     FASE nivel1;
     
-    if (nivel1) {
+    if (0 == 0) {
        strcpy(nivel1.num, "01");
         strcpy(nivel1.nome, "Fase inicial");
     
@@ -117,7 +117,7 @@ int main(void)
     // Elementos da segunda fase do jogo modificado
     FASE nivel2;
     
-    if (nivel2) {
+    if (0 == 0) {
         strcpy(nivel2.num, "02");
         strcpy(nivel2.nome, "Segunda fase");
     
@@ -128,18 +128,18 @@ int main(void)
         PONTO pos_jogador_fase2 = {2, 2};
         nivel2.porta_estado = 'F';
         nivel2.num_coracoes = 3;
-        strcpy(nivel2.pos_porta, "08");
+        strcpy(nivel2.pos_porta, "05");
         nivel2.pos_i_jogador = pos_jogador_fase2;
     
-        char elementos_fase2[11][12] = {"PTTTTTPLLLL",
-                                        "PLLTTTPPPPL",
+        char elementos_fase2[11][12] = {"PTTTTLLLLLL",
+                                        "PLLTTLPPPPL",
                                         "PLLLTLLLLLL",
                                         "PPLLTCAPLLL",
-                                        "TPLLTPAPPLT",
-                                        "TTLLPPAAPLT",
+                                        "TPLLTPAPLLT",
+                                        "TTLLPPAPPLT",
                                         "TTTLTLAACLL",
-                                        "TLLLLLLAALL",
-                                        "TTPPPLLAALL",
+                                        "TLLLLLAALLL",
+                                        "TTPPPLAALLL",
                                         "CLLLLLAALLL",
                                         "TTPBTLLLLLL"};
                                     
@@ -150,8 +150,10 @@ int main(void)
         // Inimigos
         //            (nivel, pos, tipo, x, y)
         gravar_inimigo(&nivel2, 0, 'L', 8, 10);
+        gravar_inimigo(&nivel2, 1, 'R', 6, 2);
+        gravar_inimigo(&nivel2, 2, 'M', 8, 3);
     
-        nivel2.num_inimigos = 1; 
+        nivel2.num_inimigos = 3; 
     
         escreve_fase(ARQ_FASE, &nivel2);
     }
@@ -177,7 +179,7 @@ int main(void)
                                         "PLLLLLLPPPL",
                                         "PLLLLLLLPPL",
                                         "LLLLLLLLLPL",
-                                        "CLLLLTLPPPL",
+                                        "CLLLLLLPPPL",
                                         "TLLLLLLLLPL",
                                         "TTTTLLLPCPL",
                                         "TCLTTLLPPPL",
@@ -193,42 +195,42 @@ int main(void)
         //            (nivel, pos, tipo, x, y)
         gravar_inimigo(&nivel3, 0, 'R', 1, 3);
         gravar_inimigo(&nivel3, 1, 'R', 1, 4);
-        gravar_inimigo(&nivel3, 2, 'M', 5, 2);
-        gravar_inimigo(&nivel3, 3, 'L', 8, 10);
+        gravar_inimigo(&nivel3, 2, 'M', 4, 2);
+        gravar_inimigo(&nivel3, 3, 'M', 5, 2);
+        gravar_inimigo(&nivel3, 4, 'L', 8, 10);
     
-        nivel3.num_inimigos = 4; 
+        nivel3.num_inimigos = 5; 
     
         escreve_fase(ARQ_FASE, &nivel3);
     }
-    */
     
     // Elementos da quarta fase do jogo modificado
     FASE nivel4;
     
     if (0 == 0) {
-        strcpy(nivel4.num, "03");
-        strcpy(nivel4.nome, "Terceira fase");
+        strcpy(nivel4.num, "04");
+        strcpy(nivel4.nome, "Quarta fase");
     
-        char texto_inicial_fase2[200] = " Na quarta fase,\n   descubra o\n     caminho...";
-        strcpy(nivel4.texto_inic, texto_inicial_fase2);
+        char texto_inicial_fase4[200] = "     Na quarta fase,\n       descubra o\n         caminho...";
+        strcpy(nivel4.texto_inic, texto_inicial_fase4);
     
         strcpy(nivel4.num_especiais, "0\0");
-        PONTO pos_jogador_fase4 = {9, 9};
+        PONTO pos_jogador_fase4 = {8, 10};
         nivel4.porta_estado = 'F';
-        nivel4.num_coracoes = 3;
+        nivel4.num_coracoes = 6;
         strcpy(nivel4.pos_porta, "00");
         nivel4.pos_i_jogador = pos_jogador_fase4;
     
         char elementos_fase2[11][12] = {"LPLLLLLLLLL",
-                                        "LLLPPLLLALL",
-                                        "PPPPLLLLALL",
-                                        "LLLLLAAAALL",
-                                        "BLLLLAPPPPL",
-                                        "LLLLLAPPLLL",
-                                        "AAAEAAPCLLL",
-                                        "PPPCTAPPPPL",
-                                        "PCPLTAPPLLL",
-                                        "TLLLTTPLLLL",
+                                        "LLLLPLTCTLT",
+                                        "CPPPPLTTTLT",
+                                        "PPPLLLPPPLT",
+                                        "PBLLLPPPPLT",
+                                        "PLLLPPCLLLT",
+                                        "AAAEAAAAAEA",
+                                        "PPPLTCLLLLL",
+                                        "PCPLTTTTCTL",
+                                        "PLLLLLLTTTL",
                                         "TTTLLLLLLLL"};
                                     
         for (i = 0; i < 11; i++) {
@@ -237,10 +239,12 @@ int main(void)
     
         // Inimigos
         //            (nivel, pos, tipo, x, y)
-        gravar_inimigo(&nivel4, 0, 'D', 10, 0);
+        gravar_inimigo(&nivel4, 0, 'D', 9, 2);
         gravar_inimigo(&nivel4, 1, 'L', 1, 9);
+        gravar_inimigo(&nivel4, 2, 'L', 4, 0);
+        gravar_inimigo(&nivel4, 3, 'M', 9, 10);
     
-        nivel4.num_inimigos = 2; 
+        nivel4.num_inimigos = 4; 
     
         escreve_fase(ARQ_FASE, &nivel4);
     }

@@ -1081,6 +1081,9 @@ int main(void) {
                     if (bau_cheio == 'S') {
                         bau_cheio = 'N';
                         fase_atual.porta_estado = 'A';
+                        for (i = 0; i < fase_atual.num_inimigos; i++) {
+                            fase_atual.inimigos[i].morto = 'S';
+                        }
                     }
                 }
             }
