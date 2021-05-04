@@ -18,7 +18,7 @@
 
 // --->> Funções relacionadas a manipulação de texto e entrada do usuário <<--- //
 
-// Função que retorna se alguma tecla com valor válido foi precionada e retorna o valor numérico tecla
+// Função que retorna se alguma tecla com valor válido foi pressionada e retorna o valor numérico tecla
 int IsAnyKeyPressed() {
     int keyPressed = 0;
     int key = GetKeyPressed();
@@ -261,7 +261,7 @@ int bloco_eh_imovel(pFASE fase, char orientacao, int y, int x) {
 }
 
 // Protótipo da função testar_pontos_imoveis
-int testar_pontos_imoveis(pFASE fase, char orientacao, PONTO ponto1, PONTO ponto2);
+int testar_pontos_imoveis(pFASE fase, char orientacao, PONTO ponto1, PONTO ponto2, char trigger);
 
 /* 
    Função que retorna se um ponto na fase é um inimigo imóvel.
@@ -276,7 +276,7 @@ int testar_pontos_imoveis(pFASE fase, char orientacao, PONTO ponto1, PONTO ponto
    é possível que o lolo movimente, teoricamente, infinitos inimigos móveis (em fase
    de bola) se não houver nenhum inimigo ou bloco fixo na direção que se deseja mover. 
 */
-int eh_inimigo_imovel (pFASE fase, char orientacao, int y, int x) {
+int eh_inimigo_imovel (pFASE fase, char orientacao, int y, int x, char trigger) {
     int i, retorno = 0;
     PONTO ponto1, ponto2;
     
@@ -288,8 +288,10 @@ int eh_inimigo_imovel (pFASE fase, char orientacao, int y, int x) {
                     ponto1.x = (fase->inimigos + i)->posicao.x; ponto1.y = (fase->inimigos + i)->posicao.y - 1;
                     ponto2.x = (fase->inimigos + i)->posicao.x + 47; ponto2.y = (fase->inimigos + i)->posicao.y - 1;
                     
-                    if (testar_pontos_imoveis(fase, 'U', ponto1, ponto2) && ponto1.y > 0) {
-                        (fase->inimigos + i)->posicao.y -= 2;
+                    if (testar_pontos_imoveis(fase, 'U', ponto1, ponto2, trigger) && ponto1.y > 0) {
+                        if (trigger == 'L') {
+                            (fase->inimigos + i)->posicao.y -= 2;
+                        }
                         retorno = 0;
                     }
                     else {
@@ -300,8 +302,10 @@ int eh_inimigo_imovel (pFASE fase, char orientacao, int y, int x) {
                     ponto1.x = (fase->inimigos + i)->posicao.x; ponto1.y = (fase->inimigos + i)->posicao.y + 48;
                     ponto2.x = (fase->inimigos + i)->posicao.x + 47; ponto2.y = (fase->inimigos + i)->posicao.y + 48;
                     
-                    if (testar_pontos_imoveis(fase, 'D', ponto1, ponto2) && ponto1.y < 528) {
-                        (fase->inimigos + i)->posicao.y += 2;
+                    if (testar_pontos_imoveis(fase, 'D', ponto1, ponto2, trigger) && ponto1.y < 528) {
+                        if (trigger == 'L') {
+                            (fase->inimigos + i)->posicao.y += 2;
+                        }
                         retorno = 0;
                     }
                     else {
@@ -312,8 +316,10 @@ int eh_inimigo_imovel (pFASE fase, char orientacao, int y, int x) {
                     ponto1.x = (fase->inimigos + i)->posicao.x - 1; ponto1.y = (fase->inimigos + i)->posicao.y;
                     ponto2.x = (fase->inimigos + i)->posicao.x - 1; ponto2.y = (fase->inimigos + i)->posicao.y + 47;
                     
-                    if (testar_pontos_imoveis(fase, 'L', ponto1, ponto2) && ponto1.x > 0) {
-                        (fase->inimigos + i)->posicao.x -= 2;
+                    if (testar_pontos_imoveis(fase, 'L', ponto1, ponto2, trigger) && ponto1.x > 0) {
+                        if (trigger == 'L') {
+                            (fase->inimigos + i)->posicao.x -= 2;
+                        }
                         retorno = 0;
                     }
                     else {
@@ -324,8 +330,10 @@ int eh_inimigo_imovel (pFASE fase, char orientacao, int y, int x) {
                     ponto1.x = (fase->inimigos + i)->posicao.x + 48; ponto1.y = (fase->inimigos + i)->posicao.y;
                     ponto2.x = (fase->inimigos + i)->posicao.x + 48; ponto2.y = (fase->inimigos + i)->posicao.y + 47;
                     
-                    if (testar_pontos_imoveis(fase, 'R', ponto1, ponto2) && ponto1.x < 528) {
-                        (fase->inimigos + i)->posicao.x += 2;
+                    if (testar_pontos_imoveis(fase, 'R', ponto1, ponto2, trigger) && ponto1.x < 528) {
+                        if (trigger == 'L') {
+                            (fase->inimigos + i)->posicao.x += 2;
+                        }
                         retorno = 0;
                     }
                     else {
@@ -360,11 +368,11 @@ int testar_inimigos_moveis(pFASE fase, char orientacao, int y, int x) {
 }
 
 // Função que testa um ponto do mapa tanto para blocos imoveis quanto para inimigos imóveis
-int testar_pontos_imoveis(pFASE fase, char orientacao, PONTO ponto1, PONTO ponto2) {
+int testar_pontos_imoveis(pFASE fase, char orientacao, PONTO ponto1, PONTO ponto2, char trigger) {
     if (!bloco_eh_imovel(fase, orientacao, ponto1.y, ponto1.x) &&
         !bloco_eh_imovel(fase, orientacao, ponto2.y, ponto2.x) &&
-        !eh_inimigo_imovel(fase, orientacao, ponto1.y, ponto1.x) &&
-        !eh_inimigo_imovel(fase, orientacao, ponto2.y, ponto2.x)) {
+        !eh_inimigo_imovel(fase, orientacao, ponto1.y, ponto1.x, trigger) &&
+        !eh_inimigo_imovel(fase, orientacao, ponto2.y, ponto2.x, trigger)) {
         return 1;
     }
     else {
@@ -392,7 +400,7 @@ void atualiza_pos_lolo(pLOLO lolo, pFASE fase) {
         ponto1.x = (lolo->posicao.x); ponto1.y = (lolo->posicao.y - 1);
         ponto2.x = (lolo->posicao.x + 47); ponto2.y = (lolo->posicao.y - 1);
         
-        if (testar_pontos_imoveis(fase, 'U', ponto1, ponto2)) {
+        if (testar_pontos_imoveis(fase, 'U', ponto1, ponto2, 'L')) {
             if (ponto1.y > 0) {
                 lolo->posicao.y -= 2;
             }
@@ -407,7 +415,7 @@ void atualiza_pos_lolo(pLOLO lolo, pFASE fase) {
         ponto1.x = (lolo->posicao.x); ponto1.y = (lolo->posicao.y + 49);
         ponto2.x = (lolo->posicao.x + 47); ponto2.y = (lolo->posicao.y + 49);
         
-        if (testar_pontos_imoveis(fase, 'D', ponto1, ponto2) && ponto1.y < 528) {
+        if (testar_pontos_imoveis(fase, 'D', ponto1, ponto2, 'L') && ponto1.y < 528) {
             lolo->posicao.y += 2;
         }
     }
@@ -417,7 +425,7 @@ void atualiza_pos_lolo(pLOLO lolo, pFASE fase) {
         ponto1.x = (lolo->posicao.x + 49); ponto1.y = (lolo->posicao.y);
         ponto2.x = (lolo->posicao.x + 49); ponto2.y = (lolo->posicao.y + 47);
         
-        if (testar_pontos_imoveis(fase, 'R', ponto1, ponto2) && ponto1.x < 528) {
+        if (testar_pontos_imoveis(fase, 'R', ponto1, ponto2, 'L') && ponto1.x < 528) {
             lolo->posicao.x += 2;
         }
     }
@@ -427,7 +435,7 @@ void atualiza_pos_lolo(pLOLO lolo, pFASE fase) {
         ponto1.x = (lolo->posicao.x - 1); ponto1.y = (lolo->posicao.y);
         ponto2.x = (lolo->posicao.x - 1); ponto2.y = (lolo->posicao.y + 47);
         
-        if (testar_pontos_imoveis(fase, 'L', ponto1, ponto2) && ponto1.x > 0) {
+        if (testar_pontos_imoveis(fase, 'L', ponto1, ponto2, 'L') && ponto1.x > 0) {
             lolo->posicao.x -= 2;
         }
     }
@@ -445,7 +453,7 @@ char atualiza_pos_tiro(pTIRO Ptiro, pFASE fase) {
         ponto1.x = (Ptiro->posicao.x + 43); ponto1.y = (Ptiro->posicao.y);
         ponto2.x = (Ptiro->posicao.x + 43); ponto2.y = (Ptiro->posicao.y + 30);
         
-        if (testar_pontos_imoveis(fase, 'R', ponto1, ponto2) && testar_inimigos_moveis_pontos(fase, 'R', ponto1, ponto2) && ponto1.x < 528) {
+        if (testar_pontos_imoveis(fase, 'R', ponto1, ponto2, 'T') && testar_inimigos_moveis_pontos(fase, 'R', ponto1, ponto2) && ponto1.x < 528) {
             Ptiro->posicao.x += 8;
             return 'L';
         }
@@ -457,7 +465,7 @@ char atualiza_pos_tiro(pTIRO Ptiro, pFASE fase) {
         ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y);
         ponto2.x = (Ptiro->posicao.x); ponto2.y = (Ptiro->posicao.y + 30);
         
-        if (testar_pontos_imoveis(fase, 'L', ponto1, ponto2) && testar_inimigos_moveis_pontos(fase, 'L', ponto1, ponto2) && ponto1.x > 0) {
+        if (testar_pontos_imoveis(fase, 'L', ponto1, ponto2, 'T') && testar_inimigos_moveis_pontos(fase, 'L', ponto1, ponto2) && ponto1.x > 0) {
             Ptiro->posicao.x -= 8;
             return 'L';
         }
@@ -469,7 +477,7 @@ char atualiza_pos_tiro(pTIRO Ptiro, pFASE fase) {
         ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y);
         ponto2.x = (Ptiro->posicao.x + 30); ponto2.y = (Ptiro->posicao.y);
         
-        if (testar_pontos_imoveis(fase, 'U', ponto1, ponto2) && testar_inimigos_moveis_pontos(fase, 'L', ponto1, ponto2) && ponto1.y > 0) {
+        if (testar_pontos_imoveis(fase, 'U', ponto1, ponto2, 'T') && testar_inimigos_moveis_pontos(fase, 'L', ponto1, ponto2) && ponto1.y > 0) {
             Ptiro->posicao.y -= 8;
             return 'L';
         }
@@ -481,7 +489,7 @@ char atualiza_pos_tiro(pTIRO Ptiro, pFASE fase) {
         ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y + 45);
         ponto2.x = (Ptiro->posicao.x + 30); ponto2.y = (Ptiro->posicao.y + 45);
         
-        if (testar_pontos_imoveis(fase, 'D', ponto1, ponto2) && testar_inimigos_moveis_pontos(fase, 'L', ponto1, ponto2) && ponto1.y < 528) {
+        if (testar_pontos_imoveis(fase, 'D', ponto1, ponto2, 'T') && testar_inimigos_moveis_pontos(fase, 'L', ponto1, ponto2) && ponto1.y < 528) {
             Ptiro->posicao.y += 8;
             return 'L';
         }
@@ -489,6 +497,13 @@ char atualiza_pos_tiro(pTIRO Ptiro, pFASE fase) {
             return 'B';
         }
     }
+}
+
+int teste_tiro_bateu(pFASE fase, char direcao, int y, int x) {
+    if (bloco_eh_imovel(fase, direcao, y, x) || eh_inimigo_imovel(fase, direcao, y, x, 'T') || testar_inimigos_moveis(fase, direcao, y, x)) {
+        return 1;
+    }
+    return 0;
 }
 
 /* 
@@ -502,22 +517,10 @@ PONTO pos_tiro_bateu(pTIRO Ptiro, pFASE fase) {
         ponto1.x = (Ptiro->posicao.x + 48); ponto1.y = (Ptiro->posicao.y);
         ponto2.x = (Ptiro->posicao.x + 48); ponto2.y = (Ptiro->posicao.y + 30);
         
-        if (bloco_eh_imovel(fase, 'R', ponto1.y, ponto1.x)) {
+        if (teste_tiro_bateu(fase, Ptiro->direcao, ponto1.y, ponto1.x)) {
             return ponto1;
         }
-        else if (bloco_eh_imovel(fase, 'R', ponto2.y, ponto2.x)) {
-            return ponto2;
-        }
-        else if (eh_inimigo_imovel(fase, 'R', ponto1.y, ponto1.x)) {
-            return ponto1;
-        }
-        else if (eh_inimigo_imovel(fase, 'R', ponto2.y, ponto2.x)) {
-            return ponto2;
-        }
-        else if (testar_inimigos_moveis(fase, 'R', ponto1.y, ponto1.x)) {
-            return ponto1;
-        }
-        else if (testar_inimigos_moveis(fase, 'R', ponto2.y, ponto2.x)) {
+        else if (teste_tiro_bateu(fase, Ptiro->direcao, ponto2.y, ponto2.x)) {
             return ponto2;
         }
         else if ((Ptiro->posicao.x + 45) > 528) {
@@ -531,22 +534,10 @@ PONTO pos_tiro_bateu(pTIRO Ptiro, pFASE fase) {
         ponto1.x = (Ptiro->posicao.x - 3); ponto1.y = (Ptiro->posicao.y);
         ponto2.x = (Ptiro->posicao.x - 3); ponto2.y = (Ptiro->posicao.y + 30);
         
-        if (bloco_eh_imovel(fase, 'L', ponto1.y, ponto1.x)) {
+        if (teste_tiro_bateu(fase, Ptiro->direcao, ponto1.y, ponto1.x)) {
             return ponto1;
         }
-        else if (bloco_eh_imovel(fase, 'L', ponto2.y, ponto2.x)) {
-            return ponto2;
-        }
-        else if (eh_inimigo_imovel(fase, 'L', ponto1.y, ponto1.x)) {
-            return ponto1;
-        }
-        else if (eh_inimigo_imovel(fase, 'L', ponto2.y, ponto2.x)) {
-            return ponto2;
-        }
-        else if (testar_inimigos_moveis(fase, 'L', ponto1.y, ponto1.x)) {
-            return ponto1;
-        }
-        else if (testar_inimigos_moveis(fase, 'L', ponto2.y, ponto2.x)) {
+        else if (teste_tiro_bateu(fase, Ptiro->direcao, ponto2.y, ponto2.x)) {
             return ponto2;
         }
         else if ((Ptiro->posicao.x) < 528) {
@@ -560,22 +551,10 @@ PONTO pos_tiro_bateu(pTIRO Ptiro, pFASE fase) {
         ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y - 3);
         ponto2.x = (Ptiro->posicao.x + 30); ponto2.y = (Ptiro->posicao.y - 3);
         
-        if (bloco_eh_imovel(fase, 'U', ponto1.y, ponto1.x)) {
+        if (teste_tiro_bateu(fase, Ptiro->direcao, ponto1.y, ponto1.x)) {
             return ponto1;
         }
-        else if (bloco_eh_imovel(fase, 'U', ponto2.y, ponto2.x)) {
-            return ponto2;
-        }
-        else if (eh_inimigo_imovel(fase, 'U', ponto1.y, ponto1.x)) {
-            return ponto1;
-        }
-        else if (eh_inimigo_imovel(fase, 'U', ponto2.y, ponto2.x)) {
-            return ponto2;
-        }
-        else if (testar_inimigos_moveis(fase, 'U', ponto1.y, ponto1.x)) {
-            return ponto1;
-        }
-        else if (testar_inimigos_moveis(fase, 'U', ponto2.y, ponto2.x)) {
+        else if (teste_tiro_bateu(fase, Ptiro->direcao, ponto2.y, ponto2.x)) {
             return ponto2;
         }
         else if ((Ptiro->posicao.y) < 0) {
@@ -589,22 +568,10 @@ PONTO pos_tiro_bateu(pTIRO Ptiro, pFASE fase) {
         ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y + 48);
         ponto2.x = (Ptiro->posicao.x + 30); ponto2.y = (Ptiro->posicao.y + 48);
         
-        if (bloco_eh_imovel(fase, 'D', ponto1.y, ponto1.x)) {
+        if (teste_tiro_bateu(fase, Ptiro->direcao, ponto1.y, ponto1.x)) {
             return ponto1;
         }
-        else if (bloco_eh_imovel(fase, 'D', ponto2.y, ponto2.x)) {
-            return ponto2;
-        }
-        else if (eh_inimigo_imovel(fase, 'D', ponto1.y, ponto1.x)) {
-            return ponto1;
-        }
-        else if (eh_inimigo_imovel(fase, 'D', ponto2.y, ponto2.x)) {
-            return ponto2;
-        }
-        else if (testar_inimigos_moveis(fase, 'D', ponto1.y, ponto1.x)) {
-            return ponto1;
-        }
-        else if (testar_inimigos_moveis(fase, 'D', ponto2.y, ponto2.x)) {
+        else if (teste_tiro_bateu(fase, Ptiro->direcao, ponto2.y, ponto2.x)) {
             return ponto2;
         }
         else if ((Ptiro->posicao.y) > 528) {
@@ -706,13 +673,13 @@ int main(void) {
     int ponto_x_lolo_menu = (screen_width - menu_texture.width)/2 + 45;
     int ponto_x_lolo_load = (screen_width - menu_texture.width)/2 + 25;
     int ponto_y_inic_lolo_menu = (screen_height - menu_texture.height)/2 + 85;
-    int ponto_y_inic_lolo_load = (screen_height - menu_texture.height)/2 + 75;
+    int ponto_y_inic_lolo_load = (screen_height - menu_texture.height)/2 + 105;
     int desloc_y_lolo_menu = 60;
     int desloc_y_lolo_load = 42;
     
     PONTO lolo_sel_ponto_menu = {ponto_x_lolo_menu, ponto_y_inic_lolo_menu};
     PONTO lolo_sel_ponto_load = {ponto_x_lolo_menu, ponto_y_inic_lolo_load};
-    PONTO lolo_sel_ponto_quit = {ponto_x_lolo_menu, ponto_y_inic_lolo_load};
+    PONTO lolo_sel_ponto_quit = {ponto_x_lolo_menu + 30, ponto_y_inic_lolo_load};
     
     Vector2 position1 = {275, 265};
     Vector2 position2 = {250, 450};
@@ -721,12 +688,13 @@ int main(void) {
     Rectangle textBox = {255, 385, 300, 50};
     Vector2 position4 = {textBox.x + 5, textBox.y + 8};
     Vector2 position6 = {215, 300};
-    Vector2 position7 = {285, 290};
-    Vector2 position8 = {285, 350};
+    Vector2 position7 = {ponto_x_lolo_menu + 100, ponto_y_inic_lolo_load};
+    Vector2 position8 = {ponto_x_lolo_menu + 100, ponto_y_inic_lolo_load + desloc_y_lolo_load};
     Vector2 position9 = {210, 530};
     Vector2 position10 = {210, 300};
-    Vector2 position11 = {210, 497};
+    Vector2 position11 = {210, 530};
     Vector2 position12 = {260, 320};
+    Vector2 position_text_load = {ponto_x_lolo_menu, ponto_y_inic_lolo_load - 30};
     Vector2 position_num_especiais = {BordaMapax + 585, 300};
     Vector2 position_num_vidas = {BordaMapax + 585, 210};
     Vector2 position_num_fase = {BordaMapax + 120, BordaMapay - 140};
@@ -831,7 +799,7 @@ int main(void) {
             // Guarda a tecla apertada na variável key
             int key = GetCharPressed();
 
-            // Checa se mais de um caracter foi precionado por frame e adiciona o valor ao nome
+            // Checa se mais de um caracter foi pressionado por frame e adiciona o valor ao nome
             while (key > 0) {
                 if ((key >= 32) && (key <= 125) && (letterCount < MAX_INPUT_CHARS)) {
                     name[letterCount] = (char)key;
@@ -899,15 +867,15 @@ int main(void) {
                 // Texto a baixo
                 DrawTextEx(Fonte_principal, TextFormat("Caracteres %i de %i", letterCount, MAX_INPUT_CHARS), position2, 25, 1, BLACK);
                 if (numero_de_gravacoes >= 5) {
-                    DrawTextEx(Fonte_principal, "Maximo de saves atingido!", position3, 23, 1, MAROON);
-                    DrawTextEx(Fonte_principal, " Aperte DEL para voltar", position9, 23, 1, MAROON);
+                    DrawTextEx(Fonte_principal, "Maximo de saves atingido!", position3, 23, 1, BLACK);
+                    DrawTextEx(Fonte_principal, " Aperte DEL para voltar", position9, 23, 1, BLACK);
                 }
                 else {
                     if (nome_n_unico) {
-                        DrawTextEx(Fonte_principal, "  Insira outro nome", position3, 30, 1, MAROON);
+                        DrawTextEx(Fonte_principal, "  Insira outro nome", position3, 30, 1, BLACK);
                     }
                     else {
-                        DrawTextEx(Fonte_principal, "Precione Enter para salvar", position3, 20, 1, BLACK);
+                        DrawTextEx(Fonte_principal, "Pressione Enter para salvar", position3, 19, 1, BLACK);
                     }
                 }
 
@@ -957,7 +925,7 @@ int main(void) {
                 }
             }
             
-            // Se o usuário precinar a tecla 'Q' -> Retorna ao menu
+            // Se o usuário pressinar a tecla 'Q' -> Retorna ao menu
             if (IsKeyPressed(KEY_Q)) {
                 strcpy(status_jogo.parte, "MENU");
             }
@@ -968,11 +936,13 @@ int main(void) {
                 // Mostra uma tela com fundo padrão e o texto solicitando que o usuário escolha um save
                 DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
                 DrawTextEx(Fonte_principal, "Escolha um jogo salvo", position5, 24, 2, BLACK);
+                DrawTextEx(Fonte_principal, "     Jogador     F    V    P", position_text_load, 24, 2, BLACK);
+                
                 if (numero_de_gravacoes < 0) {
                     DrawTextEx(Fonte_principal, "  Sem jogos\n   para\n   mostrar", position10, 40, 1, MAROON);
                 }
                 else {
-                    DrawTextEx(Fonte_principal, "  Aperte DEL para apagar\n                          o jogo", position11, 23, 1, MAROON);
+                    DrawTextEx(Fonte_principal, "Aperte DEL para apagar", position11, 24, 1, BLACK);
                 }
                 
                 // Imprime o lolo (cursor que indica o save) na posição atualizada
@@ -1013,7 +983,7 @@ int main(void) {
         // GAME (Jogo em si)
         if (strcmp(status_jogo.parte, "GAME") == 0) {
             
-            // Atualiza a posição do lolo baseado na sua posição atual, na tecla que o usuário preciona e nos blocos a sua volta
+            // Atualiza a posição do lolo baseado na sua posição atual, na tecla que o usuário pressiona e nos blocos a sua volta
             atualiza_pos_lolo(&lolo_atual, &fase_atual);
             
             // Se o tiro estiver sendo mostrado -> atualiza a posição do tiro até ele bater
@@ -1105,7 +1075,7 @@ int main(void) {
             }
             
             /*
-                Observa se a tecla F foi precionada, indicando que o jogador quer lançar um tiro.
+                Observa se a tecla F foi pressionada, indicando que o jogador quer lançar um tiro.
                 Se for possível atirar, faz o tiro ser mostrado em uma posição baseado na direção
                 que o lolo está olhando e na posição atual do lolo.
             */
@@ -1143,16 +1113,19 @@ int main(void) {
             if (IsKeyPressed(KEY_S)) {
                 itoa(atoi(jogo_atual.vidas) - 1, jogo_atual.vidas, 10);
                 
-                strcpy(status_jogo.parte, "TEXT");
-                bau_cheio = 'S';
-                fase_atual = le_fase_por_pos(ARQ_FASE , atoi(jogo_atual.num_ult_fase));
                 lolo_atual.posicao.x = fase_atual.pos_i_jogador.x*48;
                 lolo_atual.posicao.y = fase_atual.pos_i_jogador.y*48;
                 lolo_atual.direcao = 'D';
-            }
-            
-            if (atoi(jogo_atual.vidas) <= 0) {
-                strcpy(status_jogo.parte, "LOSE");
+                bau_cheio = 'S';
+                                
+                if (atoi(jogo_atual.vidas) <= 0) {
+                    strcpy(status_jogo.parte, "LOSE");
+                    apagar_gravacao(ARQ_GRAVACAO, jogo_atual.ident);
+                }
+                else {
+                    strcpy(status_jogo.parte, "TEXT");
+                    fase_atual = le_fase_por_pos(ARQ_FASE , atoi(jogo_atual.num_ult_fase));
+                }
             }
             
             for (i = 0; i < fase_atual.num_inimigos; i++) {
@@ -1172,13 +1145,20 @@ int main(void) {
                             else if (atualiza_pos_chiclete(&fase_atual.inimigos[i].tiro, &lolo_atual) == 'B') {
                                 fase_atual.inimigos[i].tiro.mostrar = 'N';
                                 itoa(atoi(jogo_atual.vidas) - 1, jogo_atual.vidas, 10);
-                
-                                strcpy(status_jogo.parte, "TEXT");
-                                bau_cheio = 'S';
-                                fase_atual = le_fase_por_pos(ARQ_FASE , atoi(jogo_atual.num_ult_fase));
+                                
                                 lolo_atual.posicao.x = fase_atual.pos_i_jogador.x*48;
                                 lolo_atual.posicao.y = fase_atual.pos_i_jogador.y*48;
                                 lolo_atual.direcao = 'D';
+                                bau_cheio = 'S';
+                                
+                                if (atoi(jogo_atual.vidas) <= 0) {
+                                    strcpy(status_jogo.parte, "LOSE");
+                                    apagar_gravacao(ARQ_GRAVACAO, jogo_atual.ident);
+                                }
+                                else {
+                                    strcpy(status_jogo.parte, "TEXT");
+                                    fase_atual = le_fase_por_pos(ARQ_FASE , atoi(jogo_atual.num_ult_fase));
+                                }
                             }
                         }
                     }
@@ -1198,12 +1178,19 @@ int main(void) {
                                 fase_atual.inimigos[i].tiro.mostrar = 'N';
                                 itoa(atoi(jogo_atual.vidas) - 1, jogo_atual.vidas, 10);
                 
-                                strcpy(status_jogo.parte, "TEXT");
-                                bau_cheio = 'S';
-                                fase_atual = le_fase_por_pos(ARQ_FASE , atoi(jogo_atual.num_ult_fase));
                                 lolo_atual.posicao.x = fase_atual.pos_i_jogador.x*48;
                                 lolo_atual.posicao.y = fase_atual.pos_i_jogador.y*48;
                                 lolo_atual.direcao = 'D';
+                                bau_cheio = 'S';
+                                
+                                if (atoi(jogo_atual.vidas) <= 0) {
+                                    strcpy(status_jogo.parte, "LOSE");
+                                    apagar_gravacao(ARQ_GRAVACAO, jogo_atual.ident);
+                                }
+                                else {
+                                    strcpy(status_jogo.parte, "TEXT");
+                                    fase_atual = le_fase_por_pos(ARQ_FASE , atoi(jogo_atual.num_ult_fase));
+                                }
                             }
                         }
                     }
