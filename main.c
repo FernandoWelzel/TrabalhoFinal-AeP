@@ -611,6 +611,17 @@ char atualiza_pos_chiclete(pTIRO Ptiro, pLOLO Plolo) {
     }
 }
 
+void carregar_gravacao(pGRAVACAO gravacao_atual, pFASE fase_atual, GRAVACAO gravacao) {
+    strcpy(gravacao_atual->ident, gravacao.ident);
+    strcpy(gravacao_atual->totalpts, gravacao.totalpts);
+    strcpy(gravacao_atual->num_ult_fase, gravacao.num_ult_fase);
+    strcpy(gravacao_atual->vidas, gravacao.vidas);
+    strcpy(gravacao_atual->nomejogador, gravacao.nomejogador);
+    
+    *fase_atual = le_fase_por_pos(ARQ_FASE, atoi(gravacao_atual->num_ult_fase));
+}
+                        
+
 // --->> MAIN <<--- //
 int main(void) {
     
@@ -707,7 +718,6 @@ int main(void) {
     int letterCount = 0;
     int nome_n_unico = 0;
 
-
     // Declaração de Gravação e fase atuais
     GRAVACAO jogo_atual;
     FASE fase_atual;
@@ -731,6 +741,9 @@ int main(void) {
     // Contadores de frames
     int framesCounter = 0;
     int framesCounter2 = 0;
+    
+    // Variáveis auxiliares
+    char vidas_novas[3];
     
     // Main game loop
     while (!WindowShouldClose() && strcmp(status_jogo.parte, "SAIR") != 0)    // Detect window close button or ESC key
@@ -768,8 +781,8 @@ int main(void) {
                     else {
                         for (i = 0; i < numero_de_gravacoes; i++) {
                             gravacoes_salvas[i] = le_gravacao_por_pos(ARQ_GRAVACAO, i);
-                            strcpy(status_jogo.parte, "LOAD");
                         }
+                        strcpy(status_jogo.parte, "LOAD");
                     }
                 }
                 else if (lolo_sel_ponto_menu.y == ponto_y_inic_lolo_menu + 2*desloc_y_lolo_menu) {
@@ -902,15 +915,13 @@ int main(void) {
             if (IsKeyPressed(KEY_ENTER)) {
                 for (i = 0; i < numero_de_gravacoes; i++) {
                     if ((lolo_sel_ponto_load.y == ponto_y_inic_lolo_load + i*desloc_y_lolo_load)) { // Número_arquivos
-                        strcpy(jogo_atual.ident, gravacoes_salvas[i].ident);
-                        strcpy(jogo_atual.totalpts, gravacoes_salvas[i].totalpts);
-                        strcpy(jogo_atual.num_ult_fase, gravacoes_salvas[i].num_ult_fase);
-                        strcpy(jogo_atual.vidas, gravacoes_salvas[i].vidas);
-                        strcpy(jogo_atual.nomejogador, gravacoes_salvas[i].nomejogador);
-                        fase_atual = le_fase_por_pos(ARQ_FASE , atoi(jogo_atual.num_ult_fase));
+                        
+                        carregar_gravacao(&jogo_atual, &fase_atual, gravacoes_salvas[i]);
+                      
                         lolo_atual.posicao.x = fase_atual.pos_i_jogador.x*48;
                         lolo_atual.posicao.y = fase_atual.pos_i_jogador.y*48;
                         lolo_atual.direcao = 'D';
+                        
                         strcpy(status_jogo.parte, "TEXT");
                     }
                 }
@@ -1005,6 +1016,10 @@ int main(void) {
                                 }
                                 else if (fase_atual.inimigos[i].bola == 'S' && fase_atual.inimigos[i].morto == 'N' && fase_atual.inimigos[i].tipo != 'M') {
                                     fase_atual.inimigos[i].morto = 'S';
+                                    itoa(atoi(jogo_atual.totalpts) + 1, jogo_atual.totalpts, 10);
+                                    if (atoi(jogo_atual.totalpts) % 10 == 0) {
+                                        itoa(atoi(jogo_atual.vidas) + 1, jogo_atual.vidas, 10);
+                                    }
                                 }
                             }
                         }
@@ -1067,6 +1082,8 @@ int main(void) {
                 strcpy(status_jogo.parte, "MENU");
                 bau_cheio = 'S';
                 itoa(atoi(jogo_atual.num_ult_fase) + 1, jogo_atual.num_ult_fase, 10);
+                
+                substitui_gravacao(ARQ_GRAVACAO, &jogo_atual);
                 strcpy(status_jogo.parte, "TEXT");
                 fase_atual = le_fase_por_pos(ARQ_FASE , atoi(jogo_atual.num_ult_fase));
                 lolo_atual.posicao.x = fase_atual.pos_i_jogador.x*48;
@@ -1111,7 +1128,11 @@ int main(void) {
             
             // Se o jogador apertar S, reinicia a fase, diminuindo uma vida do jogador e lendo novamente a fase do arquivo de fases
             if (IsKeyPressed(KEY_S)) {
-                itoa(atoi(jogo_atual.vidas) - 1, jogo_atual.vidas, 10);
+                itoa(atoi(jogo_atual.vidas) - 1, vidas_novas, 10);
+                
+                carregar_gravacao(&jogo_atual, &fase_atual, le_gravacao_por_pos(ARQ_GRAVACAO, pos_por_nomejogador(ARQ_GRAVACAO, jogo_atual.nomejogador)));
+                
+                strcpy(jogo_atual.vidas, vidas_novas);
                 
                 lolo_atual.posicao.x = fase_atual.pos_i_jogador.x*48;
                 lolo_atual.posicao.y = fase_atual.pos_i_jogador.y*48;
@@ -1144,20 +1165,21 @@ int main(void) {
                             }
                             else if (atualiza_pos_chiclete(&fase_atual.inimigos[i].tiro, &lolo_atual) == 'B') {
                                 fase_atual.inimigos[i].tiro.mostrar = 'N';
-                                itoa(atoi(jogo_atual.vidas) - 1, jogo_atual.vidas, 10);
+                                itoa(atoi(jogo_atual.vidas) - 1, vidas_novas, 10);
                                 
                                 lolo_atual.posicao.x = fase_atual.pos_i_jogador.x*48;
                                 lolo_atual.posicao.y = fase_atual.pos_i_jogador.y*48;
                                 lolo_atual.direcao = 'D';
                                 bau_cheio = 'S';
                                 
-                                if (atoi(jogo_atual.vidas) <= 0) {
+                                if (atoi(vidas_novas) <= 0) {
                                     strcpy(status_jogo.parte, "LOSE");
                                     apagar_gravacao(ARQ_GRAVACAO, jogo_atual.ident);
                                 }
                                 else {
                                     strcpy(status_jogo.parte, "TEXT");
-                                    fase_atual = le_fase_por_pos(ARQ_FASE , atoi(jogo_atual.num_ult_fase));
+                                    carregar_gravacao(&jogo_atual, &fase_atual, le_gravacao_por_pos(ARQ_GRAVACAO, pos_por_nomejogador(ARQ_GRAVACAO, jogo_atual.nomejogador)));
+                                    strcpy(jogo_atual.vidas, vidas_novas);
                                 }
                             }
                         }
@@ -1344,7 +1366,6 @@ int main(void) {
             else if (IsKeyPressed(KEY_ENTER) && lolo_sel_ponto_quit.y == ponto_y_inic_lolo_load + (1 * desloc_y_lolo_load)) {
                 strcpy(status_jogo.parte, "MENU");
                 bau_cheio = 'S';
-                substitui_gravacao(ARQ_GRAVACAO, &jogo_atual);
             }
             
             // Mostra a tela para sair baseado na posição do cursor
