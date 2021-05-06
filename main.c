@@ -6,27 +6,17 @@
 #include <math.h>
 
 // Bibliotecas adicionais
-#include "raylib.h"
+#include "include/raylib.h"
 
 // Nossas bibliotecas
-#include "Headers.h"
+#include "include/headers.h"
 
 // Declaração de constantes
 #define MAX_INPUT_CHARS 8
-#define ARQ_GRAVACAO "gravacao.bin"
-#define ARQ_FASE "fase.bin"
+#define ARQ_GRAVACAO "records/gravacao.bin"
+#define ARQ_FASE "records/fase.bin"
 
 // --->> Funções relacionadas a manipulação de texto e entrada do usuário <<--- //
-
-// Função que retorna se alguma tecla com valor válido foi pressionada e retorna o valor numérico tecla
-int IsAnyKeyPressed() {
-    int keyPressed = 0;
-    int key = GetKeyPressed();
-
-    if ((key >= 32) && (key <= 126)) keyPressed = 1;
-
-    return keyPressed;
-}
 
 // Função que recebe uma string e um ponteiro para uma nova string e salva a primeira string na posição da nova
 char * string_to_lower (char * string, char * nova_string) {
@@ -36,6 +26,29 @@ char * string_to_lower (char * string, char * nova_string) {
     }
     nova_string[i] = '\0';
     return nova_string;
+}
+
+
+// --->> Funções auxiliares para a tranferência de dados de uma variável para outra <<--- //
+
+// Função que copia os dados do segundo ponteiro de gravação para o primeiro
+void copiar_gravacao (pGRAVACAO gravacao1, pGRAVACAO gravacao2) {
+    strcpy(gravacao1->ident, gravacao2->ident);
+    strcpy(gravacao1->totalpts, gravacao2->totalpts);
+    strcpy(gravacao1->num_ult_fase, gravacao2->num_ult_fase);
+    strcpy(gravacao1->vidas, gravacao2->vidas);
+    strcpy(gravacao1->nomejogador, gravacao2->nomejogador);
+}
+
+// Função que recebe ponteiros para uma gravação e uma fase e os popula com os dados da gravação passada para a função
+void carregar_gravacao(pGRAVACAO gravacao_atual, pFASE fase_atual, GRAVACAO gravacao) {
+    strcpy(gravacao_atual->ident, gravacao.ident);
+    strcpy(gravacao_atual->totalpts, gravacao.totalpts);
+    strcpy(gravacao_atual->num_ult_fase, gravacao.num_ult_fase);
+    strcpy(gravacao_atual->vidas, gravacao.vidas);
+    strcpy(gravacao_atual->nomejogador, gravacao.nomejogador);
+    
+    *fase_atual = le_fase_por_pos(ARQ_FASE, atoi(gravacao_atual->num_ult_fase));
 }
 
 // --->> Funções relacionadas a a leitura e gravação em arquivos binários <<--- //
@@ -95,7 +108,7 @@ int numero_gravacoes(char * nome_arquivo) {
     return tamanho;
 }
 
-// Função que lê uma gravação no arquivo de posição pela posição que ela se encontra nesse arquivo
+// Função que lê uma gravação no arquivo de gravações pela posição que ela se encontra nesse arquivo
 GRAVACAO le_gravacao_por_pos(char * nome_arquivo, int pos) {
     FILE * arquivo;
     GRAVACAO gravacao_lida;
@@ -135,14 +148,7 @@ int pos_por_nomejogador(char * nome_arquivo, char * nomejogador) {
     return -1;
 }
 
-void copiar_gravacao (pGRAVACAO gravacao1, pGRAVACAO gravacao2) {
-    strcpy(gravacao1->ident, gravacao2->ident);
-    strcpy(gravacao1->totalpts, gravacao2->totalpts);
-    strcpy(gravacao1->num_ult_fase, gravacao2->num_ult_fase);
-    strcpy(gravacao1->vidas, gravacao2->vidas);
-    strcpy(gravacao1->nomejogador, gravacao2->nomejogador);
-}
-
+// Função que apaga uma gravação do arquivo de gravações pela sua ident
 int apagar_gravacao(char * nome_arquivo, char *ident) {
     int i = 0, k;
     FILE * arquivo;
@@ -185,7 +191,8 @@ int apagar_gravacao(char * nome_arquivo, char *ident) {
     return 1;
 }
 
-int substitui_gravacao(char * nome_arquivo, GRAVACAO * nova_gravacao) {
+// Função que recebe uma gravação e faz um loop pelo arquivo de gravações procurando a gravação por sua 'ident' e, se encontrar a gravação com essa 'ident', a substitui com novos valores
+int substitui_gravacao(char * nome_arquivo, pGRAVACAO nova_gravacao) {
     int i = 0, k;
     FILE * arquivo;
     
@@ -245,6 +252,7 @@ FASE le_fase_por_pos(char * nome_arquivo, int pos) {
     }
     return fase_lida;
 }
+
 
 // --->> Funções relacionadas a movimentação e colisão de objetos  <<--- //
 
@@ -353,6 +361,7 @@ int eh_inimigo_imovel (pFASE fase, char orientacao, int y, int x, char trigger) 
     return retorno;
 }
 
+// Função que teste se em um ponto há um inimigo móvel (em formato de bola)
 int testar_inimigos_moveis(pFASE fase, char orientacao, int y, int x) {
     int i, retorno = 0;
     
@@ -380,6 +389,7 @@ int testar_pontos_imoveis(pFASE fase, char orientacao, PONTO ponto1, PONTO ponto
     }
 }
 
+// Função que testa dois pontos para inimigos móveis e retorna 1 se os dois pontos não tiverem inimigos imóveis
 int testar_inimigos_moveis_pontos(pFASE fase, char orientacao, PONTO ponto1, PONTO ponto2) {
     if (!testar_inimigos_moveis(fase, orientacao, ponto1.y, ponto1.x) &&
         !testar_inimigos_moveis(fase, orientacao, ponto2.y, ponto2.x)) {
@@ -499,6 +509,7 @@ char atualiza_pos_tiro(pTIRO Ptiro, pFASE fase) {
     }
 }
 
+// Função que testa um ponto para todos os possíveis casos que fazem um tiro parar (se há um bloco imóvel, um inimigo imóvel ou um inimigo móvel)
 int teste_tiro_bateu(pFASE fase, char direcao, int y, int x) {
     if (bloco_eh_imovel(fase, direcao, y, x) || eh_inimigo_imovel(fase, direcao, y, x, 'T') || testar_inimigos_moveis(fase, direcao, y, x)) {
         return 1;
@@ -582,6 +593,7 @@ PONTO pos_tiro_bateu(pTIRO Ptiro, pFASE fase) {
     }
 }
 
+// Função que atualiza a posição do tiro do inimigo (denominado "chiclete")
 char atualiza_pos_chiclete(pTIRO Ptiro, pLOLO Plolo) {
     PONTO ponto1, ponto2;
     
@@ -610,17 +622,6 @@ char atualiza_pos_chiclete(pTIRO Ptiro, pLOLO Plolo) {
         }
     }
 }
-
-void carregar_gravacao(pGRAVACAO gravacao_atual, pFASE fase_atual, GRAVACAO gravacao) {
-    strcpy(gravacao_atual->ident, gravacao.ident);
-    strcpy(gravacao_atual->totalpts, gravacao.totalpts);
-    strcpy(gravacao_atual->num_ult_fase, gravacao.num_ult_fase);
-    strcpy(gravacao_atual->vidas, gravacao.vidas);
-    strcpy(gravacao_atual->nomejogador, gravacao.nomejogador);
-    
-    *fase_atual = le_fase_por_pos(ARQ_FASE, atoi(gravacao_atual->num_ult_fase));
-}
-                        
 
 // --->> MAIN <<--- //
 int main(void) {
