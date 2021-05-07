@@ -57,7 +57,7 @@ void carregar_gravacao(pGRAVACAO gravacao_atual, pFASE fase_atual, GRAVACAO grav
 void escreve_gravacao(char * nome_arquivo, pGRAVACAO gravacao) {
     FILE * arquivo;
     if (!(arquivo = fopen(nome_arquivo, "a+b"))) {
-        printf("Erro ao abrir o arquivo de gravações");
+        printf("Erro ao abrir o arquivo de gravações\n");
     }
     else {
         fwrite(gravacao, sizeof(GRAVACAO), 1, arquivo);
@@ -70,7 +70,7 @@ int nome_unico(char * nome_arquivo, char * nome) {
     FILE * arquivo;
     GRAVACAO gravacao_corrente;
     if (!(arquivo = fopen(nome_arquivo, "rb"))) {
-        printf("Erro ao abrir o arquivo de gravações");
+        printf("Erro ao abrir o arquivo de gravações\n");
     }
     else {
         while (!feof(arquivo)) {
@@ -91,7 +91,7 @@ int numero_gravacoes(char * nome_arquivo) {
     int tamanho = 0;
     GRAVACAO gravacao_corrente;
     if (!(arquivo = fopen(nome_arquivo, "rb"))) {
-        printf("Erro ao abrir o arquivo de gravações");
+        printf("Erro ao abrir o arquivo de gravações\n");
     }
     else {
         while (!feof(arquivo)) {
@@ -113,7 +113,7 @@ GRAVACAO le_gravacao_por_pos(char * nome_arquivo, int pos) {
     FILE * arquivo;
     GRAVACAO gravacao_lida;
     if (!(arquivo = fopen(nome_arquivo, "rb"))) {
-        printf("Erro ao abrir o arquivo de gravações");
+        printf("Erro ao abrir o arquivo de gravações\n");
     }
     else {
         fseek(arquivo, sizeof(GRAVACAO)*pos, SEEK_SET);
@@ -133,7 +133,7 @@ int pos_por_nomejogador(char * nome_arquivo, char * nomejogador) {
     GRAVACAO gravacao_lida;
     int pos = 0;
     if (!(arquivo = fopen(nome_arquivo, "rb"))) {
-        printf("Erro ao abrir o arquivo de gravações");
+        printf("Erro ao abrir o arquivo de gravações\n");
     }
     else {
         while(!feof(arquivo)) {
@@ -157,10 +157,9 @@ int apagar_gravacao(char * nome_arquivo, char *ident) {
     GRAVACAO * gravacoes;
     gravacoes = (pGRAVACAO) malloc(numero_gravacoes(nome_arquivo) * sizeof(GRAVACAO));
     
-    printf("Numero de gravacoes do arquivo: %d\n", numero_gravacoes(nome_arquivo));
     
     if (!(arquivo = fopen(nome_arquivo, "rb"))) {
-        printf("Erro ao abrir o arquivo de gravações");
+        printf("Erro ao abrir o arquivo de gravações\n");
         return 0;
     }
     else {
@@ -179,7 +178,7 @@ int apagar_gravacao(char * nome_arquivo, char *ident) {
     }
     else {
         if (!(arquivo = fopen(nome_arquivo, "wb"))) {
-            printf("Erro ao abrir o arquivo de gravações");
+            printf("Erro ao abrir o arquivo de gravações\n");
             return 0;
         }
         else {
@@ -201,7 +200,7 @@ int substitui_gravacao(char * nome_arquivo, pGRAVACAO nova_gravacao) {
     gravacoes = (pGRAVACAO) malloc(numero_gravacoes(nome_arquivo) * sizeof(GRAVACAO));
     
     if (!(arquivo = fopen(nome_arquivo, "rb"))) {
-        printf("Erro ao abrir o arquivo de gravações");
+        printf("Erro ao abrir o arquivo de gravações\n");
         return 0;
     }
     else {
@@ -224,7 +223,7 @@ int substitui_gravacao(char * nome_arquivo, pGRAVACAO nova_gravacao) {
     
     else {
         if (!(arquivo = fopen(nome_arquivo, "wb"))) {
-            printf("Erro ao abrir o arquivo de gravações");
+            printf("Erro ao abrir o arquivo de gravações\n");
             return 0;
         }
         else {
@@ -242,7 +241,7 @@ FASE le_fase_por_pos(char * nome_arquivo, int pos) {
     FILE * arquivo;
     FASE fase_lida;
     if (!(arquivo = fopen(nome_arquivo, "rb"))) {
-        printf("Erro ao abrir o arquivo de fases");
+        printf("Erro ao abrir o arquivo de fases\n");
     }
     else {
         fseek(arquivo, sizeof(FASE)*pos, SEEK_SET);
@@ -644,7 +643,7 @@ int main(void) {
 
     // Configurações
     SetTargetFPS(60);
-    STATUS status_jogo = {"MENU"};
+    char status_jogo[5] = "MENU";
 
     // Música
     InitAudioDevice();
@@ -727,7 +726,7 @@ int main(void) {
     int letterCount = 0;
     int nome_n_unico = 0;
 
-    // Declaração de Gravação e fase atuais
+    // Declaração de gravação, fase e lolo atuais
     GRAVACAO jogo_atual;
     FASE fase_atual;
     LOLO lolo_atual;
@@ -755,19 +754,20 @@ int main(void) {
     char vidas_novas[3];
     
     // Main game loop
-    while (!WindowShouldClose() && strcmp(status_jogo.parte, "SAIR") != 0)    // Detect window close button or ESC key
+    while (!WindowShouldClose() && strcmp(status_jogo, "SAIR") != 0)
     {
         UpdateMusicStream(music); //Tocar a musica quando abre o menu
+        
         /*
         Nessa parte do código é definido a parte do jogo que deve ser
         exibida na tela. Para isso fazemos comparações com a string que
         quarda a parte do jogo que estamos.
         */
         
-        // MENU // Seleção entre demais telas
-        if (strcmp(status_jogo.parte, "MENU") == 0) {
+        // MENU (Seleção entre demais telas)
+        if (strcmp(status_jogo, "MENU") == 0) {
             
-           // Detecta se o usuário apertou uma das setas para se mover no menu e muda a posição do lolo 
+           // Detecta se o usuário apertou uma das setas para se mover no menu e muda a posição do lolo (cursor do menu) 
             if (IsKeyPressed(KEY_UP) && lolo_sel_ponto_menu.y != ponto_y_inic_lolo_menu) {
                 lolo_sel_ponto_menu.y -= desloc_y_lolo_menu;
             }
@@ -776,29 +776,29 @@ int main(void) {
                 lolo_sel_ponto_menu.y += desloc_y_lolo_menu;
             }
             
-            // Detectas se o usuário apertou enter, indicando que ele quer entrar em outra área. Dessa maneira o direciona baseado na posição do lolo do menu
+            // Detecta se o usuário apertou enter, indicando que ele quer entrar em outra área. Dessa maneira, o direciona baseado na posição do lolo do menu
             if (IsKeyPressed(KEY_ENTER)) {
                 if (lolo_sel_ponto_menu.y == ponto_y_inic_lolo_menu) {
-                    strcpy(status_jogo.parte, "NAME");
+                    strcpy(status_jogo, "NAME");
                     numero_de_gravacoes = numero_gravacoes(ARQ_GRAVACAO);
                 }
                 else if (lolo_sel_ponto_menu.y == ponto_y_inic_lolo_menu + 1*desloc_y_lolo_menu) {
                     numero_de_gravacoes = numero_gravacoes(ARQ_GRAVACAO);
                     if (numero_de_gravacoes == 0) {
-                        strcpy(status_jogo.parte, "NULL");
+                        strcpy(status_jogo, "NULL");
                     }
                     else {
                         for (i = 0; i < numero_de_gravacoes; i++) {
                             gravacoes_salvas[i] = le_gravacao_por_pos(ARQ_GRAVACAO, i);
                         }
-                        strcpy(status_jogo.parte, "LOAD");
+                        strcpy(status_jogo, "LOAD");
                     }
                 }
                 else if (lolo_sel_ponto_menu.y == ponto_y_inic_lolo_menu + 2*desloc_y_lolo_menu) {
-                    strcpy(status_jogo.parte, "CRED");
+                    strcpy(status_jogo, "CRED");
                 }
                 else if (lolo_sel_ponto_menu.y == ponto_y_inic_lolo_menu + 3*desloc_y_lolo_menu) {
-                    strcpy(status_jogo.parte, "SAIR");
+                    strcpy(status_jogo, "SAIR");
                 }
             }
             
@@ -815,22 +815,22 @@ int main(void) {
         }
 
         // NAME (Início de um novo jogo pegando o nome do usuário)
-        if (strcmp(status_jogo.parte, "NAME") == 0) {
+        if (strcmp(status_jogo, "NAME") == 0) {
 
             // --> Implementação da caixa de texto para o jogador inserir o nome <-- //
-            // Guarda a tecla apertada na variável key
-            int key = GetCharPressed();
+            // Guarda a tecla apertada na variável tecla
+            int tecla = GetCharPressed();
 
             // Checa se mais de um caracter foi pressionado por frame e adiciona o valor ao nome
-            while (key > 0) {
-                if ((key >= 32) && (key <= 125) && (letterCount < MAX_INPUT_CHARS)) {
-                    name[letterCount] = (char)key;
+            while (tecla > 0) {
+                if ((tecla >= 32) && (tecla <= 125) && (letterCount < MAX_INPUT_CHARS)) {
+                    name[letterCount] = (char)tecla;
                     letterCount++;
                 }
-                key = GetCharPressed();  // Pega o próximo caracter se houver
+                tecla = GetCharPressed();  // Pega o próximo caracter se houver
             }
 
-            // Checa se foi apertado o delete e nesse caso diminui o tamanho da string
+            // Checa se foi apertado o backspace e nesse caso diminui o tamanho da string
             if (IsKeyPressed(KEY_BACKSPACE)) {
                 if (letterCount > 0) {
                     letterCount--;
@@ -853,7 +853,7 @@ int main(void) {
                     strcpy(jogo_atual.nomejogador, string_to_lower(name, string_interm));
 
                     if (nome_unico(ARQ_GRAVACAO, jogo_atual.nomejogador)) {
-                        strcpy(status_jogo.parte, "TEXT");
+                        strcpy(status_jogo, "TEXT");
                         fase_atual = le_fase_por_pos(ARQ_FASE , atoi(jogo_atual.num_ult_fase));
                         escreve_gravacao(ARQ_GRAVACAO, &jogo_atual);
                         lolo_atual.posicao.x = fase_atual.pos_i_jogador.x*48;
@@ -866,8 +866,9 @@ int main(void) {
                 }
             }
             
+            // Checa se foi apertado o delete - indicando que o jogador quer sair desse menu
             if (IsKeyPressed(KEY_DELETE)) {
-                strcpy(status_jogo.parte, "MENU");
+                strcpy(status_jogo, "MENU");
             }
             
             // Mostra a tela para escrever o nome do jogador
@@ -905,7 +906,7 @@ int main(void) {
         }
         
         // LOAD    
-        if (strcmp(status_jogo.parte, "LOAD") == 0) {
+        if (strcmp(status_jogo, "LOAD") == 0) {
             
             // Atualiza a posição do lolo (cursor que indica o save) baseado na entrada do usuário e na posição dele
             if (IsKeyPressed(KEY_UP) && lolo_sel_ponto_load.y > ponto_y_inic_lolo_load) {
@@ -932,29 +933,34 @@ int main(void) {
                         lolo_atual.direcao = 'D';
                         tiro_atual.mostrar = 'N';
                         
-                        strcpy(status_jogo.parte, "TEXT");
+                        strcpy(status_jogo, "TEXT");
                     }
                 }
             }
             
+            /* 
+            Se o usuário pressionou delete, indicando que ele quer deletar aquele save, 
+            copia o save deletado para gravações_salvas[0] e troca o status do jogo para
+            CONF (Tela para confirmar se deseja apagar o save).
+            */
             if (IsKeyPressed(KEY_DELETE)) {
                 for (i = 0; i < numero_de_gravacoes; i++) {
                     if ((lolo_sel_ponto_load.y == ponto_y_inic_lolo_load + i*desloc_y_lolo_load)) { // Número_arquivos
                         copiar_gravacao(gravacoes_salvas, gravacoes_salvas + i);
-                        strcpy(status_jogo.parte, "CONF");
+                        strcpy(status_jogo, "CONF");
                     }
                 }
             }
             
             // Se o usuário pressinar a tecla 'Q' -> Retorna ao menu
             if (IsKeyPressed(KEY_Q)) {
-                strcpy(status_jogo.parte, "MENU");
+                strcpy(status_jogo, "MENU");
             }
             
             BeginDrawing();
                 ClearBackground(BLACK);
                 
-                // Mostra uma tela com fundo padrão e o texto solicitando que o usuário escolha um save
+                // Mostra uma tela com fundo padrão, o texto solicitando que o usuário escolha um save e uma descrição do que representa cada coluna
                 DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
                 DrawTextEx(Fonte_principal, "Escolha um jogo salvo", position5, 24, 2, BLACK);
                 DrawTextEx(Fonte_principal, "     Jogador     F    V    P", position_text_load, 24, 2, BLACK);
@@ -969,7 +975,7 @@ int main(void) {
                 // Imprime o lolo (cursor que indica o save) na posição atualizada
                 DrawTexture(lolo_texture, ponto_x_lolo_load, lolo_sel_ponto_load.y, WHITE);
                 
-                // Imprime as 5 primeiras gravações do vetor de gravações salvas
+                // Imprime as gravações do vetor de gravações salvas
                 for (i = 0; i < numero_de_gravacoes; i++) {
                     DrawText(gravacoes_salvas[i].nomejogador, ponto_x_lolo_load + 65, ponto_y_inic_lolo_load + desloc_y_lolo_load*i, 35, BLACK);
                     DrawText(gravacoes_salvas[i].num_ult_fase, ponto_x_lolo_load + 240, ponto_y_inic_lolo_load + desloc_y_lolo_load*i + 10, 25, BLACK);
@@ -981,13 +987,13 @@ int main(void) {
         }
         
         // TEXT (Tela que exibe o texto inicial do jogo)
-        if (strcmp(status_jogo.parte, "TEXT") == 0) {
+        if (strcmp(status_jogo, "TEXT") == 0) {
             
             // Faz a contagem do número de frames, para depois de 3 segundo sair da tela de texto
             framesCounter2++;
             if (framesCounter2/60 > 3) {
                 framesCounter2 = 0;
-                strcpy(status_jogo.parte, "GAME");
+                strcpy(status_jogo, "GAME");
             }
             
             // Mostra a tela com o fundo padrão e a mensagem de texto que está em fase_atual.texto_inic
@@ -996,13 +1002,14 @@ int main(void) {
                 ClearBackground(BLACK);
                 DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
 
+                // Imprime o texto da fase atual
                 DrawTextEx(Fonte_principal, fase_atual.texto_inic, position6, 30, 1, BLACK);
 
             EndDrawing();
         }
 
         // GAME (Jogo em si)
-        if (strcmp(status_jogo.parte, "GAME") == 0) {
+        if (strcmp(status_jogo, "GAME") == 0) {
             
             // Atualiza a posição do lolo baseado na sua posição atual, na tecla que o usuário pressiona e nos blocos a sua volta
             atualiza_pos_lolo(&lolo_atual, &fase_atual);
@@ -1012,8 +1019,9 @@ int main(void) {
                 if (atualiza_pos_tiro(&tiro_atual, &fase_atual) == 'B') {
                     /* 
                         Quando o tiro bate, para de mostrar o tiro e pega a posição que o tiro bateu,
-                        se a posição não for uma lateral e for um inimigo imóvel, transforma o inimigo
-                        em bola.
+                        se a posição não for uma lateral ou um bloco imóvel, mas for um inimigo imóvel,
+                        transforma o inimigo em bola. Se a posição em que o tiro bateu conter um inimigo
+                        móvel, mata o inimigo.
                     */
                     tiro_atual.mostrar = 'N';
                     pos_tiro_bateu_atual = pos_tiro_bateu(&tiro_atual, &fase_atual);
@@ -1065,7 +1073,8 @@ int main(void) {
             
             /* 
                 Compara se alguma das bordas do lolo está dentro de um bloco
-                que tem um bau aberto e cheio. Nesse caso, esvazia o bau e abre a porta.
+                que tem um bau aberto e cheio. Nesse caso, esvazia o bau, abre
+                a porta e mata todos os inimigos.
             */
             if (fase_atual.num_coracoes == 0 && bau_cheio == 'S') {
                 if (fase_atual.elementos[lolo_atual.posicao.y/48][lolo_atual.posicao.x/48] == 'B' ||
@@ -1084,17 +1093,17 @@ int main(void) {
             }
             
             /*
-                Se o jogador chegar a uma posição y menor do que -24 pixels em relação a borda,
-                o que só pode acontecer se ele passou pela porta, aumenta a contagem da fase no
+                Se o jogador chegar a uma posição y menor do que -24 pixels em relação a borda
+                (o que só pode acontecer se ele passou pela porta) aumenta a contagem da fase no
                 jogo atual e lê a nova fase, salvando em fase_atual.
             */
             if (lolo_atual.posicao.y < -24) {
-                strcpy(status_jogo.parte, "MENU");
+                strcpy(status_jogo, "MENU");
                 bau_cheio = 'S';
                 itoa(atoi(jogo_atual.num_ult_fase) + 1, jogo_atual.num_ult_fase, 10);
                 
                 substitui_gravacao(ARQ_GRAVACAO, &jogo_atual);
-                strcpy(status_jogo.parte, "TEXT");
+                strcpy(status_jogo, "TEXT");
                 fase_atual = le_fase_por_pos(ARQ_FASE , atoi(jogo_atual.num_ult_fase));
                 lolo_atual.posicao.x = fase_atual.pos_i_jogador.x*48;
                 lolo_atual.posicao.y = fase_atual.pos_i_jogador.y*48;
@@ -1134,10 +1143,14 @@ int main(void) {
             
             // Se o jogador apertar Q, muda a janela que está sendo mostrada para QUIT
             if (IsKeyPressed(KEY_Q)) {
-                strcpy(status_jogo.parte, "QUIT");
+                strcpy(status_jogo, "QUIT");
             }
             
-            // Se o jogador apertar S, reinicia a fase, diminuindo uma vida do jogador e lendo novamente a fase do arquivo de fases
+            /*
+                Se o jogador apertar S, reinicia a fase, lendo a última gravação desse jogador,
+                diminuindo uma vida e (dependendo do número de vidas) apaga a gravação ou lê a
+                fase do arquivo de fases novamente.
+            */
             if (IsKeyPressed(KEY_S)) {
                 itoa(atoi(jogo_atual.vidas) - 1, vidas_novas, 10);
                 
@@ -1152,20 +1165,27 @@ int main(void) {
                 bau_cheio = 'S';
                                 
                 if (atoi(jogo_atual.vidas) <= 0) {
-                    strcpy(status_jogo.parte, "LOSE");
+                    strcpy(status_jogo, "LOSE");
                     apagar_gravacao(ARQ_GRAVACAO, jogo_atual.ident);
                 }
                 else {
-                    strcpy(status_jogo.parte, "TEXT");
+                    strcpy(status_jogo, "TEXT");
                     fase_atual = le_fase_por_pos(ARQ_FASE , atoi(jogo_atual.num_ult_fase));
                 }
             }
             
+            
+            /*
+                Faz um loop pelo vetor de inimigos e no caso dos inimigos serem do tipo 'R' ou 'D',
+                atualiza os tiros lançados por esses inimigos baseado na posição que o lolo ocupa no
+                mapa e no fato do tiro estar sendo mostrado ou não. Se o tiro atingir o lolo, diminui
+                uma vida do lolo e reinicia a fase, gravando o save atualizado no arquivo de gravações.
+            */
             for (i = 0; i < fase_atual.num_inimigos; i++) {
                 if (fase_atual.inimigos[i].morto == 'N' && fase_atual.inimigos[i].bola == 'N') {
                     if (fase_atual.inimigos[i].tipo == 'R') {
                         if (fase_atual.inimigos[i].tiro.mostrar == 'N') {
-                            if (lolo_atual.posicao.y + 48 >= fase_atual.inimigos[i].posicao.y && lolo_atual.posicao.y + 48 <= fase_atual.inimigos[i].posicao.y + 95 && lolo_atual.posicao.x >= fase_atual.inimigos[i].posicao.x + 48) {
+                            if (lolo_atual.posicao.y + 48 >= fase_atual.inimigos[i].posicao.y && lolo_atual.posicao.y + 48 <= fase_atual.inimigos[i].posicao.y + 95 && lolo_atual.posicao.x >=  fase_atual.inimigos[i].posicao.x + 48) {
                                 fase_atual.inimigos[i].tiro.posicao.x = fase_atual.inimigos[i].posicao.x + 48;
                                 fase_atual.inimigos[i].tiro.posicao.y = fase_atual.inimigos[i].posicao.y + ((48 - chiclete_R_texture.height)/2);
                                 fase_atual.inimigos[i].tiro.mostrar = 'S';
@@ -1186,13 +1206,14 @@ int main(void) {
                                 bau_cheio = 'S';
                                 
                                 if (atoi(vidas_novas) <= 0) {
-                                    strcpy(status_jogo.parte, "LOSE");
+                                    strcpy(status_jogo, "LOSE");
                                     apagar_gravacao(ARQ_GRAVACAO, jogo_atual.ident);
                                 }
                                 else {
-                                    strcpy(status_jogo.parte, "TEXT");
+                                    strcpy(status_jogo, "TEXT");
                                     carregar_gravacao(&jogo_atual, &fase_atual, le_gravacao_por_pos(ARQ_GRAVACAO, pos_por_nomejogador(ARQ_GRAVACAO, jogo_atual.nomejogador)));
                                     strcpy(jogo_atual.vidas, vidas_novas);
+                                    substitui_gravacao(ARQ_GRAVACAO, &jogo_atual);
                                 }
                             }
                         }
@@ -1220,12 +1241,14 @@ int main(void) {
                                 bau_cheio = 'S';
                                 
                                 if (atoi(jogo_atual.vidas) <= 0) {
-                                    strcpy(status_jogo.parte, "LOSE");
+                                    strcpy(status_jogo, "LOSE");
                                     apagar_gravacao(ARQ_GRAVACAO, jogo_atual.ident);
                                 }
                                 else {
-                                    strcpy(status_jogo.parte, "TEXT");
-                                    fase_atual = le_fase_por_pos(ARQ_FASE , atoi(jogo_atual.num_ult_fase));
+                                    strcpy(status_jogo, "TEXT");
+                                    carregar_gravacao(&jogo_atual, &fase_atual, le_gravacao_por_pos(ARQ_GRAVACAO, pos_por_nomejogador(ARQ_GRAVACAO, jogo_atual.nomejogador)));
+                                    strcpy(jogo_atual.vidas, vidas_novas);
+                                    substitui_gravacao(ARQ_GRAVACAO, &jogo_atual);
                                 }
                             }
                         }
@@ -1328,7 +1351,12 @@ int main(void) {
                         break;
                 }
                 
-                // Imprime cada um dos inimigos do vetor de inimigos baseado em seu tipo e no fato de estarem formato bola ou não.
+                /*
+                    Imprime cada um dos inimigos do vetor de inimigos baseado
+                    em seu tipo e no fato de estarem formato bola ou não, a não
+                    ser o inimigo 'M' (que é um bloco móvel), que é impresso sempre
+                    da mesma maneira.
+                */
                 for (i = 0; i < fase_atual.num_inimigos; i++) {
                     if (fase_atual.inimigos[i].morto == 'N') {
                         if (fase_atual.inimigos[i].tipo == 'M') {
@@ -1363,7 +1391,7 @@ int main(void) {
         }
         
         // QUIT (Tela que aparece quando o usuário decidir sair do jogo)
-        if (strcmp(status_jogo.parte, "QUIT") == 0) {
+        if (strcmp(status_jogo, "QUIT") == 0) {
             
             // Movimenta o lolo (cursor que indica a ação) com base na entrada do usuário
             if (IsKeyPressed(KEY_UP) && lolo_sel_ponto_quit.y > ponto_y_inic_lolo_load) {
@@ -1373,12 +1401,12 @@ int main(void) {
                 lolo_sel_ponto_quit.y += desloc_y_lolo_load;
             }
             
-            // Observa se o usuário deseja sair ou continuar e muda o estado das variáveis status_jogo.parte de maneira apropriada
+            // Observa se o usuário deseja sair ou continuar e muda o estado da variável status_jogo de maneira apropriada
             if (IsKeyPressed(KEY_ENTER) && lolo_sel_ponto_quit.y == ponto_y_inic_lolo_load) {
-                strcpy(status_jogo.parte, "GAME");
+                strcpy(status_jogo, "GAME");
             }
             else if (IsKeyPressed(KEY_ENTER) && lolo_sel_ponto_quit.y == ponto_y_inic_lolo_load + (1 * desloc_y_lolo_load)) {
-                strcpy(status_jogo.parte, "MENU");
+                strcpy(status_jogo, "MENU");
                 bau_cheio = 'S';
             }
             
@@ -1393,16 +1421,16 @@ int main(void) {
         }
         
         // LOSE (Tela que exibe a mensagem que o jogador perdeu o jogo)
-        if (strcmp(status_jogo.parte, "LOSE") == 0) {
+        if (strcmp(status_jogo, "LOSE") == 0) {
             
             // Faz a contagem do número de frames, para depois de 3 segundo sair da tela de texto
             framesCounter2++;
             if (framesCounter2/60 > 3) {
                 framesCounter2 = 0;
-                strcpy(status_jogo.parte, "MENU");
+                strcpy(status_jogo, "MENU");
             }
             
-            // Mostra a tela com o fundo padrão e a mensagem de texto que está em fase_atual.texto_inic
+            // Mostra a tela com o fundo padrão e a mensagem de que o jogador perdeu
             BeginDrawing();
 
                 ClearBackground(BLACK);
@@ -1414,12 +1442,12 @@ int main(void) {
         }
         
         // CRED (Créditos do jogo)
-        if (strcmp(status_jogo.parte, "CRED") == 0) {
+        if (strcmp(status_jogo, "CRED") == 0) {
             
             // Se o usuário aperta ENTER, retorna ao menu
             if(IsKeyPressed(KEY_ENTER)){
                 framesCounter = 0;
-                strcpy(status_jogo.parte,"MENU");
+                strcpy(status_jogo,"MENU");
             }
             
             framesCounter++;
@@ -1435,17 +1463,17 @@ int main(void) {
         }
         
         // NULL (Tela mostrada quando não há nenhum jogo salvo)
-        if (strcmp(status_jogo.parte, "NULL") == 0) {
+        if (strcmp(status_jogo, "NULL") == 0) {
             
             // Se o usuário aperta ENTER, retorna ao menu
             if(IsKeyPressed(KEY_ENTER)){
                 framesCounter = 0;
-                strcpy(status_jogo.parte,"MENU");
+                strcpy(status_jogo,"MENU");
             }
             
             framesCounter++;
             
-            // Mostra a tela dos créditos com uma mensagem que fica atualizando com o tempo
+            // Mostra a tela que indica que não há nenhum jogo salvo com uma mensagem que fica atualizando com o tempo
             BeginDrawing();
 
                 ClearBackground(BLACK);
@@ -1456,7 +1484,7 @@ int main(void) {
         }
         
         // CONF (Tela para o usuário confirmar que quer apagar a gravação)
-        if (strcmp(status_jogo.parte, "CONF") == 0) {
+        if (strcmp(status_jogo, "CONF") == 0) {
             
             // Movimenta o lolo (cursor que indica a ação) com base na entrada do usuário
             if (IsKeyPressed(KEY_UP) && lolo_sel_ponto_quit.y > ponto_y_inic_lolo_load) {
@@ -1466,16 +1494,16 @@ int main(void) {
                 lolo_sel_ponto_quit.y += desloc_y_lolo_load;
             }
             
-            // Observa se o usuário deseja sair ou continuar e muda o estado das variáveis status_jogo.parte de maneira apropriada
+            // Observa se o usuário deseja apagar ou manter a gravação e apaga se desejado apagar. Após isso, retorna ao menu.
             if (IsKeyPressed(KEY_ENTER) && lolo_sel_ponto_quit.y == ponto_y_inic_lolo_load) {
-                strcpy(status_jogo.parte, "MENU");
                 apagar_gravacao(ARQ_GRAVACAO, gravacoes_salvas[0].ident);
+                strcpy(status_jogo, "MENU");
             }
             else if (IsKeyPressed(KEY_ENTER) && lolo_sel_ponto_quit.y == ponto_y_inic_lolo_load + (1 * desloc_y_lolo_load)) {
-                strcpy(status_jogo.parte, "MENU");
+                strcpy(status_jogo, "MENU");
             }
             
-            // Mostra a tela para sair baseado na posição do cursor
+            // Mostra a tela para confirmar se deseja apagar a gravação
             BeginDrawing();
             ClearBackground(BLACK);
                 

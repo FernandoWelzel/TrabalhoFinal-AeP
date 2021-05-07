@@ -1,6 +1,4 @@
-typedef struct status {
-    char parte[5];
-} STATUS;
+// --->> Declaração de estruturas <<--- //
 
 typedef struct ponto {
     int x;
