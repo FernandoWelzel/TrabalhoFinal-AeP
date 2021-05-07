@@ -200,8 +200,6 @@ int substitui_gravacao(char * nome_arquivo, pGRAVACAO nova_gravacao) {
     GRAVACAO * gravacoes;
     gravacoes = (pGRAVACAO) malloc(numero_gravacoes(nome_arquivo) * sizeof(GRAVACAO));
     
-    printf("Numero de gravacoes do arquivo: %d\n", numero_gravacoes(nome_arquivo));
-    
     if (!(arquivo = fopen(nome_arquivo, "rb"))) {
         printf("Erro ao abrir o arquivo de gravações");
         return 0;
@@ -267,9 +265,6 @@ int bloco_eh_imovel(pFASE fase, char orientacao, int y, int x) {
             return 0;
     }
 }
-
-// Protótipo da função testar_pontos_imoveis
-int testar_pontos_imoveis(pFASE fase, char orientacao, PONTO ponto1, PONTO ponto2, char trigger);
 
 /* 
    Função que retorna se um ponto na fase é um inimigo imóvel.
@@ -459,53 +454,58 @@ void atualiza_pos_lolo(pLOLO lolo, pFASE fase) {
 char atualiza_pos_tiro(pTIRO Ptiro, pFASE fase) {
     PONTO ponto1, ponto2;
     
-    if (Ptiro->direcao == 'R') {
-        ponto1.x = (Ptiro->posicao.x + 43); ponto1.y = (Ptiro->posicao.y);
-        ponto2.x = (Ptiro->posicao.x + 43); ponto2.y = (Ptiro->posicao.y + 30);
+    switch (Ptiro->direcao) {
+        case 'R':
+            ponto1.x = (Ptiro->posicao.x + 43); ponto1.y = (Ptiro->posicao.y);
+            ponto2.x = (Ptiro->posicao.x + 43); ponto2.y = (Ptiro->posicao.y + 30);
         
-        if (testar_pontos_imoveis(fase, 'R', ponto1, ponto2, 'T') && testar_inimigos_moveis_pontos(fase, 'R', ponto1, ponto2) && ponto1.x < 528) {
-            Ptiro->posicao.x += 8;
-            return 'L';
-        }
-        else {
-            return 'B';
-        }
-    }
-    if (Ptiro->direcao == 'L') {
-        ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y);
-        ponto2.x = (Ptiro->posicao.x); ponto2.y = (Ptiro->posicao.y + 30);
+            if (testar_pontos_imoveis(fase, 'R', ponto1, ponto2, 'T') && testar_inimigos_moveis_pontos(fase, 'R', ponto1, ponto2) && ponto1.x < 528) {
+                Ptiro->posicao.x += 8;
+                return 'L';
+            }
+            else {
+                return 'B';
+            }
+            break;
+        case 'L':
+            ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y);
+            ponto2.x = (Ptiro->posicao.x); ponto2.y = (Ptiro->posicao.y + 30);
         
-        if (testar_pontos_imoveis(fase, 'L', ponto1, ponto2, 'T') && testar_inimigos_moveis_pontos(fase, 'L', ponto1, ponto2) && ponto1.x > 0) {
-            Ptiro->posicao.x -= 8;
-            return 'L';
-        }
-        else {
-            return 'B';
-        }
-    }
-    if (Ptiro->direcao == 'U') {
-        ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y);
-        ponto2.x = (Ptiro->posicao.x + 30); ponto2.y = (Ptiro->posicao.y);
+            if (testar_pontos_imoveis(fase, 'L', ponto1, ponto2, 'T') && testar_inimigos_moveis_pontos(fase, 'L', ponto1, ponto2) && ponto1.x > 0) {
+                Ptiro->posicao.x -= 8;
+                return 'L';
+            }
+            else {
+                return 'B';
+            }
+            break;
+        case 'U':
+            ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y);
+            ponto2.x = (Ptiro->posicao.x + 30); ponto2.y = (Ptiro->posicao.y);
         
-        if (testar_pontos_imoveis(fase, 'U', ponto1, ponto2, 'T') && testar_inimigos_moveis_pontos(fase, 'L', ponto1, ponto2) && ponto1.y > 0) {
-            Ptiro->posicao.y -= 8;
-            return 'L';
-        }
-        else {
-            return 'B';
-        }
-    }
-    if (Ptiro->direcao == 'D') {
-        ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y + 45);
-        ponto2.x = (Ptiro->posicao.x + 30); ponto2.y = (Ptiro->posicao.y + 45);
+            if (testar_pontos_imoveis(fase, 'U', ponto1, ponto2, 'T') && testar_inimigos_moveis_pontos(fase, 'L', ponto1, ponto2) && ponto1.y > 0) {
+                Ptiro->posicao.y -= 8;
+                return 'L';
+            }
+            else {
+                return 'B';
+            }
+            break;
+        case 'D':
+            ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y + 45);
+            ponto2.x = (Ptiro->posicao.x + 30); ponto2.y = (Ptiro->posicao.y + 45);
         
-        if (testar_pontos_imoveis(fase, 'D', ponto1, ponto2, 'T') && testar_inimigos_moveis_pontos(fase, 'L', ponto1, ponto2) && ponto1.y < 528) {
-            Ptiro->posicao.y += 8;
+            if (testar_pontos_imoveis(fase, 'D', ponto1, ponto2, 'T') && testar_inimigos_moveis_pontos(fase, 'L', ponto1, ponto2) && ponto1.y < 528) {
+                Ptiro->posicao.y += 8;
+                return 'L';
+            }
+            else {
+                return 'B';
+            }
+            break;
+        default:
             return 'L';
-        }
-        else {
-            return 'B';
-        }
+            break;
     }
 }
 
@@ -524,102 +524,110 @@ int teste_tiro_bateu(pFASE fase, char direcao, int y, int x) {
 PONTO pos_tiro_bateu(pTIRO Ptiro, pFASE fase) {
     PONTO retorno, ponto1, ponto2;
     
-    if (Ptiro->direcao == 'R') {
-        ponto1.x = (Ptiro->posicao.x + 48); ponto1.y = (Ptiro->posicao.y);
-        ponto2.x = (Ptiro->posicao.x + 48); ponto2.y = (Ptiro->posicao.y + 30);
+    switch(Ptiro->direcao) {
+        case 'R':
+            ponto1.x = (Ptiro->posicao.x + 48); ponto1.y = (Ptiro->posicao.y);
+            ponto2.x = (Ptiro->posicao.x + 48); ponto2.y = (Ptiro->posicao.y + 30);
         
-        if (teste_tiro_bateu(fase, Ptiro->direcao, ponto1.y, ponto1.x)) {
-            return ponto1;
-        }
-        else if (teste_tiro_bateu(fase, Ptiro->direcao, ponto2.y, ponto2.x)) {
-            return ponto2;
-        }
-        else if ((Ptiro->posicao.x + 45) > 528) {
-            retorno.x = -1;
-            retorno.y = -1;
-            return retorno;
-        }
+            if (teste_tiro_bateu(fase, Ptiro->direcao, ponto1.y, ponto1.x)) {
+                return ponto1;
+            }
+            else if (teste_tiro_bateu(fase, Ptiro->direcao, ponto2.y, ponto2.x)) {
+                return ponto2;
+            }
+            else if ((Ptiro->posicao.x + 45) > 528) {
+                retorno.x = -1;
+                retorno.y = -1;
+                return retorno;
+            }
+            break;
+        case 'L':
+            ponto1.x = (Ptiro->posicao.x - 3); ponto1.y = (Ptiro->posicao.y);
+            ponto2.x = (Ptiro->posicao.x - 3); ponto2.y = (Ptiro->posicao.y + 30);
+            
+            if (teste_tiro_bateu(fase, Ptiro->direcao, ponto1.y, ponto1.x)) {
+                return ponto1;
+            }
+            else if (teste_tiro_bateu(fase, Ptiro->direcao, ponto2.y, ponto2.x)) {
+                return ponto2;
+            }
+            else if ((Ptiro->posicao.x) < 528) {
+                retorno.x = -1;
+                retorno.y = -1;
+                return retorno;
+            }
+            break;
+        case 'U':
+            ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y - 3);
+            ponto2.x = (Ptiro->posicao.x + 30); ponto2.y = (Ptiro->posicao.y - 3);
+            
+            if (teste_tiro_bateu(fase, Ptiro->direcao, ponto1.y, ponto1.x)) {
+                return ponto1;
+            }
+            else if (teste_tiro_bateu(fase, Ptiro->direcao, ponto2.y, ponto2.x)) {
+                return ponto2;
+            }
+            else if ((Ptiro->posicao.y) < 0) {
+                retorno.x = -1;
+                retorno.y = -1;
+                return retorno;
+            }
+            break;
+        case 'D':
+            ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y + 48);
+            ponto2.x = (Ptiro->posicao.x + 30); ponto2.y = (Ptiro->posicao.y + 48);
+            
+            if (teste_tiro_bateu(fase, Ptiro->direcao, ponto1.y, ponto1.x)) {
+                return ponto1;
+            }
+            else if (teste_tiro_bateu(fase, Ptiro->direcao, ponto2.y, ponto2.x)) {
+                return ponto2;
+            }
+            else if ((Ptiro->posicao.y) > 528) {
+                retorno.x = -1;
+                retorno.y = -1;
+                return retorno;
+            }
+            break;
     }
     
-    if (Ptiro->direcao == 'L') {
-        ponto1.x = (Ptiro->posicao.x - 3); ponto1.y = (Ptiro->posicao.y);
-        ponto2.x = (Ptiro->posicao.x - 3); ponto2.y = (Ptiro->posicao.y + 30);
-        
-        if (teste_tiro_bateu(fase, Ptiro->direcao, ponto1.y, ponto1.x)) {
-            return ponto1;
-        }
-        else if (teste_tiro_bateu(fase, Ptiro->direcao, ponto2.y, ponto2.x)) {
-            return ponto2;
-        }
-        else if ((Ptiro->posicao.x) < 528) {
-            retorno.x = -1;
-            retorno.y = -1;
-            return retorno;
-        }
-    }
-    
-    if (Ptiro->direcao == 'U') {
-        ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y - 3);
-        ponto2.x = (Ptiro->posicao.x + 30); ponto2.y = (Ptiro->posicao.y - 3);
-        
-        if (teste_tiro_bateu(fase, Ptiro->direcao, ponto1.y, ponto1.x)) {
-            return ponto1;
-        }
-        else if (teste_tiro_bateu(fase, Ptiro->direcao, ponto2.y, ponto2.x)) {
-            return ponto2;
-        }
-        else if ((Ptiro->posicao.y) < 0) {
-            retorno.x = -1;
-            retorno.y = -1;
-            return retorno;
-        }
-    }
-    
-    if (Ptiro->direcao == 'D') {
-        ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y + 48);
-        ponto2.x = (Ptiro->posicao.x + 30); ponto2.y = (Ptiro->posicao.y + 48);
-        
-        if (teste_tiro_bateu(fase, Ptiro->direcao, ponto1.y, ponto1.x)) {
-            return ponto1;
-        }
-        else if (teste_tiro_bateu(fase, Ptiro->direcao, ponto2.y, ponto2.x)) {
-            return ponto2;
-        }
-        else if ((Ptiro->posicao.y) > 528) {
-            retorno.x = -1;
-            retorno.y = -1;
-            return retorno;
-        }
-    }
+    retorno.x = -1;
+    retorno.y = -1;
+    return retorno;
 }
 
 // Função que atualiza a posição do tiro do inimigo (denominado "chiclete")
 char atualiza_pos_chiclete(pTIRO Ptiro, pLOLO Plolo) {
     PONTO ponto1, ponto2;
     
-    if (Ptiro->direcao == 'R') {
-        ponto1.x = (Ptiro->posicao.x + 48); ponto1.y = (Ptiro->posicao.y);
-        ponto2.x = (Ptiro->posicao.x + 48); ponto2.y = (Ptiro->posicao.y + 30);
+    switch (Ptiro->direcao) {
+        case 'R':
+            ponto1.x = (Ptiro->posicao.x + 48); ponto1.y = (Ptiro->posicao.y);
+            ponto2.x = (Ptiro->posicao.x + 48); ponto2.y = (Ptiro->posicao.y + 30);
         
-        if ((ponto1.x >= Plolo->posicao.x && ponto1.x <= Plolo->posicao.x + 47 && ponto1.y >= Plolo->posicao.y && ponto1.y <= Plolo->posicao.y + 47) ||
-            (ponto2.x >= Plolo->posicao.x && ponto2.x <= Plolo->posicao.x + 47 && ponto2.y >= Plolo->posicao.y && ponto2.y <= Plolo->posicao.y + 47)) {
-            return 'B';
-        }
-        else {
-            return 'L';
-        }
-    }
-    if (Ptiro->direcao == 'D') {
-        ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y + 48);
-        ponto2.x = (Ptiro->posicao.x + 30); ponto2.y = (Ptiro->posicao.y + 48);
+            if ((ponto1.x >= Plolo->posicao.x && ponto1.x <= Plolo->posicao.x + 47 && ponto1.y >= Plolo->posicao.y && ponto1.y <= Plolo->posicao.y + 47) ||
+                (ponto2.x >= Plolo->posicao.x && ponto2.x <= Plolo->posicao.x + 47 && ponto2.y >= Plolo->posicao.y && ponto2.y <= Plolo->posicao.y + 47)) {
+                return 'B';
+            }
+            else {
+                return 'L';
+            }
+            break;
+        case 'D':
+            ponto1.x = (Ptiro->posicao.x); ponto1.y = (Ptiro->posicao.y + 48);
+            ponto2.x = (Ptiro->posicao.x + 30); ponto2.y = (Ptiro->posicao.y + 48);
         
-        if ((ponto1.x >= Plolo->posicao.x && ponto1.x <= Plolo->posicao.x + 47 && ponto1.y >= Plolo->posicao.y && ponto1.y <= Plolo->posicao.y + 47) ||
-            (ponto2.x >= Plolo->posicao.x && ponto2.x <= Plolo->posicao.x + 47 && ponto2.y >= Plolo->posicao.y && ponto2.y <= Plolo->posicao.y + 47)) {
-            return 'B';
-        }
-        else {
+            if ((ponto1.x >= Plolo->posicao.x && ponto1.x <= Plolo->posicao.x + 47 && ponto1.y >= Plolo->posicao.y && ponto1.y <= Plolo->posicao.y + 47) ||
+                (ponto2.x >= Plolo->posicao.x && ponto2.x <= Plolo->posicao.x + 47 && ponto2.y >= Plolo->posicao.y && ponto2.y <= Plolo->posicao.y + 47)) {
+                return 'B';
+            }
+            else {
+                return 'L';
+            }
+            break;
+        default:
             return 'L';
-        }
+            break;
     }
 }
 
@@ -922,6 +930,7 @@ int main(void) {
                         lolo_atual.posicao.x = fase_atual.pos_i_jogador.x*48;
                         lolo_atual.posicao.y = fase_atual.pos_i_jogador.y*48;
                         lolo_atual.direcao = 'D';
+                        tiro_atual.mostrar = 'N';
                         
                         strcpy(status_jogo.parte, "TEXT");
                     }
@@ -931,7 +940,7 @@ int main(void) {
             if (IsKeyPressed(KEY_DELETE)) {
                 for (i = 0; i < numero_de_gravacoes; i++) {
                     if ((lolo_sel_ponto_load.y == ponto_y_inic_lolo_load + i*desloc_y_lolo_load)) { // Número_arquivos
-                        copiar_gravacao(gravacoes_salvas,gravacoes_salvas + i);
+                        copiar_gravacao(gravacoes_salvas, gravacoes_salvas + i);
                         strcpy(status_jogo.parte, "CONF");
                     }
                 }
@@ -950,7 +959,7 @@ int main(void) {
                 DrawTextEx(Fonte_principal, "Escolha um jogo salvo", position5, 24, 2, BLACK);
                 DrawTextEx(Fonte_principal, "     Jogador     F    V    P", position_text_load, 24, 2, BLACK);
                 
-                if (numero_de_gravacoes < 0) {
+                if (numero_de_gravacoes <= 0) {
                     DrawTextEx(Fonte_principal, "  Sem jogos\n   para\n   mostrar", position10, 40, 1, MAROON);
                 }
                 else {
@@ -1090,6 +1099,7 @@ int main(void) {
                 lolo_atual.posicao.x = fase_atual.pos_i_jogador.x*48;
                 lolo_atual.posicao.y = fase_atual.pos_i_jogador.y*48;
                 lolo_atual.direcao = 'D';
+                tiro_atual.mostrar = 'N';
             }
             
             /*
@@ -1138,6 +1148,7 @@ int main(void) {
                 lolo_atual.posicao.x = fase_atual.pos_i_jogador.x*48;
                 lolo_atual.posicao.y = fase_atual.pos_i_jogador.y*48;
                 lolo_atual.direcao = 'D';
+                tiro_atual.mostrar = 'N';
                 bau_cheio = 'S';
                                 
                 if (atoi(jogo_atual.vidas) <= 0) {
@@ -1171,6 +1182,7 @@ int main(void) {
                                 lolo_atual.posicao.x = fase_atual.pos_i_jogador.x*48;
                                 lolo_atual.posicao.y = fase_atual.pos_i_jogador.y*48;
                                 lolo_atual.direcao = 'D';
+                                tiro_atual.mostrar = 'N';
                                 bau_cheio = 'S';
                                 
                                 if (atoi(vidas_novas) <= 0) {
@@ -1204,6 +1216,7 @@ int main(void) {
                                 lolo_atual.posicao.x = fase_atual.pos_i_jogador.x*48;
                                 lolo_atual.posicao.y = fase_atual.pos_i_jogador.y*48;
                                 lolo_atual.direcao = 'D';
+                                tiro_atual.mostrar = 'N';
                                 bau_cheio = 'S';
                                 
                                 if (atoi(jogo_atual.vidas) <= 0) {
