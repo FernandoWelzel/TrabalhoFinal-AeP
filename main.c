@@ -1,3 +1,10 @@
+/* 
+    TRABALHO FINAL - The adventures of Lolo
+    Disciplina: Algoritmos e Programação - UFRGS
+    Autores: Fernando Welzel e Lucca Carneiro
+    Link do Github: https://github.com/FernandoWelzel/TrabalhoFinal-AeP
+*/
+
 // Bibliotecas padrão
 #include <stdio.h>
 #include <stdlib.h>
@@ -91,7 +98,7 @@ int numero_gravacoes(char * nome_arquivo) {
     int tamanho = 0;
     GRAVACAO gravacao_corrente;
     if (!(arquivo = fopen(nome_arquivo, "rb"))) {
-        printf("Erro ao abrir o arquivo de gravações\n");
+        return 0;
     }
     else {
         while (!feof(arquivo)) {
@@ -160,7 +167,6 @@ int apagar_gravacao(char * nome_arquivo, char *ident) {
     
     if (!(arquivo = fopen(nome_arquivo, "rb"))) {
         printf("Erro ao abrir o arquivo de gravações\n");
-        return 0;
     }
     else {
         for (k = 0; k < numero_gravacoes(nome_arquivo); k++) {
@@ -172,20 +178,23 @@ int apagar_gravacao(char * nome_arquivo, char *ident) {
         }
         fclose(arquivo);
     }
+    
     if (i <= 0) {
         remove(nome_arquivo);
-        
+        free (gravacoes);
+        return 1;
     }
+    
     else {
         if (!(arquivo = fopen(nome_arquivo, "wb"))) {
             printf("Erro ao abrir o arquivo de gravações\n");
-            return 0;
         }
         else {
             fwrite(gravacoes, i, sizeof(GRAVACAO), arquivo);
             fclose(arquivo);
         }
     }
+    
     free (gravacoes);
     return 1;
 }
@@ -845,7 +854,8 @@ int main(void) {
             */
             if (IsKeyPressed(KEY_ENTER)) {
                 if (letterCount > 0 && numero_de_gravacoes < 5) {
-                    itoa(numero_gravacoes(ARQ_GRAVACAO), jogo_atual.ident, 10);
+                    // Pega a identidade do último jogo salvo no arquivo de gravações e adiciona 1, salvando no jogo_atual.ident
+                    itoa(atoi(le_gravacao_por_pos(ARQ_GRAVACAO, numero_gravacoes(ARQ_GRAVACAO)).ident) + 1, jogo_atual.ident, 10);
                     strcpy(jogo_atual.totalpts, "0");
                     strcpy(jogo_atual.num_ult_fase, "0");
                     strcpy(jogo_atual.vidas, "3");
@@ -1095,20 +1105,28 @@ int main(void) {
             /*
                 Se o jogador chegar a uma posição y menor do que -24 pixels em relação a borda
                 (o que só pode acontecer se ele passou pela porta) aumenta a contagem da fase no
-                jogo atual e lê a nova fase, salvando em fase_atual.
+                jogo atual e lê a nova fase, salvando em fase_atual. Além disso, substitui a gravação
+                atual no arquivo de gravações.
             */
             if (lolo_atual.posicao.y < -24) {
-                strcpy(status_jogo, "MENU");
                 bau_cheio = 'S';
                 itoa(atoi(jogo_atual.num_ult_fase) + 1, jogo_atual.num_ult_fase, 10);
                 
-                substitui_gravacao(ARQ_GRAVACAO, &jogo_atual);
-                strcpy(status_jogo, "TEXT");
-                fase_atual = le_fase_por_pos(ARQ_FASE , atoi(jogo_atual.num_ult_fase));
-                lolo_atual.posicao.x = fase_atual.pos_i_jogador.x*48;
-                lolo_atual.posicao.y = fase_atual.pos_i_jogador.y*48;
-                lolo_atual.direcao = 'D';
-                tiro_atual.mostrar = 'N';
+                // No caso de chegar na última fase, apaga a gravação e retorna ao menu;
+                if (atoi(jogo_atual.num_ult_fase) == 4) {
+                    strcpy(status_jogo, "END");
+                    apagar_gravacao(ARQ_GRAVACAO, jogo_atual.ident);
+                    
+                }
+                else {
+                    substitui_gravacao(ARQ_GRAVACAO, &jogo_atual);
+                    strcpy(status_jogo, "TEXT");
+                    fase_atual = le_fase_por_pos(ARQ_FASE , atoi(jogo_atual.num_ult_fase));
+                    lolo_atual.posicao.x = fase_atual.pos_i_jogador.x*48;
+                    lolo_atual.posicao.y = fase_atual.pos_i_jogador.y*48;
+                    lolo_atual.direcao = 'D';
+                    tiro_atual.mostrar = 'N';
+                }
             }
             
             /*
@@ -1517,9 +1535,29 @@ int main(void) {
             EndDrawing();
         }
         
+        // END (Tela que exibe a mensagem que o jogo acabou)
+        if (strcmp(status_jogo, "END") == 0) {
+            
+            // Faz a contagem do número de frames, para depois de 3 segundo sair da tela
+            framesCounter2++;
+            if (framesCounter2/60 > 3) {
+                framesCounter2 = 0;
+                strcpy(status_jogo, "MENU");
+            }
+            
+            // Mostra a tela com o fundo padrão e a mensagem de que o jogador venceu
+            BeginDrawing();
+
+                ClearBackground(BLACK);
+                DrawTexture(fundo_texture, (screen_width - fundo_texture.width)/2, (screen_height - fundo_texture.height)/2, WHITE);
+
+                DrawTextEx(Fonte_principal, "Parabens,\nvoce venceu!\nRetorne no futuro\npara jogar novas\nfases!", position6, 30, 1, BLACK);
+
+            EndDrawing();
+        }
+        
     }
-    
-    
+     
     CloseAudioDevice();
     return 0;
 }

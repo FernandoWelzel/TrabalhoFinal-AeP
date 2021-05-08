@@ -6,13 +6,13 @@
 #include <string.h>
 
 // Bibliotecas adicionais
-#include "raylib.h"
+#include "../include/raylib.h"
 
 // Nossas bibliotecas
-#include "Headers.h"
+#include "../include/headers.h"
 
 // Declaração de constantes
-#define ARQ_FASE "fase.bin"
+#define ARQ_FASE "../records/fase.bin"
 
 void escreve_fase(char * nome_arquivo, pFASE fase) {
     FILE * arquivo;
@@ -75,6 +75,7 @@ int main(void)
     // Elementos da primeira fase do jogo original.
     FASE nivel1;
     
+    // Esse "if" foi colocado a seguir apenas para poder minimizar seu conteúdo no Notepad++. A mesma coisa foi feita para as demais fases.
     if (0 == 0) {
        strcpy(nivel1.num, "01");
         strcpy(nivel1.nome, "Fase inicial");
@@ -242,9 +243,8 @@ int main(void)
         gravar_inimigo(&nivel4, 0, 'D', 9, 2);
         gravar_inimigo(&nivel4, 1, 'L', 1, 9);
         gravar_inimigo(&nivel4, 2, 'L', 4, 0);
-        gravar_inimigo(&nivel4, 3, 'M', 9, 10);
     
-        nivel4.num_inimigos = 4; 
+        nivel4.num_inimigos = 3; 
     
         escreve_fase(ARQ_FASE, &nivel4);
     }
