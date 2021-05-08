@@ -855,7 +855,12 @@ int main(void) {
             if (IsKeyPressed(KEY_ENTER)) {
                 if (letterCount > 0 && numero_de_gravacoes < 5) {
                     // Pega a identidade do último jogo salvo no arquivo de gravações e adiciona 1, salvando no jogo_atual.ident
-                    itoa(atoi(le_gravacao_por_pos(ARQ_GRAVACAO, numero_gravacoes(ARQ_GRAVACAO)).ident) + 1, jogo_atual.ident, 10);
+                    if (numero_gravacoes(ARQ_GRAVACAO) == 0) {
+                        itoa(0, jogo_atual.ident, 10);
+                    }
+                    else {
+                        itoa(atoi(le_gravacao_por_pos(ARQ_GRAVACAO, numero_gravacoes(ARQ_GRAVACAO)).ident) + 1, jogo_atual.ident, 10);
+                    }
                     strcpy(jogo_atual.totalpts, "0");
                     strcpy(jogo_atual.num_ult_fase, "0");
                     strcpy(jogo_atual.vidas, "3");
