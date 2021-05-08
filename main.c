@@ -146,6 +146,7 @@ int pos_por_nomejogador(char * nome_arquivo, char * nomejogador) {
         while(!feof(arquivo)) {
             fread(&gravacao_lida, sizeof(GRAVACAO), 1, arquivo);
             if (strcmp(gravacao_lida.nomejogador, nomejogador) == 0) {
+                fclose(arquivo);
                 return pos;
             }
             pos++;
@@ -256,6 +257,8 @@ FASE le_fase_por_pos(char * nome_arquivo, int pos) {
         fseek(arquivo, sizeof(FASE)*pos, SEEK_SET);
         fread(&fase_lida, sizeof(FASE), 1, arquivo);
     }
+    
+    fclose(arquivo);
     return fase_lida;
 }
 
@@ -1145,18 +1148,18 @@ int main(void) {
                 switch (tiro_atual.direcao) {
                     case 'U':
                         tiro_atual.posicao.x = lolo_atual.posicao.x + (48 - tiro_U_D_texture.width)/2;
-                        tiro_atual.posicao.y = lolo_atual.posicao.y - tiro_U_D_texture.height - 1;
+                        tiro_atual.posicao.y = lolo_atual.posicao.y - 12;
                         break;
                     case 'D':
                         tiro_atual.posicao.x = lolo_atual.posicao.x + (48 - tiro_U_D_texture.width)/2;
-                        tiro_atual.posicao.y = lolo_atual.posicao.y + 48;
+                        tiro_atual.posicao.y = lolo_atual.posicao.y + 36;
                         break;
                     case 'R':
-                        tiro_atual.posicao.x = lolo_atual.posicao.x + 48;
+                        tiro_atual.posicao.x = lolo_atual.posicao.x + 36;
                         tiro_atual.posicao.y = lolo_atual.posicao.y + ((48 - tiro_L_R_texture.height)/2);
                         break;
                     case 'L':
-                        tiro_atual.posicao.x = lolo_atual.posicao.x - tiro_L_R_texture.width;
+                        tiro_atual.posicao.x = lolo_atual.posicao.x - 12;
                         tiro_atual.posicao.y = lolo_atual.posicao.y + ((48 - tiro_L_R_texture.height)/2);
                         break;
                 }
